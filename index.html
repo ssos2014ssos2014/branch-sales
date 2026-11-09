@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>لوحة مبيعات الفروع</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* ---- دخول ---- */
+  .login { min-height: 100vh; display: grid; place-items: center; padding: 20px; }
+  .login-card { width: min(380px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 26px; }
+  .login-card h1 { font-size: 24px; }
+  .login-card .btn { margin-top: 18px; }
+
+  /* ---- الإطار ---- */
+  .top { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line); padding-top: env(safe-area-inset-top, 0px); }
+  .top-in { max-width: 1180px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .brand { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .brand h1 { font-size: 20px; }
+  .live { font-size: 13px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+  .live::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .live.on { color: var(--accent); }
+  .live.on::before { background: var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 50% { opacity: .35; } }
+  .top-actions { display: flex; gap: 8px; }
+  .badge { background: var(--rose); color: #fff; border-radius: 99px; padding: 0 7px; font-size: 12px; line-height: 20px; min-width: 20px; }
+  .badge.zero { background: var(--line); color: var(--muted); }
+
+  .shell { max-width: 1180px; margin: 0 auto; padding: 16px 16px 60px; }
+
+  /* ---- الفترة ---- */
+  .period { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 3px; }
+  .seg button { border: none; background: transparent; padding: 7px 14px; border-radius: 9px; font-size: 14px; font-weight: 500; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); }
+  .period input { padding: 7px 10px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); }
+  .range-box { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 14px; }
+  .period-label { width: 100%; color: var(--muted); font-size: 14px; }
+
+  /* ---- الإجمالي ---- */
+  .hero { margin-top: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 22px; display: grid; grid-template-columns: minmax(260px, 1fr) 1.4fr; gap: 28px; align-items: end; }
+  .hero-k { color: var(--muted); font-size: 15px; }
+  .hero-total { font-size: clamp(40px, 6.5vw, 68px); font-weight: 700; line-height: 1.1; letter-spacing: -.01em; margin: 4px 0 16px; }
+  .hero-stats { display: flex; flex-wrap: wrap; gap: 10px 26px; margin-bottom: 16px; }
+  .hero-stats span { display: block; font-size: 13px; color: var(--muted); }
+  .hero-stats b { font-family: var(--font-head); font-size: 18px; font-weight: 600; }
+  .hero-stats small { color: var(--muted); font-size: 12px; margin-inline-start: 4px; }
+  .chart { display: flex; align-items: flex-end; gap: 3px; height: 150px; }
+  .bar { flex: 1; min-width: 3px; background: var(--accent); border-radius: 4px 4px 1px 1px; min-height: 3px; position: relative; }
+  .bar.zero { background: var(--rose-soft); height: 3px !important; }
+  .bar.fut { background: var(--line); height: 6px !important; opacity: .7; }
+  .bar.today { background: var(--ink); }
+  .chart-axis { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .chart-note { color: var(--muted); font-size: 14px; align-self: center; }
+
+  /* ---- الفروع ---- */
+  .sec-title { font-size: 18px; margin: 26px 0 10px; }
+  .groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; }
+  .gcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px 16px 14px; cursor: pointer; transition: border-color .15s; }
+  .gcard:hover { border-color: var(--muted); }
+  .g-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .g-top h3 { font-size: 16px; }
+  .share { font-size: 13px; color: var(--muted); font-family: var(--font-head); }
+  .g-total { font-size: 30px; font-weight: 700; margin: 4px 0 10px; }
+  .share-bar { height: 4px; background: var(--bg); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
+  .share-bar i { display: block; height: 100%; background: var(--accent); }
+  .sub { display: flex; justify-content: space-between; font-size: 14px; padding: 4px 0; }
+  .sub b { font-family: var(--font-head); font-weight: 600; }
+  .dots-row { margin-top: 8px; }
+  .dots-row small { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+  .dots { display: flex; flex-wrap: wrap; gap: 3px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+  .dot.miss { background: transparent; box-shadow: inset 0 0 0 1.5px var(--rose); }
+  .dot.tod { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .dot.fut { background: var(--line); }
+  .g-foot { font-size: 13px; margin-top: 10px; color: var(--muted); }
+  .g-foot.warn { color: var(--rose); }
+
+  /* ---- طلبات التعديل ---- */
+  .corr-panel { margin-top: 14px; background: var(--caramel-soft); border-radius: var(--r-lg); padding: 16px; }
+  .corr-panel h2 { font-size: 17px; color: var(--caramel); margin-bottom: 8px; }
+  .corr { background: var(--surface); border-radius: var(--r-md); padding: 14px; margin-top: 10px; }
+  .corr p { line-height: 1.8; }
+  .corr .note { margin-top: 6px; font-size: 14px; color: var(--muted); }
+  .corr .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .corr .actions { display: flex; gap: 8px; margin-top: 10px; }
+
+  /* ---- السجل والروابط ---- */
+  .box { margin-top: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px 16px; }
+  .box summary { cursor: pointer; font-family: var(--font-head); font-weight: 600; }
+  .link-row { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+  .link-row:first-of-type { border-top: none; margin-top: 8px; }
+  .link-row code { font-size: 12px; color: var(--muted); direction: ltr; text-align: left; overflow-wrap: anywhere; grid-column: 1 / -1; }
+  .link-row .acts { display: flex; gap: 6px; }
+  .hist { font-size: 14px; padding: 8px 0; border-top: 1px solid var(--line); }
+  .hist:first-of-type { border-top: none; }
+  .ok { color: var(--accent); } .no { color: var(--rose); }
+
+  /* ---- التفاصيل ---- */
+  .detail-head { display: flex; align-items: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+  .detail-head h2 { font-size: 24px; }
+  .detail-sum { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+  .pill { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px 14px; }
+  .pill span { display: block; font-size: 13px; color: var(--muted); }
+  .pill b { font-family: var(--font-head); font-size: 20px; font-weight: 600; }
+  .pill.main { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+  .pill.main span { color: inherit; opacity: .7; }
+  .tbl-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; white-space: nowrap; }
+  th, td { padding: 9px 12px; text-align: start; border-bottom: 1px solid var(--line); }
+  th { font-weight: 600; color: var(--muted); font-size: 13px; position: sticky; top: 0; background: var(--surface); }
+  td.n, th.n { text-align: end; font-family: var(--font-head); font-variant-numeric: tabular-nums; }
+  td.miss { color: var(--rose); }
+  td.tot { font-weight: 600; }
+  td.cum { color: var(--muted); }
+  tfoot td { font-weight: 700; border-bottom: none; background: var(--bg); }
+  tr.is-today td { background: var(--accent-soft); }
+
+  .by-adm { font-size: 11px; padding: 0 6px; border-radius: 99px; border: 1px solid var(--muted); color: var(--muted); margin-inline-end: 6px; font-family: var(--font-body); }
+  .cell-add { border: 1px dashed var(--rose); background: transparent; color: var(--rose); border-radius: 6px; padding: 2px 8px; font-size: 13px; }
+  .cell-add:hover { background: var(--rose-soft); }
+  .entry-dlg select, .entry-dlg input { width: 100%; padding: 12px 14px; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--surface); }
+  .entry-status { font-size: 14px; margin-top: 10px; min-height: 1.4em; }
+  .entry-status.bad { color: var(--rose); }
+  .entry-status.good { color: var(--accent); }
+  .dlg-actions { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-top: 14px; }
+  @media (max-width: 760px) {
+    .hero { grid-template-columns: 1fr; gap: 18px; padding: 18px; }
+    .chart { height: 110px; gap: 2px; }
+    .brand h1 { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login" class="login" hidden>
+  <form id="loginForm" class="login-card">
+    <h1>لوحة مبيعات الفروع</h1>
+    <p class="muted">دخول الإدارة</p>
+    <label class="field"><span>البريد الإلكتروني</span><input type="email" id="email" required autocomplete="username" dir="ltr"></label>
+    <label class="field"><span>كلمة المرور</span><input type="password" id="password" required autocomplete="current-password" dir="ltr"></label>
+    <button class="btn btn-primary btn-block btn-lg" type="submit" id="loginBtn">دخول</button>
+    <p id="loginErr" class="err" role="alert"></p>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <header class="top"><div class="top-in">
+    <div class="brand"><h1>مبيعات الفروع</h1><span id="live" class="live">جارٍ الاتصال</span></div>
+    <div class="top-actions">
+      <button id="addBtn" class="btn btn-primary btn-sm">إدخال مبيعات</button>
+      <button id="bellBtn" class="btn btn-ghost btn-sm">طلبات التعديل <span id="bellCount" class="badge zero">0</span></button>
+      <button id="logoutBtn" class="btn btn-ghost btn-sm">خروج</button>
+    </div>
+  </div></header>
+
+  <main class="shell">
+    <section class="period">
+      <div class="seg" role="group" aria-label="الفترة">
+        <button data-mode="current" aria-pressed="true">هذا الشهر</button>
+        <button data-mode="month" aria-pressed="false">شهر محدد</button>
+        <button data-mode="range" aria-pressed="false">من تاريخ إلى تاريخ</button>
+      </div>
+      <input type="month" id="monthInput" hidden aria-label="اختر الشهر">
+      <div class="range-box" id="rangeBox" hidden>
+        <label>من <input type="date" id="fromInput"></label>
+        <label>إلى <input type="date" id="toInput"></label>
+        <button class="btn btn-primary btn-sm" id="applyRange">عرض</button>
+      </div>
+      <p class="period-label" id="periodLabel"></p>
+    </section>
+
+    <section id="corrections"></section>
+
+    <div id="overview">
+      <section id="hero" class="hero"></section>
+      <h2 class="sec-title">الفروع</h2>
+      <section id="groups" class="groups"></section>
+      <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
+      <details class="box"><summary>روابط إدخال المبيعات للفروع</summary><div id="links"></div></details>
+    </div>
+
+    <section id="detail" hidden></section>
+  </main>
+</div>
+
+<dialog id="entryDlg" class="entry-dlg">
+  <form id="entryForm" method="dialog">
+    <h2 style="font-size:20px">إدخال مبيعات من الإدارة</h2>
+    <label class="field"><span>الفرع</span><select id="eBranch" required></select></label>
+    <label class="field"><span>التاريخ</span><input type="date" id="eDate" required></label>
+    <label class="field"><span>إجمالي المبيعات (ريال)</span><input id="eAmount" inputmode="decimal" autocomplete="off" dir="ltr" required></label>
+    <p class="entry-status" id="eStatus" role="status"></p>
+    <div class="dlg-actions">
+      <button class="btn btn-primary" type="submit" id="eSave">حفظ المبيعات</button>
+      <button class="btn btn-ghost" type="button" id="eCancel">إلغاء</button>
+    </div>
+    <p class="muted" style="font-size:13px;margin-top:10px">سيظهر لموظف الفرع أن هذا اليوم مُدخل من قبل الإدارة، ولن يستطيع إدخاله مرة أخرى.</p>
+  </form>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="common.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const S = {
+  branches: [], byId: {}, groups: [], gmap: {},
+  sales: [], idx: {}, pending: [], recent: [],
+  mode: 'current', month: null, from: null, to: null, stripEnd: null, today: todayISO(),
+  detail: null, started: false, channel: null
+};
+const label = b => b.group_name === b.name ? b.name : `${b.group_name} (${b.name})`;
+const R = ' ريال';
+
+// ---------------- الدخول ----------------
+$('loginForm').onsubmit = async e => {
+  e.preventDefault();
+  $('loginErr').textContent = ''; $('loginBtn').disabled = true;
+  const { error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });
+  $('loginBtn').disabled = false;
+  if (error) { $('loginErr').textContent = 'البريد أو كلمة المرور غير صحيحة'; return; }
+  start();
+};
+$('logoutBtn').onclick = async () => { await sb.auth.signOut(); location.reload(); };
+
+function showLogin(msg) { $('app').hidden = true; $('login').hidden = false; $('loginErr').textContent = msg || ''; }
+
+async function start() {
+  if (S.started) return;
+  const { data: ok, error } = await sb.rpc('is_admin');
+  if (error || !ok) { await sb.auth.signOut(); showLogin('هذا الحساب ليس له صلاحية الإدارة'); return; }
+  S.started = true;
+  $('login').hidden = true; $('app').hidden = false;
+  $('monthInput').max = S.today.slice(0, 7);
+  $('toInput').max = S.today; $('fromInput').max = S.today;
+  await loadBranches();
+  await reload();
+  subscribe();
+}
+
+// ---------------- البيانات ----------------
+async function loadBranches() {
+  const { data, error } = await sb.from('branches').select('id,name,group_name,sort_order,token,active').eq('active', true).order('sort_order');
+  if (error) { toast(errMsg(error), 'err'); return; }
+  S.branches = data; S.byId = {}; S.groups = []; S.gmap = {};
+  for (const b of data) {
+    S.byId[b.id] = b;
+    if (!S.gmap[b.group_name]) { S.gmap[b.group_name] = { name: b.group_name, branches: [] }; S.groups.push(S.gmap[b.group_name]); }
+    S.gmap[b.group_name].branches.push(b);
+  }
+  renderLinks();
+}
+
+function computePeriod() {
+  const t = todayISO(); S.today = t;
+  if (S.mode === 'current') { S.from = monthStart(t); S.to = t; S.stripEnd = monthEnd(t); }
+  else if (S.mode === 'month') {
+    const f = (S.month || t.slice(0, 7)) + '-01', e = monthEnd(f);
+    S.from = f; S.to = minISO(e, t); S.stripEnd = e;
+  } else { S.stripEnd = S.to; }
+}
+
+async function fetchAll(build) {
+  let out = [], i = 0;
+  for (;;) {
+    const { data, error } = await build().range(i, i + 999);
+    if (error) throw error;
+    out = out.concat(data);
+    if (data.length < 1000) return out;
+    i += 1000;
+  }
+}
+
+let reloading = false, again = false, timer = null;
+function scheduleReload() { clearTimeout(timer); timer = setTimeout(reload, 350); }
+async function reload() {
+  if (reloading) { again = true; return; }
+  reloading = true;
+  try {
+    computePeriod();
+    const [sales, pend, rec] = await Promise.all([
+      fetchAll(() => sb.from('sales').select('id,branch_id,sale_date,amount,entered_by').gte('sale_date', S.from).lte('sale_date', S.to).order('sale_date').order('id')),
+      sb.from('correction_requests').select('*').eq('status', 'pending').order('created_at'),
+      sb.from('correction_requests').select('*').neq('status', 'pending').order('decided_at', { ascending: false }).limit(12)
+    ]);
+    if (pend.error) throw pend.error;
+    S.sales = sales; S.idx = {}; S.by = {};
+    for (const s of sales) { S.idx[s.branch_id + '|' + s.sale_date] = Number(s.amount); S.by[s.branch_id + '|' + s.sale_date] = s.entered_by; }
+    S.pending = pend.data || []; S.recent = rec.data || [];
+    renderAll();
+  } catch (e) { toast(errMsg(e), 'err'); }
+  reloading = false;
+  if (again) { again = false; reload(); }
+}
+
+// ---------------- الحسابات ----------------
+const amt = (bid, d) => S.idx[bid + '|' + d];
+function branchTotal(bid) { let t = 0; for (const s of S.sales) if (s.branch_id === bid) t += Number(s.amount); return t; }
+function dayTotal(d, brs = S.branches) { let t = 0, any = false; for (const b of brs) { const v = amt(b.id, d); if (v != null) { t += v; any = true; } } return any ? t : null; }
+function grandTotal() { return S.sales.reduce((a, s) => a + Number(s.amount), 0); }
+function elapsedDays() { const end = minISO(S.to, S.today); return end < S.from ? [] : daysRange(S.from, end); }
+
+// ---------------- العرض ----------------
+function renderAll() {
+  renderPeriodLabel(); renderCorrections(); renderHero(); renderGroups(); renderHistory();
+  if (S.detail) renderDetail();
+}
+
+function renderPeriodLabel() {
+  const txt = S.mode === 'current'
+    ? `من 1 ${fmtMonth(S.from)} حتى اليوم ${fmtShort(S.today)}`
+    : `من ${fmtLong(S.from)} إلى ${fmtLong(S.to)}`;
+  $('periodLabel').textContent = txt;
+}
+
+function renderHero() {
+  const total = grandTotal();
+  const el = elapsedDays();
+  const avg = el.length ? total / el.length : 0;
+  let best = null;
+  for (const d of el) { const v = dayTotal(d); if (v != null && (!best || v > best.v)) best = { d, v }; }
+  const todayIn = S.today >= S.from && S.today <= S.to;
+  const todayCount = S.branches.filter(b => amt(b.id, S.today) != null).length;
+
+  const strip = daysRange(S.from, S.stripEnd);
+  let chart;
+  if (strip.length <= 62) {
+    const vals = strip.map(d => d > S.today || d > S.to ? null : dayTotal(d));
+    const max = Math.max(1, ...vals.filter(v => v != null));
+    chart = `<div><div class="chart" role="img" aria-label="المبيعات اليومية لكل الفروع">${strip.map((d, i) => {
+      const v = vals[i];
+      if (d > S.today || d > S.to) return `<div class="bar fut" title="${esc(fmtShort(d))}"></div>`;
+      if (v == null) return `<div class="bar zero" title="${esc(fmtShort(d))}: لا توجد إدخالات"></div>`;
+      return `<div class="bar${d === S.today ? ' today' : ''}" style="height:${Math.max(3, v / max * 100)}%" title="${esc(fmtShort(d))}: ${money(v)}${R}"></div>`;
+    }).join('')}</div>
+    <div class="chart-axis"><span>${esc(fmtShort(strip[0]))}</span><span>${esc(fmtShort(strip[strip.length - 1]))}</span></div></div>`;
+  } else {
+    chart = `<p class="chart-note">الرسم اليومي يظهر للفترات حتى شهرين. افتح التفاصيل اليومية لعرض كل الأيام.</p>`;
+  }
+
+  $('hero').innerHTML = `
+    <div>
+      <p class="hero-k">إجمالي مبيعات جميع الفروع</p>
+      <p class="hero-total num">${money(total)}<span class="cur">ريال</span></p>
+      <div class="hero-stats">
+        <div><span>متوسط اليوم</span><b>${money(Math.round(avg))}</b></div>
+        <div><span>أعلى يوم</span><b>${best ? money(best.v) : '—'}</b>${best ? `<small>${esc(fmtShort(best.d))}</small>` : ''}</div>
+        ${todayIn ? `<div><span>أدخلت اليوم</span><b>${todayCount} من ${S.branches.length}</b></div>` : ''}
+      </div>
+      <button class="btn btn-ghost btn-sm" data-detail="__all">التفاصيل اليومية لكل الفروع</button>
+    </div>
+    ${chart}`;
+}
+
+function dotsFor(b, strip) {
+  return `<div class="dots">${strip.map(d => {
+    const has = amt(b.id, d) != null;
+    const cls = has ? '' : d > S.today || d > S.to ? 'fut' : d === S.today ? 'tod' : 'miss';
+    const t = has ? `${fmtShort(d)}: ${money(amt(b.id, d))}` : d > S.today ? fmtShort(d) : `${fmtShort(d)}: لم يُدخل`;
+    return `<i class="dot ${cls}" title="${esc(t)}"></i>`;
+  }).join('')}</div>`;
+}
+
+function renderGroups() {
+  const total = grandTotal();
+  const strip = daysRange(S.from, S.stripEnd);
+  const showDots = strip.length <= 62;
+  const past = elapsedDays().filter(d => d < S.today);
+
+  $('groups').innerHTML = S.groups.map(g => {
+    const gt = g.branches.reduce((a, b) => a + branchTotal(b.id), 0);
+    const share = total ? gt / total * 100 : 0;
+    const multi = g.branches.length > 1;
+    const missing = g.branches.map(b => ({ b, n: past.filter(d => amt(b.id, d) == null).length })).filter(x => x.n);
+    const todayMissing = S.today <= S.to && S.today >= S.from && g.branches.some(b => amt(b.id, S.today) == null);
+    let foot;
+    if (missing.length) foot = `<p class="g-foot warn">أيام لم تُدخل: ${missing.map(x => multi ? `${esc(x.b.name)} ${x.n}` : x.n).join('، ')}</p>`;
+    else if (todayMissing) foot = `<p class="g-foot">لم يُدخل اليوم بعد</p>`;
+    else foot = `<p class="g-foot">كل الأيام مُدخلة</p>`;
+
+    return `<div class="gcard" role="button" tabindex="0" data-detail="${esc(g.name)}">
+      <div class="g-top"><h3>${esc(g.name)}</h3><span class="share">${share.toFixed(1)}%</span></div>
+      <p class="g-total num">${money(gt)}<span class="cur">ريال</span></p>
+      <div class="share-bar"><i style="width:${share}%"></i></div>
+      ${multi ? g.branches.map(b => `<div class="sub"><span>${esc(b.name)}</span><b>${money(branchTotal(b.id))}</b></div>`).join('') : ''}
+      ${showDots ? g.branches.map(b => `<div class="dots-row">${multi ? `<small>${esc(b.name)}</small>` : ''}${dotsFor(b, strip)}</div>`).join('') : ''}
+      ${foot}
+    </div>`;
+  }).join('');
+}
+
+function renderCorrections() {
+  const n = S.pending.length;
+  $('bellCount').textContent = n; $('bellCount').classList.toggle('zero', !n);
+  if (!n) { $('corrections').innerHTML = ''; return; }
+  $('corrections').innerHTML = `<div class="corr-panel" id="corrPanel"><h2>طلبات تعديل بانتظار قرارك (${n})</h2>
+    ${S.pending.map(r => {
+      const b = S.byId[r.branch_id];
+      return `<div class="corr">
+        <p>تم طلب تعديل من فرع <b>${esc(b ? label(b) : '')}</b> للمبلغ المرسل سابقاً بتاريخ <b>${esc(fmtLong(r.sale_date))}</b>.
+        كان المبلغ المرسل <b class="num">${money(r.old_amount)}</b> ريال، ومبلغ التعديل <b class="num">${money(r.new_amount)}</b> ريال.</p>
+        ${r.note ? `<p class="note">ملاحظة الفرع: ${esc(r.note)}</p>` : ''}
+        <p class="meta">أُرسل الطلب ${esc(fmtStamp(r.created_at))}</p>
+        <div class="actions">
+          <button class="btn btn-accent btn-sm" data-approve="${r.id}">قبول التعديل</button>
+          <button class="btn btn-ghost btn-sm" data-reject="${r.id}">رفض</button>
+        </div></div>`;
+    }).join('')}</div>`;
+}
+
+function renderHistory() {
+  if (!S.recent.length) { $('history').innerHTML = `<p class="muted" style="margin-top:8px">لا توجد قرارات بعد.</p>`; return; }
+  $('history').innerHTML = '<div style="margin-top:8px">' + S.recent.map(r => {
+    const b = S.byId[r.branch_id], ok = r.status === 'approved';
+    return `<div class="hist"><b class="${ok ? 'ok' : 'no'}">${ok ? 'قُبل' : 'رُفض'}</b> تعديل ${esc(b ? label(b) : '')} ليوم ${esc(fmtShort(r.sale_date))}:
+      ${money(r.old_amount)} إلى ${money(r.new_amount)} ريال <span class="muted">(${esc(fmtStamp(r.decided_at))})</span></div>`;
+  }).join('') + '</div>';
+}
+
+function branchUrl(b) { return new URL('branch.html?t=' + b.token, location.href).href; }
+function renderLinks() {
+  $('links').innerHTML = S.branches.map(b => {
+    const url = branchUrl(b);
+    const wa = 'https://wa.me/?text=' + encodeURIComponent(`رابط إدخال مبيعات ${label(b)}:\n${url}`);
+    return `<div class="link-row">
+      <b>${esc(label(b))}</b>
+      <div class="acts">
+        <button class="btn btn-ghost btn-sm" data-copy="${esc(url)}">نسخ الرابط</button>
+        <a class="btn btn-ghost btn-sm" href="${esc(wa)}" target="_blank" rel="noopener">واتساب</a>
+        <a class="btn btn-ghost btn-sm" href="${esc(url)}" target="_blank" rel="noopener">فتح</a>
+      </div>
+      <code>${esc(url)}</code></div>`;
+  }).join('') + `<p class="muted" style="font-size:13px;margin-top:8px">أي شخص معه الرابط يستطيع الإدخال لهذا الفرع فقط، ولا يرى بيانات الفروع الأخرى.</p>`;
+}
+
+function renderDetail() {
+  const all = S.detail === '__all';
+  const g = all ? null : S.gmap[S.detail];
+  if (!all && !g) { closeDetail(); return; }
+  const brs = all ? S.branches : g.branches;
+  const multi = brs.length > 1;
+  const days = elapsedDays();
+  const total = brs.reduce((a, b) => a + branchTotal(b.id), 0);
+  const entered = days.filter(d => dayTotal(d, brs) != null).length;
+  const head = b => all ? label(b) : b.name;
+
+  let cum = 0;
+  const rows = days.map(d => {
+    const dt = dayTotal(d, brs) || 0; cum += dt;
+    const cells = brs.map(b => {
+      const v = amt(b.id, d);
+      if (v == null) return `<td class="n"><button class="cell-add" data-add="${b.id}|${d}">${d === S.today ? 'لم يُدخل بعد' : 'لم يُدخل'}، إضافة</button></td>`;
+      return `<td class="n">${S.by[b.id + '|' + d] === 'admin' ? '<span class="by-adm" title="أدخلته الإدارة">إدارة</span>' : ''}${money(v)}</td>`;
+    }).join('');
+    return `<tr class="${d === S.today ? 'is-today' : ''}"><td>${esc(fmtShort(d))}</td><td>${esc(fmtDayName(d))}</td>${cells}
+      ${multi ? `<td class="n tot">${money(dt)}</td>` : ''}<td class="n cum">${money(cum)}</td></tr>`;
+  }).join('');
+
+  $('detail').innerHTML = `
+    <div class="detail-head"><button class="btn btn-ghost btn-sm" id="backBtn">رجوع للوحة</button><h2>${esc(all ? 'جميع الفروع' : g.name)}</h2></div>
+    <div class="detail-sum">
+      <div class="pill main"><span>الإجمالي</span><b>${money(total)}${R}</b></div>
+      ${multi ? brs.map(b => `<div class="pill"><span>${esc(head(b))}</span><b>${money(branchTotal(b.id))}</b></div>`).join('') : ''}
+      <div class="pill"><span>متوسط اليوم</span><b>${money(Math.round(days.length ? total / days.length : 0))}</b></div>
+      <div class="pill"><span>أيام فيها إدخال</span><b>${entered} من ${days.length}</b></div>
+    </div>
+    ${days.length ? `<div class="tbl-wrap"><table>
+      <thead><tr><th>التاريخ</th><th>اليوم</th>${brs.map(b => `<th class="n">${esc(head(b))}</th>`).join('')}${multi ? '<th class="n">الإجمالي</th>' : ''}<th class="n">التراكمي</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr><td colspan="2">المجموع</td>${brs.map(b => `<td class="n">${money(branchTotal(b.id))}</td>`).join('')}${multi ? `<td class="n">${money(total)}</td>` : ''}<td class="n">${money(total)}</td></tr></tfoot>
+    </table></div>` : `<p class="muted">لا توجد أيام في هذه الفترة بعد.</p>`}`;
+  $('backBtn').onclick = closeDetail;
+}
+function openDetail(key) { S.detail = key; $('overview').hidden = true; $('detail').hidden = false; renderDetail(); scrollTo({ top: 0 }); }
+function closeDetail() { S.detail = null; $('detail').hidden = true; $('overview').hidden = false; }
+
+// ---------------- الأحداث ----------------
+document.addEventListener('click', async e => {
+  const t = e.target.closest('[data-detail],[data-approve],[data-reject],[data-copy],[data-add]');
+  if (!t) return;
+  if (t.dataset.add) { const [bid, d] = t.dataset.add.split('|'); return openEntry(Number(bid), d); }
+  if (t.dataset.detail) return openDetail(t.dataset.detail);
+  if (t.dataset.copy) {
+    try { await navigator.clipboard.writeText(t.dataset.copy); toast('تم نسخ الرابط'); }
+    catch { prompt('انسخ الرابط:', t.dataset.copy); }
+    return;
+  }
+  const id = Number(t.dataset.approve || t.dataset.reject), approve = !!t.dataset.approve;
+  t.disabled = true;
+  const { error } = await sb.rpc(approve ? 'approve_correction' : 'reject_correction', { p_id: id });
+  if (error) { toast(errMsg(error), 'err'); t.disabled = false; return; }
+  toast(approve ? 'تم قبول التعديل واستبدال المبلغ' : 'تم رفض طلب التعديل');
+  reload();
+});
+document.addEventListener('keydown', e => {
+  const t = e.target.closest && e.target.closest('.gcard');
+  if (t && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openDetail(t.dataset.detail); }
+});
+$('bellBtn').onclick = () => {
+  if (S.detail) closeDetail();
+  const p = $('corrPanel');
+  if (p) p.scrollIntoView({ behavior: 'smooth', block: 'start' }); else toast('لا توجد طلبات تعديل حالياً');
+};
+
+document.querySelectorAll('.seg button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  const m = b.dataset.mode;
+  $('monthInput').hidden = m !== 'month'; $('rangeBox').hidden = m !== 'range';
+  if (m === 'current') { S.mode = 'current'; reload(); }
+  if (m === 'month') { if (!$('monthInput').value) $('monthInput').value = S.today.slice(0, 7); S.mode = 'month'; S.month = $('monthInput').value; reload(); }
+  if (m === 'range') {
+    if (!$('fromInput').value) $('fromInput').value = monthStart(S.today);
+    if (!$('toInput').value) $('toInput').value = S.today;
+  }
+});
+$('monthInput').onchange = () => { if ($('monthInput').value) { S.mode = 'month'; S.month = $('monthInput').value; reload(); } };
+$('applyRange').onclick = () => {
+  const f = $('fromInput').value, t = $('toInput').value;
+  if (!f || !t) return toast('اختر تاريخ البداية والنهاية', 'err');
+  if (f > t) return toast('تاريخ البداية يجب أن يكون قبل تاريخ النهاية', 'err');
+  S.mode = 'range'; S.from = f; S.to = t; reload();
+};
+
+// ---------------- إدخال الإدارة ----------------
+const eDlg = $('entryDlg');
+let eCheck = 0, eTaken = false;
+function openEntry(bid, d) {
+  $('eBranch').innerHTML = '<option value="">اختر الفرع</option>' + S.branches.map(b => `<option value="${b.id}">${esc(label(b))}</option>`).join('');
+  $('eBranch').value = bid ? String(bid) : '';
+  $('eDate').max = todayISO();
+  $('eDate').value = d || todayISO();
+  $('eAmount').value = '';
+  $('eSave').disabled = false; $('eSave').textContent = 'حفظ المبيعات';
+  eDlg.showModal();
+  checkEntry();
+  setTimeout(() => (bid ? $('eAmount') : $('eBranch')).focus(), 50);
+}
+async function checkEntry() {
+  const st = $('eStatus'), bid = Number($('eBranch').value), d = $('eDate').value, my = ++eCheck;
+  st.className = 'entry-status'; st.textContent = ''; eTaken = false; $('eSave').disabled = false;
+  if (!bid || !d) return;
+  if (d > todayISO()) { st.className = 'entry-status bad'; st.textContent = 'لا يمكن الإدخال لتاريخ لم يأتِ بعد'; $('eSave').disabled = true; return; }
+  const { data, error } = await sb.from('sales').select('amount,entered_by').eq('branch_id', bid).eq('sale_date', d).maybeSingle();
+  if (my !== eCheck || error) return;
+  if (data) {
+    eTaken = true; $('eSave').disabled = true; st.className = 'entry-status bad';
+    st.textContent = `هذا اليوم مُدخل مسبقاً ${data.entered_by === 'admin' ? 'من الإدارة' : 'من الفرع'}: ${money(data.amount)} ريال`;
+  } else { st.className = 'entry-status good'; st.textContent = `${fmtLong(d)} متاح للإدخال`; }
+}
+$('eBranch').onchange = checkEntry;
+$('eDate').onchange = checkEntry;
+$('eCancel').onclick = () => eDlg.close();
+$('addBtn').onclick = () => openEntry(S.detail && S.detail !== '__all' && S.gmap[S.detail].branches.length === 1 ? S.gmap[S.detail].branches[0].id : null);
+$('entryForm').onsubmit = async ev => {
+  ev.preventDefault();
+  const st = $('eStatus'), bid = Number($('eBranch').value), d = $('eDate').value, a = parseAmount($('eAmount').value);
+  if (!bid) { st.className = 'entry-status bad'; st.textContent = 'اختر الفرع'; return; }
+  if (!d) { st.className = 'entry-status bad'; st.textContent = 'اختر التاريخ'; return; }
+  if (isNaN(a)) { st.className = 'entry-status bad'; st.textContent = 'اكتب المبلغ رقماً فقط، مثل 12500'; $('eAmount').focus(); return; }
+  if (eTaken) return;
+  $('eSave').disabled = true; $('eSave').textContent = 'جارٍ الحفظ…';
+  const { error } = await sb.rpc('admin_submit_sale', { p_branch_id: bid, p_date: d, p_amount: a });
+  $('eSave').disabled = false; $('eSave').textContent = 'حفظ المبيعات';
+  if (error) { st.className = 'entry-status bad'; st.textContent = errMsg(error); return; }
+  eDlg.close();
+  toast(`تم حفظ مبيعات ${label(S.byId[bid])} ليوم ${fmtShort(d)}: ${money(a)} ريال`);
+  reload();
+};
+
+// ---------------- التحديث اللحظي ----------------
+function setLive(on) { $('live').textContent = on ? 'تحديث لحظي' : 'جارٍ إعادة الاتصال'; $('live').classList.toggle('on', on); }
+function subscribe() {
+  if (S.channel) sb.removeChannel(S.channel);
+  S.channel = sb.channel('sales-live')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, p => {
+      if (p.eventType === 'INSERT' && p.new && p.new.entered_by !== 'admin') {
+        const b = S.byId[p.new.branch_id];
+        if (b) toast(`إدخال جديد من ${label(b)}: ${money(p.new.amount)} ريال (${fmtShort(p.new.sale_date)})`);
+      }
+      scheduleReload();
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'correction_requests' }, p => {
+      if (p.eventType === 'INSERT' && p.new) {
+        const b = S.byId[p.new.branch_id];
+        if (b) toast(`طلب تعديل جديد من ${label(b)}`);
+      }
+      scheduleReload();
+    })
+    .subscribe(status => setLive(status === 'SUBSCRIBED'));
+}
+
+// يوم جديد / شهر جديد: تتحدث اللوحة تلقائياً
+setInterval(() => { if (S.started && todayISO() !== S.today) { $('monthInput').max = todayISO().slice(0, 7); reload(); } }, 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.started) reload(); });
+
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) start(); else showLogin();
+})();
+</script>
+</body>
+</html>

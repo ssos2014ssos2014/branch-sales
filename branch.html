@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>إدخال المبيعات اليومية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .wrap { max-width: 480px; margin: 0 auto; padding: calc(20px + env(safe-area-inset-top, 0px)) 16px 48px; }
+  .head .group { color: var(--muted); font-size: 15px; }
+  .head h1 { font-size: 28px; font-weight: 700; }
+  .head .today { margin-top: 2px; font-size: 14px; color: var(--muted); }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px; margin-top: 16px; }
+
+  .cal-head { display: flex; align-items: center; justify-content: space-between; }
+  .cal-head h2 { font-size: 18px; }
+  .nav { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); font-size: 22px; line-height: 1; }
+  .nav:disabled { opacity: .3; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 12px; }
+  .dow { font-size: 12px; color: var(--muted); text-align: center; padding-bottom: 2px; }
+  .day {
+    aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--line); background: var(--surface);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+    font-family: var(--font-head); font-size: 16px; padding: 0; position: relative;
+  }
+  .day .mk { font-size: 11px; line-height: 1; height: 11px; }
+  .day.done { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+  .day.adm { background: var(--bg); border: 1.5px solid var(--ink); color: var(--ink); }
+  .day.pend { background: var(--caramel-soft); border-color: transparent; color: var(--caramel); }
+  .day.future { opacity: .35; border-style: dashed; background: transparent; }
+  .day.today:not(.sel) { box-shadow: inset 0 0 0 2px var(--ink); }
+  .day.sel { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; font-size: 13px; color: var(--muted); }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 4px; vertical-align: -1px; margin-inline-end: 5px; }
+
+  .sel-date { text-align: center; }
+  .sel-date span { display: block; font-size: 14px; color: var(--muted); }
+  .sel-date b { font-family: var(--font-head); font-size: 19px; font-weight: 600; }
+  .amount-wrap {
+    display: flex; align-items: baseline; gap: 8px; margin: 16px 0;
+    border: 2px solid var(--line); border-radius: var(--r-lg); padding: 10px 16px; background: var(--bg);
+  }
+  .amount-wrap:focus-within { border-color: var(--ink); }
+  .amount-wrap input {
+    flex: 1; min-width: 0; border: none; background: transparent; outline: none;
+    font-family: var(--font-head); font-size: 36px; font-weight: 600; text-align: center; direction: ltr;
+  }
+  .amount-wrap .cur { font-size: 16px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  .confirm { text-align: center; }
+  .confirm .big { font-family: var(--font-head); font-size: 40px; font-weight: 700; margin: 6px 0; }
+  .confirm .warn { font-size: 14px; color: var(--caramel); background: var(--caramel-soft); border-radius: var(--r-sm); padding: 8px 10px; margin: 12px 0 16px; }
+  .row2 { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+
+  .done-box { text-align: center; padding: 8px 0; }
+  .tick { width: 64px; height: 64px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 34px; margin: 0 auto 10px; animation: pop .35s ease-out; }
+  @keyframes pop { from { transform: scale(.4); opacity: 0; } }
+
+  .list h2 { font-size: 17px; margin-bottom: 6px; }
+  .entry { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 0; border-top: 1px solid var(--line); }
+  .entry:first-of-type { border-top: none; }
+  .entry .d b { display: block; font-weight: 600; }
+  .entry .d small { color: var(--muted); }
+  .entry .a { font-family: var(--font-head); font-weight: 600; white-space: nowrap; }
+  .by-adm { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 99px; border: 1px solid var(--ink); margin-inline-start: 6px; }
+  .adm-note { color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 8px 10px; font-size: 14px; margin-top: 10px; }
+  .tag { font-size: 12px; padding: 3px 8px; border-radius: 99px; background: var(--caramel-soft); color: var(--caramel); white-space: nowrap; }
+
+  .fatal { text-align: center; padding: 40px 16px; }
+  .fatal h1 { font-size: 22px; margin-bottom: 8px; }
+  .skeleton { height: 340px; border-radius: var(--r-lg); background: var(--surface); margin-top: 16px; opacity: .6; }
+</style>
+</head>
+<body>
+<main class="wrap" id="root">
+  <div class="skeleton"></div>
+</main>
+
+<dialog id="corrDlg">
+  <form id="corrForm" method="dialog">
+    <h2 style="font-size:20px">طلب تعديل المبلغ</h2>
+    <div class="muted" id="corrInfo" style="margin-top:6px"></div>
+    <label class="field"><span>المبلغ الصحيح</span><input id="corrAmount" inputmode="decimal" autocomplete="off" required dir="ltr"></label>
+    <label class="field"><span>ملاحظة للإدارة (اختياري)</span><textarea id="corrNote" rows="2"></textarea></label>
+    <p class="err" id="corrErr" role="alert"></p>
+    <div class="row2" style="margin-top:6px">
+      <button class="btn btn-primary" id="corrSend" value="send" type="submit">إرسال طلب التعديل</button>
+      <button class="btn btn-ghost" value="cancel" type="button" id="corrCancel">إلغاء</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="common.js"></script>
+<script>
+const token = new URLSearchParams(location.search).get('t');
+const root = document.getElementById('root');
+let info = null, map = {}, viewMonth = null, selected = null, amountStr = '', step = 'form', firstLoad = true, busy = false, lastDone = null;
+const DOW = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
+
+function fatal(title, msg) {
+  root.innerHTML = `<div class="fatal"><h1>${esc(title)}</h1><p class="muted">${esc(msg)}</p></div>`;
+}
+
+async function load() {
+  const { data, error } = await sb.rpc('branch_info', { p_token: token });
+  if (error) { fatal('تعذّر فتح صفحة الفرع', errMsg(error)); return; }
+  info = data; map = {};
+  for (const e of info.entries) map[e.date] = e;
+  if (!viewMonth) viewMonth = monthStart(info.today);
+  if (selected && map[selected]) selected = null;
+  if (firstLoad && !map[info.today]) selected = info.today;
+  firstLoad = false;
+  document.title = 'مبيعات ' + (info.group_name === info.name ? info.name : info.group_name + ' - ' + info.name);
+  render();
+}
+
+function render() {
+  const showGroup = info.group_name !== info.name;
+  root.innerHTML = `
+    <header class="head">
+      ${showGroup ? `<p class="group">${esc(info.group_name)}</p>` : ''}
+      <h1>${esc(info.name)}</h1>
+      <p class="today">اليوم ${esc(fmtLong(info.today))}</p>
+    </header>
+    <section class="panel" id="cal"></section>
+    <section class="panel" id="form"></section>
+    <section class="panel list" id="list"></section>`;
+  renderCal(); renderForm(); renderList();
+}
+
+function renderCal() {
+  const el = document.getElementById('cal');
+  const start = viewMonth, end = monthEnd(viewMonth), today = info.today;
+  const lead = parseISO(start).getUTCDay();
+  let cells = DOW.map(d => `<div class="dow">${d}</div>`).join('');
+  for (let i = 0; i < lead; i++) cells += '<div></div>';
+  for (const d of daysRange(start, end)) {
+    const e = map[d], fut = d > today;
+    const cls = ['day', e ? (e.pending ? 'pend' : e.by === 'admin' ? 'adm' : 'done') : '', fut ? 'future' : '', d === today ? 'today' : '', d === selected ? 'sel' : ''].join(' ');
+    const stateTxt = e ? `مُدخل ${e.by === 'admin' ? 'من قبل الإدارة ' : ''}${money(e.amount)} ريال` : fut ? 'لم يأتِ بعد' : 'متاح للإدخال';
+    cells += `<button type="button" class="${cls}" data-d="${d}" ${fut ? 'disabled' : ''} aria-label="${esc(fmtLong(d))}، ${stateTxt}">
+      <span>${Number(d.slice(8))}</span><span class="mk">${e ? (e.pending ? '•' : '✓') : ''}</span></button>`;
+  }
+  const atCurrent = viewMonth >= monthStart(today);
+  el.innerHTML = `
+    <div class="cal-head">
+      <button class="nav" id="prevM" aria-label="الشهر السابق">›</button>
+      <h2>${esc(fmtMonth(viewMonth))}</h2>
+      <button class="nav" id="nextM" aria-label="الشهر التالي" ${atCurrent ? 'disabled' : ''}>‹</button>
+    </div>
+    <div class="cal-grid">${cells}</div>
+    <div class="legend">
+      <span><i style="background:var(--accent-soft)"></i>تم الإدخال</span>
+      <span><i style="background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--ink)"></i>أدخلته الإدارة</span>
+      <span><i style="background:var(--caramel-soft)"></i>تعديل قيد المراجعة</span>
+      <span><i style="box-shadow:inset 0 0 0 1px var(--line)"></i>متاح</span>
+    </div>`;
+  el.querySelector('#prevM').onclick = () => { viewMonth = addMonths(viewMonth, -1); renderCal(); };
+  el.querySelector('#nextM').onclick = () => { viewMonth = addMonths(viewMonth, 1); renderCal(); };
+  el.querySelectorAll('.day').forEach(b => b.onclick = () => {
+    const d = b.dataset.d;
+    if (map[d]) { openCorr(d); return; }
+    selected = d; step = 'form';
+    renderCal(); renderForm();
+    const inp = document.getElementById('amount'); if (inp) inp.focus();
+  });
+}
+
+function renderForm() {
+  const el = document.getElementById('form');
+  if (step === 'done') {
+    el.innerHTML = `<div class="done-box"><div class="tick">✓</div>
+      <h2 style="font-size:20px">تم إرسال المبيعات</h2>
+      <p class="muted" style="margin:4px 0 16px">${esc(fmtLong(lastDone.date))}: ${money(lastDone.amount)} ريال</p>
+      <button class="btn btn-ghost btn-block" id="again">إدخال يوم آخر</button></div>`;
+    el.querySelector('#again').onclick = () => { step = 'form'; renderForm(); };
+    return;
+  }
+  if (step === 'confirm') {
+    const amt = parseAmount(amountStr);
+    el.innerHTML = `<div class="confirm">
+      <p class="muted">راجع قبل الإرسال</p>
+      <p style="font-weight:600;margin-top:6px">${esc(fmtLong(selected))}</p>
+      <p class="big num">${money(amt)} <span class="cur">ريال</span></p>
+      <p class="warn">بعد الإرسال لا يمكن إدخال هذا التاريخ مرة أخرى، والتصحيح يكون بطلب تعديل للإدارة.</p>
+      <div class="row2">
+        <button class="btn btn-accent btn-lg" id="sendBtn">تأكيد الإرسال</button>
+        <button class="btn btn-ghost btn-lg" id="backBtn">رجوع</button>
+      </div></div>`;
+    el.querySelector('#backBtn').onclick = () => { step = 'form'; renderForm(); };
+    el.querySelector('#sendBtn').onclick = submit;
+    return;
+  }
+  el.innerHTML = `
+    <div class="sel-date">${selected
+      ? `<span>تاريخ المبيعات</span><b>${esc(fmtLong(selected))}</b>`
+      : `<span>اختر يوماً من التقويم أعلاه</span>`}</div>
+    <label class="amount-wrap"><span class="sr">إجمالي المبيعات</span>
+      <input id="amount" inputmode="decimal" autocomplete="off" placeholder="0" value="${esc(amountStr)}">
+      <span class="cur">ريال</span></label>
+    <p class="err" id="formErr" role="alert"></p>
+    <button class="btn btn-primary btn-block btn-lg" id="nextBtn">إرسال المبيعات</button>`;
+  const inp = el.querySelector('#amount');
+  inp.oninput = () => { amountStr = inp.value; el.querySelector('#formErr').textContent = ''; };
+  inp.onkeydown = e => { if (e.key === 'Enter') el.querySelector('#nextBtn').click(); };
+  el.querySelector('#nextBtn').onclick = () => {
+    const errEl = el.querySelector('#formErr');
+    if (!selected) { errEl.textContent = 'اختر التاريخ من التقويم أولاً'; return; }
+    const amt = parseAmount(amountStr);
+    if (isNaN(amt)) { errEl.textContent = 'اكتب إجمالي المبيعات رقماً فقط، مثل 12500'; inp.focus(); return; }
+    step = 'confirm'; renderForm();
+  };
+}
+
+async function submit() {
+  if (busy) return; busy = true;
+  const btn = document.getElementById('sendBtn'); btn.disabled = true; btn.textContent = 'جارٍ الإرسال…';
+  const amt = parseAmount(amountStr);
+  const { error } = await sb.rpc('submit_sale', { p_token: token, p_date: selected, p_amount: amt });
+  busy = false;
+  if (error) { toast(errMsg(error), 'err'); step = 'form'; await load(); return; }
+  lastDone = { date: selected, amount: amt };
+  selected = null; amountStr = ''; step = 'done';
+  await load();
+}
+
+function renderList() {
+  const el = document.getElementById('list');
+  const items = info.entries.slice(0, 45);
+  if (!items.length) { el.innerHTML = `<h2>إدخالاتك السابقة</h2><p class="muted">لا توجد إدخالات بعد. أول إدخال سيظهر هنا.</p>`; return; }
+  el.innerHTML = `<h2>إدخالاتك السابقة</h2>` + items.map(e => `
+    <div class="entry">
+      <div class="d"><b>${esc(fmtShort(e.date))}</b><small>${esc(fmtDayName(e.date))}</small>${e.by === 'admin' ? '<span class="by-adm">أدخلته الإدارة</span>' : ''}</div>
+      <div class="a num">${money(e.amount)}</div>
+      ${e.pending ? `<span class="tag">التعديل قيد المراجعة</span>` : `<button class="btn btn-ghost btn-sm" data-c="${e.date}">طلب تعديل</button>`}
+    </div>`).join('');
+  el.querySelectorAll('[data-c]').forEach(b => b.onclick = () => openCorr(b.dataset.c));
+}
+
+// ---------- طلب التعديل ----------
+const dlg = document.getElementById('corrDlg');
+let corrDate = null;
+function openCorr(d) {
+  const e = map[d]; if (!e) return;
+  corrDate = d;
+  document.getElementById('corrErr').textContent = '';
+  document.getElementById('corrAmount').value = '';
+  document.getElementById('corrNote').value = '';
+  const send = document.getElementById('corrSend');
+  const admNote = e.by === 'admin' ? '<p class="adm-note">تم إدخال مبيعات هذا اليوم من قبل الإدارة.</p>' : '';
+  if (e.pending) {
+    document.getElementById('corrInfo').innerHTML = `${esc(fmtLong(d))}<br>يوجد طلب تعديل لهذا اليوم بانتظار الإدارة.${admNote}`;
+    send.disabled = true;
+  } else {
+    document.getElementById('corrInfo').innerHTML = `${esc(fmtLong(d))}<br>المبلغ المسجل: <b class="num">${money(e.amount)}</b> ريال${admNote}<span style="display:block;margin-top:8px">إذا كان المبلغ غير صحيح اكتب المبلغ الصحيح وأرسل طلب تعديل.</span>`;
+    send.disabled = false;
+  }
+  dlg.showModal();
+  if (!e.pending) setTimeout(() => document.getElementById('corrAmount').focus(), 50);
+}
+document.getElementById('corrCancel').onclick = () => dlg.close();
+document.getElementById('corrForm').onsubmit = async ev => {
+  ev.preventDefault();
+  const errEl = document.getElementById('corrErr');
+  const amt = parseAmount(document.getElementById('corrAmount').value);
+  if (isNaN(amt)) { errEl.textContent = 'اكتب المبلغ الصحيح رقماً فقط'; return; }
+  const send = document.getElementById('corrSend'); send.disabled = true; send.textContent = 'جارٍ الإرسال…';
+  const { error } = await sb.rpc('request_correction', { p_token: token, p_date: corrDate, p_new_amount: amt, p_note: document.getElementById('corrNote').value });
+  send.disabled = false; send.textContent = 'إرسال طلب التعديل';
+  if (error) { errEl.textContent = errMsg(error); return; }
+  dlg.close(); toast('أُرسل طلب التعديل إلى الإدارة'); await load();
+};
+
+if (!token) fatal('الرابط غير مكتمل', 'اطلب رابط الفرع الصحيح من الإدارة.');
+else {
+  load();
+  // عند الرجوع للصفحة أو بعد منتصف الليل: تحديث التاريخ والإدخالات
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && info && step !== 'confirm') load(); });
+  setInterval(() => { if (info && todayISO() !== info.today && step === 'form') load(); }, 60000);
+}
+</script>
+</body>
+</html>
