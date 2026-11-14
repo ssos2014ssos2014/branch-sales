@@ -149,6 +149,19 @@
   .tgl { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
 
   a.btn { text-decoration: none; color: inherit; }
+  /* ---- التأخير ---- */
+  .late-panel { margin-top: 14px; background: #FBE9E7; border: 1.5px solid #B3261E; border-radius: var(--r-lg); padding: 14px 16px; }
+  .late-panel h2 { font-size: 17px; color: #B3261E; }
+  .late-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 0; border-top: 1px solid rgba(179,38,30,.2); }
+  .late-row:first-of-type { border-top: none; }
+  .late-info { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 2px; }
+  .late-info span { font-size: 13px; color: #6d2b26; }
+  .late-no { font-weight: 700; color: #B3261E !important; }
+  .late-row .acts { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .btn-wa { background: #1E8E4E; color: #fff !important; border-color: #1E8E4E; }
+  .late-tag, .sub small.late-tag { background: #B3261E; color: #fff; border-radius: 99px; padding: 0 8px; font-size: 11px; margin-inline-start: 6px; }
+  .wa-mini { font-size: 12px; color: #1E8E4E; font-weight: 600; text-decoration: none; }
+  .by-br { color: var(--caramel); }
   /* ---- وضع الاطلاع فقط ---- */
   .view-only { display: none !important; }
   .viewer .view-only { display: revert !important; }
@@ -279,6 +292,7 @@
       <p class="period-label" id="periodLabel"></p>
     </section>
 
+    <section id="latePanel"></section>
     <section id="corrections"></section>
 
     <div id="overview">
@@ -384,7 +398,7 @@ async function start() {
 
 // ---------------- البيانات ----------------
 async function loadBranches() {
-  const { data, error } = await sb.from('branches').select('id,name,group_name,sort_order,token,active,credit,waste,logo,is_rep').order('sort_order').order('id');
+  const { data, error } = await sb.from('branches').select('id,name,group_name,sort_order,token,active,credit,waste,logo,is_rep,whatsapp,track_from').order('sort_order').order('id');
   if (error) { toast(errMsg(error), 'err'); return; }
   S.allBranches = data; S.byId = {};
   for (const b of data) S.byId[b.id] = b;
@@ -442,6 +456,7 @@ async function reload() {
     S.pending = pend.data || []; S.recent = rec.data || [];
     await loadWasteData();
     await loadViewers();
+    await loadLate();
     buildGroups();
     renderAll();
   } catch (e) { toast(errMsg(e), 'err'); }
@@ -470,6 +485,7 @@ async function reloadViewer() {
   setSales(data.sales || []);
   S.waste = data.waste || []; S.items = []; S.settings = {};
   S.pending = data.pending || []; S.recent = data.recent || [];
+  setLate(data.late);
   buildGroups();
   renderAll();
 }
@@ -489,6 +505,52 @@ async function startViewer() {
   $('viewTag').textContent = 'اطلاع فقط' + (S.viewLabel ? ` · ${S.viewLabel}` : '');
   $('live').textContent = 'يتحدث كل دقيقة'; $('live').classList.add('on');
   setInterval(() => { if (!document.hidden) reload(); }, 60000);
+}
+
+// ---------------- التأخير في الإدخال ----------------
+async function loadLate() {
+  const { data, error } = await sb.rpc('admin_late');
+  setLate(error ? null : data);
+}
+function setLate(rows) {
+  S.late = {};
+  for (const r of rows || []) S.late[r.branch_id] = { missing: r.missing || [], count: r.count || 0 };
+}
+const lateOf = id => (S.late && S.late[id]) || { missing: [], count: 0 };
+// الأيام المتأخرة غير المدخلة (نستبعد ما أُدخل بعد آخر تحديث)
+const lateMissing = b => lateOf(b.id).missing.filter(d => S.idx[b.id + '|' + d] == null);
+const daysWord = n => n === 1 ? 'يوم واحد' : n === 2 ? 'يومين' : n <= 10 ? `${n} أيام` : `${n} يوماً`;
+// رقم الواتساب بصيغة دولية (05xxxxxxxx ← 9665xxxxxxxx)
+function normPhone(v) {
+  let d = String(v || '').replace(/[٠-٩]/g, c => '٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/\D/g, '');
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.length === 10 && d.startsWith('05')) d = '966' + d.slice(1);
+  else if (d.length === 9 && d.startsWith('5')) d = '966' + d;
+  return d;
+}
+const waUrl = (num, text) => num
+  ? `https://wa.me/${num}${text ? '?text=' + encodeURIComponent(text) : ''}`
+  : `https://wa.me/?text=${encodeURIComponent(text || '')}`;
+function lateMsg(b) {
+  const L = lateOf(b.id), miss = lateMissing(b);
+  return `السلام عليكم\nتنبيه من إدارة المبيعات: ${label(b)}\n`
+    + `تأخرتم في إدخال المبيعات. لم تُدخل مبيعات ${daysWord(miss.length)}: ${miss.map(fmtShort).join('، ')}\n`
+    + `إشعار التأخير رقم ${L.count}\n`
+    + (b.token ? `نرجو إدخال المبيعات الآن عبر رابط الفرع:\n${branchUrl(b)}` : 'نرجو إدخال المبيعات الآن.');
+}
+function renderLate() {
+  const late = activeBranches().filter(b => lateMissing(b).length);
+  if (!late.length) { $('latePanel').innerHTML = ''; return; }
+  $('latePanel').innerHTML = `<div class="late-panel" role="alert"><h2>فروع متأخرة في إدخال المبيعات (${late.length})</h2>
+    ${late.map(b => { const L = lateOf(b.id), miss = lateMissing(b); return `<div class="late-row">
+      <div class="late-info"><b>${esc(label(b))}</b>
+        <span>لم تُدخل ${daysWord(miss.length)}: ${miss.map(d => esc(fmtShort(d))).join('، ')}</span>
+        <span class="late-no">إشعار التأخير رقم ${L.count}</span></div>
+      <div class="acts edit-only">
+        <a class="btn btn-sm btn-wa" href="${esc(waUrl(b.whatsapp, lateMsg(b)))}" target="_blank" rel="noopener">إرسال إشعار التأخير</a>
+        ${b.whatsapp ? `<a class="btn btn-ghost btn-sm" href="${esc(waUrl(b.whatsapp))}" target="_blank" rel="noopener">مراسلة</a>` : '<span class="muted" style="font-size:12px">أضف رقم الواتساب من الإعدادات</span>'}
+      </div></div>`; }).join('')}
+  </div>`;
 }
 
 // ---------------- إدارة روابط الاطلاع (للإدارة) ----------------
@@ -540,7 +602,7 @@ const ICON_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 
 // ---------------- العرض ----------------
 function renderAll() {
-  renderPeriodLabel(); renderCorrections(); renderHero(); renderKpis(); renderWasteSum(); renderGroups(); renderHistory(); renderSettings();
+  renderPeriodLabel(); renderLate(); renderCorrections(); renderHero(); renderKpis(); renderWasteSum(); renderGroups(); renderHistory(); renderSettings();
   if (S.detail) renderDetail();
   if (S.wasteView) renderWaste();
   if ($('itemsDlg').open) renderItemsList();
@@ -656,6 +718,7 @@ function renderGroups() {
       <div class="share-bar"><i style="width:${share}%"></i></div>
       ${creditBox}
       ${wasteLine}
+      ${lateLine(g)}
       ${multi ? g.branches.map(b => `<div class="sub"><span>${esc(b.name)}${b.active ? '' : ' <small>(موقوف)</small>'}</span><b>${money(branchTotal(b.id))}${b.credit ? `<small>تحصيل ${money(branchCol(b.id))}</small>` : ''}</b></div>`).join('') : ''}
       ${showDots ? g.branches.filter(b => b.active).map(b => `<div class="dots-row">${multi ? `<small>${esc(b.name)}</small>` : ''}${dotsFor(b, strip)}</div>`).join('') : ''}
       ${foot}
@@ -706,7 +769,8 @@ function renderLinks() {
       <b>${esc(label(b))}</b>
       <div class="acts">
         <button class="btn btn-ghost btn-sm" data-copy="${esc(url)}">نسخ الرابط</button>
-        <a class="btn btn-ghost btn-sm" href="${esc(wa)}" target="_blank" rel="noopener">واتساب</a>
+        <a class="btn btn-ghost btn-sm" href="${esc(b.whatsapp ? waUrl(b.whatsapp, `رابط إدخال مبيعات ${label(b)}:\n${url}`) : wa)}" target="_blank" rel="noopener">إرسال الرابط واتساب</a>
+        ${b.whatsapp ? `<a class="btn btn-ghost btn-sm" href="${esc(waUrl(b.whatsapp))}" target="_blank" rel="noopener">مراسلة</a>` : ''}
         <a class="btn btn-ghost btn-sm" href="${esc(url)}" target="_blank" rel="noopener">فتح</a>
       </div>
       <code>${esc(url)}</code></div>`;
@@ -759,6 +823,7 @@ function renderDetail() {
       ${pills}
       <div class="pill"><span>متوسط اليوم</span><b>${money(Math.round(days.length ? total / days.length : 0))}</b></div>
       <div class="pill"><span>أيام فيها إدخال</span><b>${entered} من ${days.length}</b></div>
+      <div class="pill"><span>مرات التأخير (تراكمي)</span><b class="${brs.some(b => lateOf(b.id).count) ? 'no' : ''}">${brs.reduce((a, b) => a + lateOf(b.id).count, 0)}</b></div>
     </div>
     ${days.length ? `<div class="tbl-wrap"><table>
       <thead><tr><th>التاريخ</th><th>اليوم</th>${brs.map(colHead).join('')}${multi ? '<th class="n">إجمالي المبيعات</th>' : ''}${multi && anyCredit ? '<th class="n">إجمالي التحصيل</th>' : ''}<th class="n">المبيعات التراكمية</th>${anyCredit ? '<th class="n">الآجل المتبقي التراكمي</th>' : ''}</tr></thead>
@@ -797,6 +862,14 @@ function wByItem(recs) {
     map[k].br[r.branch_id] = (map[k].br[r.branch_id] || 0) + Number(r.cost);
   }
   return Object.values(map).sort((a, b) => b.cost - a.cost);
+}
+
+function lateLine(g) {
+  const act = g.branches.filter(b => b.active);
+  const cnt = act.reduce((a, b) => a + lateOf(b.id).count, 0);
+  const miss = act.reduce((a, b) => a + lateMissing(b).length, 0);
+  const wa = act.length === 1 && act[0].whatsapp ? `<a class="wa-mini edit-only" href="${esc(waUrl(act[0].whatsapp))}" target="_blank" rel="noopener" title="مراسلة على واتساب">واتساب</a>` : '';
+  return `<div class="sub"><span>مرات التأخير${miss ? ` <small class="late-tag">متأخر ${daysWord(miss)}</small>` : ''}</span><b class="${cnt ? 'no' : ''}">${cnt}</b></div>${wa ? `<div class="sub">${wa}</div>` : ''}`;
 }
 
 function renderWasteSum() {
@@ -917,7 +990,7 @@ function renderItemsList() {
     ? 'كل فروع التوالف' : it.branch_ids.map(id => S.byId[id] ? label(S.byId[id]) : '').filter(Boolean).join('، ');
   $('itemsList').innerHTML = S.items.length ? S.items.map(it => `<div class="irow${it.active ? '' : ' off'}">
       <div><b>${esc(it.name)}</b><span class="chip-u">${it.unit === 'weight' ? 'وزن' : 'حبة'}</span>
-        <small>${money(it.cost)} ريال / ${unitName(it.unit)} · ${esc(brNames(it))}${it.active ? '' : ' · موقوف'}</small></div>
+        <small>${money(it.cost)} ريال / ${unitName(it.unit)} · ${esc(brNames(it))}${it.active ? '' : ' · موقوف'}${it.added_by_branch && S.byId[it.added_by_branch] ? ` · <span class="by-br">أضافه موظف ${esc(label(S.byId[it.added_by_branch]))}</span>` : ''}</small></div>
       <div class="acts">
         <button class="btn btn-ghost btn-sm" data-iedit="${it.id}">تعديل</button>
         <button class="btn btn-ghost btn-sm" data-itoggle="${it.id}">${it.active ? 'إيقاف' : 'تفعيل'}</button>
@@ -999,6 +1072,14 @@ function renderSettings() {
         <input id="newRep" placeholder="اسم المندوب الجديد" autocomplete="off">
         <button class="btn btn-primary btn-sm" id="addRep">إضافة مندوب</button></div>
       <p class="muted" style="font-size:13px;margin-top:6px">كل مندوب له رابط إدخال خاص (يظهر أيضاً في روابط إدخال المبيعات)، ومبيعاته آجلة مع خانة التحصيل، ويظهر داخل بطاقة ${esc(repGroup())}. إيقاف المندوب يعطّل رابطه وتبقى مبيعاته السابقة في التقارير.</p></div>
+    <div class="set-sec"><h3>أرقام واتساب الفروع</h3>
+      ${activeBranches().map(b => `<div class="rep-row">
+        <span class="nm" style="min-width:180px">${esc(label(b))}</span>
+        <input data-wanum="${b.id}" dir="ltr" inputmode="tel" placeholder="05xxxxxxxx" value="${esc(b.whatsapp ? '0' + b.whatsapp.replace(/^966/, '') : '')}" autocomplete="off">
+        <button class="btn btn-primary btn-sm" data-wasave="${b.id}">حفظ</button>
+        ${b.whatsapp ? `<a class="btn btn-ghost btn-sm" href="${esc(waUrl(b.whatsapp))}" target="_blank" rel="noopener">مراسلة</a>` : ''}
+      </div>`).join('')}
+      <p class="muted" style="font-size:13px;margin-top:6px">اكتب الرقم مثل 0551234567. يُستخدم لزر المراسلة وإرسال إشعار التأخير.</p></div>
     <div class="set-sec"><h3>شعارات الفروع وقسم التوالف</h3>
       ${activeBranches().map(b => `<div class="logo-row">
         <div class="logo-box">${b.logo ? `<img src="${esc(b.logo)}" alt="">` : esc(b.name.slice(0, 1))}</div>
@@ -1082,7 +1163,17 @@ async function viewerAction(id, del) {
 }
 $('settings').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'newViewer') { e.preventDefault(); addViewer(); } });
 
+async function saveWa(id) {
+  const inp = document.querySelector(`[data-wanum="${id}"]`), raw = inp.value.trim();
+  const num = raw ? normPhone(raw) : null;
+  if (raw && !/^\d{10,15}$/.test(num)) { toast('رقم غير صحيح. اكتبه مثل 0551234567', 'err'); inp.focus(); return; }
+  inp.blur();
+  await saveBranch(id, { whatsapp: num }, num ? 'تم حفظ رقم الواتساب' : 'تم حذف رقم الواتساب');
+}
+$('settings').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.dataset && e.target.dataset.wanum) { e.preventDefault(); saveWa(Number(e.target.dataset.wanum)); } });
+
 $('settings').addEventListener('click', async e => {
+  const ws = e.target.closest('[data-wasave]'); if (ws) return saveWa(Number(ws.dataset.wasave));
   if (e.target.closest('#addViewer')) return addViewer();
   const vt = e.target.closest('[data-vtoggle]'); if (vt) return viewerAction(Number(vt.dataset.vtoggle), false);
   const vd = e.target.closest('[data-vdel]'); if (vd) return viewerAction(Number(vd.dataset.vdel), true);

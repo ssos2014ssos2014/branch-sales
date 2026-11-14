@@ -17,6 +17,7 @@
 - waste.sql: البضائع التالفة + الشعارات + رابط قروب التوالف (شُغّل مرة واحدة بعد credit_collection.sql)
 - reps.sql: مناديب التوزيع (شُغّل مرة واحدة)
 - viewer.sql: روابط الاطلاع فقط (شُغّل مرة واحدة)
+- late.sql: أرقام واتساب الفروع + إشعارات التأخير + صنف آخر في التوالف (شُغّل مرة واحدة)
 - waste_items_seed.sql: أصناف التوالف من فواتير Planet Bakery (شُغّل مرة واحدة، لا يكرر)
 - index.html: لوحة الإدارة (دخول بالبريد وكلمة المرور)
 - branch.html: صفحة إدخال الفرع (رابط خاص لكل فرع: branch.html?t=TOKEN)
@@ -64,6 +65,17 @@
 - لوحة الإدارة: بطاقة التوالف للفترة، وصفحة "التوالف" فيها: فلتر الفرع، الأصناف من الأعلى تكلفة إلى الأقل، جدول يومي بالقيمة التراكمية، وسجل الإدخالات مع الحذف.
 - الإعدادات في اللوحة: رابط قروب واتساب للتوالف (app_settings.waste_whatsapp_link)، وشعار لكل فرع (صورة مصغرة 320px تُحفظ في branches.logo) يظهر في صفحة الفرع وبطاقات اللوحة وتقرير PDF.
 
+## التأخير في الإدخال وأرقام الواتساب
+- اليوم D متأخر إذا جاءت الساعة 9 صباح اليوم التالي (الرياض) ولم تُدخل مبيعاته أو أُدخلت بعد هذا الموعد.
+- الاحتساب يبدأ من branches.track_from (يوم تشغيل late.sql، والمندوب الجديد من يوم إضافته). الحساب في دالة late_rows (بدون جدولة).
+- صفحة الفرع: صندوق أحمر "إشعار التأخير رقم N" (N = عدد مرات التأخير التراكمي) مع الأيام غير المدخلة وزر "إدخال المبيعات الآن". تتحدث الصفحة كل 5 دقائق.
+- لوحة الإدارة: قسم "فروع متأخرة في إدخال المبيعات" أعلى اللوحة مع زر "إرسال إشعار التأخير" (رسالة واتساب جاهزة فيها الأيام ورقم الإشعار ورابط الفرع) وزر "مراسلة". بطاقة كل فرع وصفحة التفاصيل فيها "مرات التأخير".
+- أرقام واتساب الفروع من الإعدادات (branches.whatsapp بصيغة دولية 9665xxxxxxxx، تُكتب 05xxxxxxxx).
+
+## صنف آخر في التوالف
+- الموظف يضغط "+ صنف آخر" ويكتب الاسم والنوع وسعر التكلفة، فيُضاف لقائمة الأصناف رسمياً لكل فروع التوالف (waste_items.added_by_branch) ويدخل الإدخال الحالي.
+- إذا كان الاسم موجوداً يُستخدم الصنف الموجود بدون تكرار. الإدارة ترى "أضافه موظف فرع كذا" في إدارة الأصناف وتقدر تعدّله أو توقفه.
+
 ## روابط الاطلاع فقط
 - الإدارة تنشئ رابطاً باسم صاحبه من الإعدادات: index.html?view=TOKEN (جدول viewer_links).
 - صاحب الرابط يرى كل الإحصائيات والتقارير والتوالف وطلبات التعديل بدون تسجيل دخول، ويتحدث كل دقيقة.
@@ -71,14 +83,14 @@
 - الرابط يمكن إيقافه أو حذفه في أي وقت.
 
 ## الجداول
-- branches (id, name, group_name, sort_order, token, active, credit, waste, logo, is_rep)
+- branches (id, name, group_name, sort_order, token, active, credit, waste, logo, is_rep, whatsapp, track_from)
 - sales (branch_id, sale_date, amount, collected, entered_by: branch/admin) — فريد على (branch_id, sale_date)
 - correction_requests (sale_id, branch_id, sale_date, old_amount, new_amount, old_collected, new_collected, note, status)
-- waste_items (id, name, unit: piece/weight, cost, branch_ids, active)
+- waste_items (id, name, unit: piece/weight, cost, branch_ids, active, added_by_branch)
 - waste_records (batch_id, branch_id, waste_date, item_id, item_name, unit, qty [عدد أو جرام], unit_cost, cost, entered_by)
 - app_settings (key, value)
 - viewer_links (id, token, label, active)
 - admins (email)
 
 ## الدوال
-branch_info، submit_sale، request_correction، branch_waste، submit_waste (للفروع) — viewer_data (للاطلاع فقط) — admin_submit_sale، approve_correction، reject_correction، is_admin (للإدارة)
+branch_info، submit_sale، request_correction، branch_waste، submit_waste، branch_add_item (للفروع) — admin_late (للإدارة) — viewer_data (للاطلاع فقط) — admin_submit_sale، approve_correction، reject_correction، is_admin (للإدارة)

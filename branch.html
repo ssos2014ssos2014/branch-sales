@@ -172,6 +172,24 @@
   .pdf tfoot td { background: #2B1E18; color: #fff; font-weight: 700; }
   .pdf .foot { margin-top: 18px; font-size: 11px; color: #8a8178; text-align: center; }
 
+  /* ---- إشعار التأخير ---- */
+  .late-box { margin-top: 16px; background: #B3261E; color: #fff; border-radius: var(--r-lg); padding: 16px; box-shadow: 0 6px 18px rgba(179,38,30,.25); }
+  .late-top { display: flex; align-items: center; gap: 10px; font-size: 18px; font-family: var(--font-head); }
+  .late-ic { width: 30px; height: 30px; border-radius: 50%; background: #fff; color: #B3261E; display: grid; place-items: center; font-weight: 800; flex: none; }
+  .late-box p { margin-top: 8px; }
+  .late-days { font-family: var(--font-head); font-weight: 600; background: rgba(255,255,255,.14); border-radius: var(--r-sm); padding: 6px 10px; }
+  .late-btn { margin-top: 12px; background: #fff; color: #B3261E; font-weight: 700; }
+  .late-note { margin-top: 10px; font-size: 13px; color: var(--muted); }
+  /* ---- صنف آخر ---- */
+  .chip-other { border-style: dashed; font-weight: 600; }
+  .other-form { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px; margin-top: 4px; }
+  .other-form .field { margin-top: 8px; }
+  .other-form .field:first-child { margin-top: 0; }
+  .unit-seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 3px; gap: 2px; }
+  .unit-seg button { border: none; background: transparent; padding: 8px 16px; border-radius: 9px; font-weight: 500; }
+  .unit-seg button[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); }
+  .other-form .row2 { margin-top: 10px; }
+
   .fatal { text-align: center; padding: 40px 16px; }
   .fatal h1 { font-size: 22px; margin-bottom: 8px; }
   .skeleton { height: 340px; border-radius: var(--r-lg); background: var(--surface); margin-top: 16px; opacity: .6; }
@@ -227,6 +245,23 @@ const ICON_SALES = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 const ICON_WASTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/><path d="M10 11v6M14 11v6"/></svg>';
 let tab = location.hash === '#waste' ? 'waste' : 'sales';
 
+// إشعار التأخير: يظهر من الساعة 9 صباحاً لأي يوم سابق لم تُدخل مبيعاته
+function lateBanner() {
+  const L = info.late || { missing: [], count: 0 };
+  const miss = (L.missing || []).filter(d => !map[d]);
+  if (!miss.length) {
+    return L.count ? `<p class="late-note">عدد مرات التأخير في الإدخال: <b>${L.count}</b></p>` : '';
+  }
+  const n = miss.length;
+  const days = n === 1 ? 'يوم واحد' : n === 2 ? 'يومين' : n <= 10 ? `${n} أيام` : `${n} يوماً`;
+  return `<div class="late-box" role="alert">
+    <div class="late-top"><span class="late-ic">!</span><b>إشعار التأخير رقم ${L.count}</b></div>
+    <p>تأخرت في إدخال المبيعات. لم تُدخل مبيعات <b>${days}</b>:</p>
+    <p class="late-days">${miss.map(d => esc(fmtShort(d))).join('، ')}</p>
+    <button class="btn btn-block late-btn" id="lateGo">إدخال المبيعات الآن</button>
+  </div>`;
+}
+
 function render() {
   const showGroup = info.group_name !== info.name;
   if (!info.waste) tab = 'sales';
@@ -239,6 +274,7 @@ function render() {
         <p class="today">اليوم ${esc(fmtLong(info.today))}</p>
       </div>
     </header>
+    ${lateBanner()}
     ${info.waste ? `<nav class="tabs" role="tablist">
       <button role="tab" data-tab="sales" aria-selected="${tab === 'sales'}">${ICON_SALES}المبيعات</button>
       <button role="tab" data-tab="waste" aria-selected="${tab === 'waste'}">${ICON_WASTE}البضائع التالفة</button>
@@ -249,6 +285,12 @@ function render() {
     <section class="panel list" id="list"></section>` : `
     <section class="panel" id="wform"></section>
     <section class="panel rep" id="wrep"></section>`}`;
+  const lg = root.querySelector('#lateGo');
+  if (lg) lg.onclick = () => {
+    tab = 'sales'; history.replaceState(null, '', location.pathname + location.search);
+    selected = info.late.missing.find(d => !map[d]) || info.late.missing[0]; viewMonth = monthStart(selected); step = 'form'; render();
+    const f = document.getElementById('form'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
   root.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
     tab = b.dataset.tab; history.replaceState(null, '', tab === 'waste' ? '#waste' : location.pathname + location.search);
     render(); scrollTo({ top: 0 });
@@ -434,7 +476,7 @@ document.getElementById('corrForm').onsubmit = async ev => {
 // =====================================================================
 //  البضائع التالفة
 // =====================================================================
-const W = { date: null, basket: [], step: 'form', search: '', month: null, recs: [], loaded: false, loading: false, last: null, pdf: null, preparing: false };
+const W = { other: { open: false, name: '', unit: 'piece', cost: '' }, date: null, basket: [], step: 'form', search: '', month: null, recs: [], loaded: false, loading: false, last: null, pdf: null, preparing: false };
 const itemOf = id => (info.items || []).find(i => i.id === id);
 const r2 = n => Math.round(n * 100) / 100;
 const unitName = u => u === 'weight' ? 'كيلو' : 'حبة';
@@ -517,16 +559,11 @@ function renderWForm() {
     return;
   }
 
-  if (!items.length) {
-    el.innerHTML = `<div class="w-head"><h2>إدخال البضائع التالفة</h2></div>
-      <p class="muted" style="margin-top:10px">لا توجد أصناف بعد. اطلب من الإدارة إضافة أصناف التوالف.</p>`;
-    return;
-  }
   el.innerHTML = `
     <div class="w-head"><h2>إدخال البضائع التالفة</h2>
       <label class="muted" style="font-size:14px">التاريخ <input type="date" id="wDate" max="${info.today}" value="${W.date}"></label></div>
     ${items.length > 8 ? `<input class="w-search" id="wSearch" placeholder="ابحث عن صنف" value="${esc(W.search)}">` : ''}
-    <p class="w-hint">اختر الصنف التالف</p>
+    <p class="w-hint">${items.length ? 'اختر الصنف التالف، وإذا لم تجده اضغط "صنف آخر"' : 'لا توجد أصناف بعد. اضغط "صنف آخر" لإضافة صنف'}</p>
     <div class="chips" id="chips"></div>
     <div id="wlines"></div>
     <div class="w-total"><span>إجمالي التكلفة</span><b><span id="wTotal">${money(basketTotal())}</span> <span class="cur">ريال</span></b></div>
@@ -550,12 +587,59 @@ function renderWForm() {
   renderChips(); renderLines();
 }
 
+// ---------- صنف آخر: الموظف يكتب الاسم والتكلفة فيُضاف لقائمة الأصناف رسمياً ----------
+function otherFormHtml() {
+  const o = W.other, w = o.unit === 'weight';
+  return `<div class="other-form" id="otherForm">
+    <label class="field"><span>اسم الصنف</span><input id="oName" autocomplete="off" value="${esc(o.name)}" maxlength="80"></label>
+    <div class="field"><span>نوع الصنف</span><div class="unit-seg">
+      <button type="button" data-ounit="piece" aria-pressed="${!w}">بالحبة</button>
+      <button type="button" data-ounit="weight" aria-pressed="${w}">بالوزن</button></div></div>
+    <label class="field"><span>${w ? 'سعر تكلفة 1 كيلو (ريال)' : 'سعر تكلفة الحبة (ريال)'}</span>
+      <input id="oCost" inputmode="decimal" autocomplete="off" dir="ltr" value="${esc(o.cost)}" placeholder="0"></label>
+    <p class="err" id="oErr" role="alert"></p>
+    <div class="row2"><button type="button" class="btn btn-primary" id="oAdd">إضافة الصنف</button>
+      <button type="button" class="btn btn-ghost" id="oCancel">إلغاء</button></div>
+  </div>`;
+}
+function bindOther(box) {
+  box.querySelector('#otherChip').onclick = () => {
+    W.other.open = !W.other.open; renderChips();
+    if (W.other.open) document.getElementById('oName').focus();
+  };
+  if (!W.other.open) return;
+  const nm = box.querySelector('#oName'), cs = box.querySelector('#oCost');
+  nm.oninput = () => { W.other.name = nm.value; };
+  cs.oninput = () => { W.other.cost = cs.value; };
+  box.querySelectorAll('[data-ounit]').forEach(b => b.onclick = () => { W.other.unit = b.dataset.ounit; renderChips(); });
+  box.querySelector('#oCancel').onclick = () => { W.other = { open: false, name: '', unit: 'piece', cost: '' }; renderChips(); };
+  box.querySelector('#oAdd').onclick = addOtherItem;
+  cs.onkeydown = e => { if (e.key === 'Enter') addOtherItem(); };
+}
+async function addOtherItem() {
+  const err = document.getElementById('oErr'), o = W.other;
+  const name = o.name.trim().replace(/\s+/g, ' '), cost = parseAmount(o.cost);
+  if (!name) { err.textContent = 'اكتب اسم الصنف'; return; }
+  if (isNaN(cost)) { err.textContent = 'اكتب سعر التكلفة رقماً فقط، مثل 12.5'; return; }
+  const btn = document.getElementById('oAdd'); btn.disabled = true; btn.textContent = 'جارٍ الإضافة…';
+  const { data, error } = await sb.rpc('branch_add_item', { p_token: token, p_name: name, p_unit: o.unit, p_cost: cost });
+  if (error) { btn.disabled = false; btn.textContent = 'إضافة الصنف'; err.textContent = errMsg(error); return; }
+  const item = { id: data.id, name: data.name, unit: data.unit, cost: data.cost };
+  if (!itemOf(item.id)) { info.items.push(item); info.items.sort((a, b) => a.name.localeCompare(b.name, 'ar')); }
+  if (!W.basket.some(l => l.id === item.id)) W.basket.push({ id: item.id, n: '1', kg: '0' });
+  W.other = { open: false, name: '', unit: 'piece', cost: '' };
+  if (!document.getElementById('chips')) { renderWForm(); } else { renderChips(); renderLines(); document.getElementById('wTotal').textContent = money(basketTotal()); }
+  toast(data.existed ? `الصنف "${item.name}" موجود في القائمة وتمت إضافته للإدخال` : `تمت إضافة "${item.name}" إلى قائمة الأصناف`);
+}
+
 function renderChips() {
   const box = document.getElementById('chips'); if (!box) return;
   const q = W.search.trim();
   const list = (info.items || []).filter(i => !q || i.name.includes(q));
   box.innerHTML = list.map(i => `<button type="button" class="chip${W.basket.some(l => l.id === i.id) ? ' on' : ''}" data-item="${i.id}">${esc(i.name)}<small>${i.unit === 'weight' ? 'وزن' : 'حبة'}</small></button>`).join('')
-    || '<p class="muted" style="font-size:14px">لا يوجد صنف بهذا الاسم</p>';
+    + `<button type="button" class="chip chip-other${W.other.open ? ' on' : ''}" id="otherChip">+ صنف آخر</button>`
+    + (W.other.open ? otherFormHtml() : '');
+  bindOther(box);
   box.querySelectorAll('[data-item]').forEach(b => b.onclick = () => {
     const id = Number(b.dataset.item);
     let l = W.basket.find(x => x.id === id);
@@ -814,6 +898,11 @@ else {
   // عند الرجوع للصفحة أو بعد منتصف الليل: تحديث التاريخ والإدخالات
   document.addEventListener('visibilitychange', () => { if (!document.hidden && info && step !== 'confirm') load(); });
   setInterval(() => { if (info && todayISO() !== info.today && step === 'form') load(); }, 60000);
+  // تحديث كل 5 دقائق حتى يظهر إشعار التأخير في وقته (بدون مقاطعة الكتابة)
+  setInterval(() => {
+    const ae = document.activeElement;
+    if (info && !document.hidden && step === 'form' && W.step === 'form' && !(ae && ae.tagName === 'INPUT')) load();
+  }, 300000);
 }
 </script>
 </body>
