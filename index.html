@@ -57,6 +57,93 @@
   .chart-axis { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 6px; }
   .chart-note { color: var(--muted); font-size: 14px; align-self: center; }
 
+  /* ---- النقدي والآجل ---- */
+  .kpis { margin-top: 12px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px 16px; }
+  .kpi span { display: block; font-size: 13px; color: var(--muted); }
+  .kpi b { display: block; font-family: var(--font-head); font-size: 24px; font-weight: 700; margin-top: 2px; }
+  .kpi b .cur { display: inline; font-size: .5em; color: var(--muted); }
+  .kpi small { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .kpi .meter { height: 6px; background: var(--bg); border-radius: 6px; overflow: hidden; margin-top: 8px; }
+  .kpi .meter i { display: block; height: 100%; background: var(--accent); }
+  .kpi.wide { grid-column: span 2; display: flex; gap: 14px; align-items: center; }
+  .kpi.wide b { font-size: 32px; }
+  .kpi .ic { flex: none; width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; }
+  .kpi .ic svg { width: 28px; height: 28px; }
+  .kpi.real { background: var(--accent-soft); border-color: transparent; }
+  .kpi.real .ic { background: var(--accent); color: #fff; }
+  .kpi.real b { color: var(--accent); }
+  .kpi.rest { background: var(--caramel-soft); border-color: transparent; }
+  .kpi.rest .ic { background: var(--caramel); color: #fff; }
+  .kpi.rest b { color: var(--caramel); }
+  .credit-tag { font-size: 11px; padding: 1px 8px; border-radius: 99px; background: var(--caramel-soft); color: var(--caramel); font-family: var(--font-body); font-weight: 500; margin-inline-start: 6px; vertical-align: 2px; }
+  .crd { background: var(--bg); border-radius: var(--r-md); padding: 8px 10px; margin: 4px 0 6px; }
+  .crd .sub { padding: 2px 0; }
+  .crd .meter { height: 5px; background: var(--surface); border-radius: 5px; overflow: hidden; margin-top: 6px; }
+  .crd .meter i { display: block; height: 100%; background: var(--accent); }
+  .crd .pct { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .sub small { color: var(--muted); font-size: 12px; font-family: var(--font-body); margin-inline-start: 6px; font-weight: 400; }
+  td.col { color: var(--accent); }
+  @media (max-width: 900px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .kpi.wide { grid-column: 1 / -1; } .kpi.wide b { font-size: 26px; } }
+
+  /* ---- التوالف ---- */
+  .wsum { margin-top: 12px; background: var(--rose-soft); border-radius: var(--r-lg); padding: 14px 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; cursor: pointer; }
+  .wsum .ic { flex: none; width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; background: var(--rose); color: #fff; }
+  .wsum .ic svg { width: 28px; height: 28px; }
+  .wsum span { display: block; font-size: 13px; color: var(--muted); }
+  .wsum b { font-family: var(--font-head); font-size: 28px; color: var(--rose); }
+  .wsum b .cur { display: inline; color: var(--muted); }
+  .wsum .parts { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; }
+  .wsum .parts em { font-style: normal; font-family: var(--font-head); font-weight: 600; color: var(--ink); }
+  .wsum .btn { margin-inline-start: auto; }
+  .g-logo { width: 30px; height: 30px; border-radius: 8px; object-fit: contain; background: #fff; border: 1px solid var(--line); vertical-align: middle; margin-inline-end: 8px; }
+  .g-top h3 { display: flex; align-items: center; flex-wrap: wrap; }
+  .wtools { display: flex; gap: 8px; margin-inline-start: auto; }
+  .wseg { margin: 4px 0 12px; flex-wrap: wrap; }
+  .sub-title { font-size: 16px; margin: 22px 0 8px; }
+  .rank-bar { display: inline-block; width: 80px; height: 6px; background: var(--bg); border-radius: 6px; overflow: hidden; vertical-align: middle; }
+  .rank-bar i { display: block; height: 100%; background: var(--rose); }
+  td.wc { color: var(--rose); }
+  .batch { padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .batch:first-of-type { border-top: none; }
+  .batch-h { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .batch-h b.num { margin-inline-start: auto; color: var(--rose); }
+  .batch-l { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .btn-danger { color: var(--rose); border-color: var(--rose-soft); }
+  /* الأصناف */
+  .items-dlg { width: min(640px, calc(100vw - 24px)); max-height: calc(100vh - 32px); }
+  .items-dlg h2 { font-size: 20px; }
+  .item-form { background: var(--bg); border-radius: var(--r-md); padding: 14px; margin-top: 12px; }
+  .item-form .grid2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; }
+  .item-form .field { margin-top: 10px; }
+  .unit-seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 3px; }
+  .unit-seg label { padding: 8px 16px; border-radius: 9px; cursor: pointer; font-weight: 500; }
+  .unit-seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .unit-seg label:has(input:checked) { background: var(--ink); color: var(--on-ink); }
+  .br-checks { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 14px; }
+  .br-checks label { display: inline-flex; align-items: center; gap: 6px; }
+  .br-checks input { width: auto; padding: 0; margin: 0; }
+  .irow { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 10px 0; border-top: 1px solid var(--line); align-items: center; }
+  .irow:first-child { border-top: none; }
+  .irow small { display: block; color: var(--muted); font-size: 12px; }
+  .irow.off { opacity: .5; }
+  .irow .acts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .items-list { margin-top: 14px; }
+  .chip-u { font-size: 11px; padding: 0 7px; border-radius: 99px; background: var(--bg); border: 1px solid var(--line); margin-inline-start: 6px; }
+  /* الإعدادات */
+  .set-sec { padding: 12px 0; border-top: 1px solid var(--line); }
+  .set-sec:first-of-type { border-top: none; margin-top: 8px; }
+  .set-sec h3 { font-size: 15px; margin-bottom: 8px; }
+  .set-row { display: flex; gap: 8px; }
+  .set-row input { flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); }
+  .logo-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; flex-wrap: wrap; }
+  .logo-box { width: 52px; height: 52px; border-radius: 12px; border: 1px dashed var(--line); display: grid; place-items: center; background: #fff; overflow: hidden; color: var(--muted); font-family: var(--font-head); flex: none; }
+  .logo-box img { width: 100%; height: 100%; object-fit: contain; }
+  .logo-row .nm { flex: 1; min-width: 140px; font-weight: 600; }
+  .logo-row .acts { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .tgl { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+
   /* ---- الفروع ---- */
   .sec-title { font-size: 18px; margin: 26px 0 10px; }
   .groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; }
@@ -153,6 +240,7 @@
     <div class="brand"><h1>مبيعات الفروع</h1><span id="live" class="live">جارٍ الاتصال</span></div>
     <div class="top-actions">
       <button id="addBtn" class="btn btn-primary btn-sm">إدخال مبيعات</button>
+      <button id="wasteBtn" class="btn btn-ghost btn-sm">التوالف</button>
       <button id="bellBtn" class="btn btn-ghost btn-sm">طلبات التعديل <span id="bellCount" class="badge zero">0</span></button>
       <button id="logoutBtn" class="btn btn-ghost btn-sm">خروج</button>
     </div>
@@ -178,13 +266,17 @@
 
     <div id="overview">
       <section id="hero" class="hero"></section>
+      <section id="kpis" class="kpis"></section>
+      <section id="wasteSum"></section>
       <h2 class="sec-title">الفروع</h2>
       <section id="groups" class="groups"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <details class="box"><summary>روابط إدخال المبيعات للفروع</summary><div id="links"></div></details>
+      <details class="box"><summary>الإعدادات: شعارات الفروع ورابط قروب التوالف</summary><div id="settings"></div></details>
     </div>
 
     <section id="detail" hidden></section>
+    <section id="waste" hidden></section>
   </main>
 </div>
 
@@ -193,7 +285,8 @@
     <h2 style="font-size:20px">إدخال مبيعات من الإدارة</h2>
     <label class="field"><span>الفرع</span><select id="eBranch" required></select></label>
     <label class="field"><span>التاريخ</span><input type="date" id="eDate" required></label>
-    <label class="field"><span>إجمالي المبيعات (ريال)</span><input id="eAmount" inputmode="decimal" autocomplete="off" dir="ltr" required></label>
+    <label class="field"><span id="eAmountLbl">إجمالي المبيعات (ريال)</span><input id="eAmount" inputmode="decimal" autocomplete="off" dir="ltr" required></label>
+    <label class="field" id="eColWrap" hidden><span>التحصيل (ريال)</span><input id="eCollected" inputmode="decimal" autocomplete="off" dir="ltr" placeholder="0"></label>
     <p class="entry-status" id="eStatus" role="status"></p>
     <div class="dlg-actions">
       <button class="btn btn-primary" type="submit" id="eSave">حفظ المبيعات</button>
@@ -202,6 +295,34 @@
     <p class="muted" style="font-size:13px;margin-top:10px">سيظهر لموظف الفرع أن هذا اليوم مُدخل من قبل الإدارة، ولن يستطيع إدخاله مرة أخرى.</p>
   </form>
 </dialog>
+
+<dialog id="itemsDlg" class="items-dlg">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+    <h2>أصناف البضائع التالفة</h2>
+    <button class="btn btn-ghost btn-sm" type="button" id="itemsClose">إغلاق</button>
+  </div>
+  <form id="itemForm" class="item-form">
+    <b id="itemFormTitle">إضافة صنف جديد</b>
+    <div class="grid2">
+      <label class="field"><span>اسم الصنف</span><input id="iName" required autocomplete="off"></label>
+      <div class="field"><span>نوع الصنف</span>
+        <div class="unit-seg">
+          <label><input type="radio" name="iUnit" value="piece" checked>بالحبة</label>
+          <label><input type="radio" name="iUnit" value="weight">بالوزن</label>
+        </div></div>
+    </div>
+    <label class="field"><span id="iCostLbl">تكلفة الحبة (ريال)</span><input id="iCost" inputmode="decimal" autocomplete="off" dir="ltr" required></label>
+    <p class="muted" id="iCostHint" style="font-size:13px;margin-top:4px" hidden>اكتب تكلفة 1 كيلو (1000 جرام)، والبرنامج يحسب الجرامات تلقائياً.</p>
+    <div class="field"><span>يظهر في فروع</span><div class="br-checks" id="iBranches"></div></div>
+    <p class="err" id="iErr" role="alert"></p>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" type="submit" id="iSave">إضافة الصنف</button>
+      <button class="btn btn-ghost" type="button" id="iCancel" hidden>إلغاء التعديل</button>
+    </div>
+  </form>
+  <div class="items-list" id="itemsList"></div>
+</dialog>
+<input type="file" id="logoFile" accept="image/*" hidden>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
@@ -212,7 +333,8 @@ const S = {
   branches: [], byId: {}, groups: [], gmap: {},
   sales: [], idx: {}, pending: [], recent: [],
   mode: 'current', month: null, from: null, to: null, stripEnd: null, today: todayISO(),
-  detail: null, started: false, channel: null
+  detail: null, started: false, channel: null,
+  items: [], waste: [], settings: {}, wasteView: false, wasteFilter: 'all'
 };
 const label = b => b.group_name === b.name ? b.name : `${b.group_name} (${b.name})`;
 const R = ' ريال';
@@ -245,7 +367,7 @@ async function start() {
 
 // ---------------- البيانات ----------------
 async function loadBranches() {
-  const { data, error } = await sb.from('branches').select('id,name,group_name,sort_order,token,active').eq('active', true).order('sort_order');
+  const { data, error } = await sb.from('branches').select('id,name,group_name,sort_order,token,active,credit,waste,logo').eq('active', true).order('sort_order');
   if (error) { toast(errMsg(error), 'err'); return; }
   S.branches = data; S.byId = {}; S.groups = []; S.gmap = {};
   for (const b of data) {
@@ -284,18 +406,37 @@ async function reload() {
   try {
     computePeriod();
     const [sales, pend, rec] = await Promise.all([
-      fetchAll(() => sb.from('sales').select('id,branch_id,sale_date,amount,entered_by').gte('sale_date', S.from).lte('sale_date', S.to).order('sale_date').order('id')),
+      fetchAll(() => sb.from('sales').select('id,branch_id,sale_date,amount,collected,entered_by').gte('sale_date', S.from).lte('sale_date', S.to).order('sale_date').order('id')),
       sb.from('correction_requests').select('*').eq('status', 'pending').order('created_at'),
       sb.from('correction_requests').select('*').neq('status', 'pending').order('decided_at', { ascending: false }).limit(12)
     ]);
     if (pend.error) throw pend.error;
-    S.sales = sales; S.idx = {}; S.by = {};
-    for (const s of sales) { S.idx[s.branch_id + '|' + s.sale_date] = Number(s.amount); S.by[s.branch_id + '|' + s.sale_date] = s.entered_by; }
+    S.sales = sales; S.idx = {}; S.by = {}; S.cidx = {};
+    for (const s of sales) {
+      const k = s.branch_id + '|' + s.sale_date;
+      S.idx[k] = Number(s.amount); S.by[k] = s.entered_by; S.cidx[k] = Number(s.collected) || 0;
+    }
     S.pending = pend.data || []; S.recent = rec.data || [];
+    await loadWasteData();
     renderAll();
   } catch (e) { toast(errMsg(e), 'err'); }
   reloading = false;
   if (again) { again = false; reload(); }
+}
+
+// التوالف والأصناف والإعدادات (لا توقف اللوحة لو حدث خطأ)
+async function loadWasteData() {
+  try {
+    const [w, it, st] = await Promise.all([
+      fetchAll(() => sb.from('waste_records').select('id,batch_id,branch_id,waste_date,item_name,unit,qty,unit_cost,cost,entered_by,created_at')
+        .gte('waste_date', S.from).lte('waste_date', S.to).order('waste_date').order('id')),
+      sb.from('waste_items').select('*').order('name'),
+      sb.from('app_settings').select('key,value')
+    ]);
+    if (it.error) throw it.error;
+    S.waste = w; S.items = it.data || [];
+    S.settings = Object.fromEntries((st.data || []).map(r => [r.key, r.value]));
+  } catch (e) { console.warn('waste', e); S.waste = []; }
 }
 
 // ---------------- الحسابات ----------------
@@ -304,11 +445,31 @@ function branchTotal(bid) { let t = 0; for (const s of S.sales) if (s.branch_id 
 function dayTotal(d, brs = S.branches) { let t = 0, any = false; for (const b of brs) { const v = amt(b.id, d); if (v != null) { t += v; any = true; } } return any ? t : null; }
 function grandTotal() { return S.sales.reduce((a, s) => a + Number(s.amount), 0); }
 function elapsedDays() { const end = minISO(S.to, S.today); return end < S.from ? [] : daysRange(S.from, end); }
+// الآجل والتحصيل
+const col = (bid, d) => S.cidx[bid + '|' + d];
+function branchCol(bid) { let t = 0; for (const s of S.sales) if (s.branch_id === bid) t += Number(s.collected) || 0; return t; }
+function dayCol(d, brs) { let t = 0; for (const b of brs) if (b.credit) t += col(b.id, d) || 0; return t; }
+const pctOf = (a, b) => b > 0 ? a / b * 100 : 0;
+const fmtPct = p => (Math.round(p * 10) / 10).toLocaleString('en-US') + '%';
+// ملخص مجموعة فروع: المبيعات كلها، الآجل، المحصل، النقدي، المتبقي، الدخل الحقيقي
+function summary(brs = S.branches) {
+  let sales = 0, credit = 0, collected = 0;
+  for (const b of brs) {
+    const t = branchTotal(b.id); sales += t;
+    if (b.credit) { credit += t; collected += branchCol(b.id); }
+  }
+  const cash = sales - credit;
+  return { sales, credit, collected, cash, rest: credit - collected, real: cash + collected, pct: pctOf(collected, credit) };
+}
+const ICON_WALLET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H18a1 1 0 0 1 1 1v2"/><path d="M3 7.5v10A2.5 2.5 0 0 0 5.5 20H20a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1H5.5A2.5 2.5 0 0 1 3 7.5Z"/><circle cx="16.5" cy="14.5" r="1.3" fill="currentColor"/></svg>';
+const ICON_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4"/><path d="M14 3l5 5h-5z"/><circle cx="17" cy="17" r="4.2"/><path d="M17 15.2V17l1.3 1"/></svg>';
 
 // ---------------- العرض ----------------
 function renderAll() {
-  renderPeriodLabel(); renderCorrections(); renderHero(); renderGroups(); renderHistory();
+  renderPeriodLabel(); renderCorrections(); renderHero(); renderKpis(); renderWasteSum(); renderGroups(); renderHistory(); renderSettings();
   if (S.detail) renderDetail();
+  if (S.wasteView) renderWaste();
+  if ($('itemsDlg').open) renderItemsList();
 }
 
 function renderPeriodLabel() {
@@ -345,7 +506,7 @@ function renderHero() {
 
   $('hero').innerHTML = `
     <div>
-      <p class="hero-k">إجمالي مبيعات جميع الفروع</p>
+      <p class="hero-k">إجمالي مبيعات جميع الفروع${S.branches.some(b => b.credit) ? ' (نقدي + آجل)' : ''}</p>
       <p class="hero-total num">${money(total)}<span class="cur">ريال</span></p>
       <div class="hero-stats">
         <div><span>متوسط اليوم</span><b>${money(Math.round(avg))}</b></div>
@@ -355,6 +516,25 @@ function renderHero() {
       <button class="btn btn-ghost btn-sm" data-detail="__all">التفاصيل اليومية لكل الفروع</button>
     </div>
     ${chart}`;
+}
+
+function renderKpis() {
+  const cb = S.branches.filter(b => b.credit);
+  if (!cb.length) { $('kpis').innerHTML = ''; return; }
+  const m = summary();
+  const names = [...new Set(cb.map(b => b.group_name))].join(' و');
+  const restLabel = S.mode === 'current' ? 'إجمالي الآجل المتبقي من مبيعات الشهر الحالي' : 'إجمالي الآجل المتبقي من مبيعات الفترة';
+  $('kpis').innerHTML = `
+    <div class="kpi"><span>المبيعات الكاملة</span><b class="num">${money(m.sales)}</b><small>نقدي ${money(m.cash)} + آجل ${money(m.credit)}</small></div>
+    <div class="kpi"><span>إجمالي الفواتير الآجلة</span><b class="num">${money(m.credit)}</b><small>${esc(names)}</small></div>
+    <div class="kpi"><span>المبالغ المحصّلة من الآجل</span><b class="num">${money(m.collected)}</b><small>من ${money(m.credit)} ريال</small></div>
+    <div class="kpi"><span>نسبة تحصيل الآجل</span><b class="num">${fmtPct(m.pct)}</b><div class="meter"><i style="width:${Math.min(100, m.pct)}%"></i></div></div>
+    <div class="kpi wide real"><div class="ic">${ICON_WALLET}</div><div>
+      <span>إجمالي الدخل الحقيقي</span><b class="num">${money(m.real)}<span class="cur">ريال</span></b>
+      <small>مبيعات الفروع النقدية ${money(m.cash)} + المحصّل من الآجل ${money(m.collected)}</small></div></div>
+    <div class="kpi wide rest"><div class="ic">${ICON_CLOCK}</div><div>
+      <span>${restLabel}</span><b class="num">${money(m.rest)}<span class="cur">ريال</span></b>
+      <small>${m.rest < 0 ? 'التحصيل أعلى من آجل الفترة (تحصيل من فواتير سابقة)' : m.credit ? `غير محصّل: ${fmtPct(100 - m.pct)} من الآجل` : 'لا توجد مبيعات آجلة في هذه الفترة'}</small></div></div>`;
 }
 
 function dotsFor(b, strip) {
@@ -383,11 +563,26 @@ function renderGroups() {
     else if (todayMissing) foot = `<p class="g-foot">لم يُدخل اليوم بعد</p>`;
     else foot = `<p class="g-foot">كل الأيام مُدخلة</p>`;
 
+    const isCredit = g.branches.some(b => b.credit);
+    const m = isCredit ? summary(g.branches) : null;
+    const creditBox = isCredit ? `<div class="crd">
+        <div class="sub"><span>إجمالي المبيعات (آجل)</span><b>${money(m.credit)}</b></div>
+        <div class="sub"><span>التحصيل</span><b class="ok">${money(m.collected)}</b></div>
+        <div class="sub"><span>المبلغ الباقي</span><b>${money(m.rest)}</b></div>
+        <div class="meter"><i style="width:${Math.min(100, m.pct)}%"></i></div>
+        <p class="pct">المحصّل ${fmtPct(m.pct)} من إجمالي المبيعات</p></div>` : '';
+
+    const logo = (g.branches.find(b => b.logo) || {}).logo;
+    const isWaste = g.branches.some(b => b.waste);
+    const wasteLine = isWaste ? `<div class="sub"><span>البضائع التالفة</span><b class="no">${money(wasteTotal(S.waste.filter(r => g.branches.some(b => b.id === r.branch_id))))}</b></div>` : '';
+
     return `<div class="gcard" role="button" tabindex="0" data-detail="${esc(g.name)}">
-      <div class="g-top"><h3>${esc(g.name)}</h3><span class="share">${share.toFixed(1)}%</span></div>
+      <div class="g-top"><h3>${logo ? `<img class="g-logo" src="${esc(logo)}" alt="">` : ''}${esc(g.name)}${isCredit ? '<span class="credit-tag">آجل</span>' : ''}</h3><span class="share">${share.toFixed(1)}%</span></div>
       <p class="g-total num">${money(gt)}<span class="cur">ريال</span></p>
       <div class="share-bar"><i style="width:${share}%"></i></div>
-      ${multi ? g.branches.map(b => `<div class="sub"><span>${esc(b.name)}</span><b>${money(branchTotal(b.id))}</b></div>`).join('') : ''}
+      ${creditBox}
+      ${wasteLine}
+      ${multi ? g.branches.map(b => `<div class="sub"><span>${esc(b.name)}</span><b>${money(branchTotal(b.id))}${b.credit ? `<small>تحصيل ${money(branchCol(b.id))}</small>` : ''}</b></div>`).join('') : ''}
       ${showDots ? g.branches.map(b => `<div class="dots-row">${multi ? `<small>${esc(b.name)}</small>` : ''}${dotsFor(b, strip)}</div>`).join('') : ''}
       ${foot}
     </div>`;
@@ -401,9 +596,14 @@ function renderCorrections() {
   $('corrections').innerHTML = `<div class="corr-panel" id="corrPanel"><h2>طلبات تعديل بانتظار قرارك (${n})</h2>
     ${S.pending.map(r => {
       const b = S.byId[r.branch_id];
+      const hasCol = r.new_collected != null;
+      const body = hasCol
+        ? `كانت المبيعات <b class="num">${money(r.old_amount)}</b> والتحصيل <b class="num">${money(r.old_collected)}</b> ريال،
+           والتعديل: المبيعات <b class="num">${money(r.new_amount)}</b> والتحصيل <b class="num">${money(r.new_collected)}</b> ريال.`
+        : `كان المبلغ المرسل <b class="num">${money(r.old_amount)}</b> ريال، ومبلغ التعديل <b class="num">${money(r.new_amount)}</b> ريال.`;
       return `<div class="corr">
         <p>تم طلب تعديل من فرع <b>${esc(b ? label(b) : '')}</b> للمبلغ المرسل سابقاً بتاريخ <b>${esc(fmtLong(r.sale_date))}</b>.
-        كان المبلغ المرسل <b class="num">${money(r.old_amount)}</b> ريال، ومبلغ التعديل <b class="num">${money(r.new_amount)}</b> ريال.</p>
+        ${body}</p>
         ${r.note ? `<p class="note">ملاحظة الفرع: ${esc(r.note)}</p>` : ''}
         <p class="meta">أُرسل الطلب ${esc(fmtStamp(r.created_at))}</p>
         <div class="actions">
@@ -418,7 +618,7 @@ function renderHistory() {
   $('history').innerHTML = '<div style="margin-top:8px">' + S.recent.map(r => {
     const b = S.byId[r.branch_id], ok = r.status === 'approved';
     return `<div class="hist"><b class="${ok ? 'ok' : 'no'}">${ok ? 'قُبل' : 'رُفض'}</b> تعديل ${esc(b ? label(b) : '')} ليوم ${esc(fmtShort(r.sale_date))}:
-      ${money(r.old_amount)} إلى ${money(r.new_amount)} ريال <span class="muted">(${esc(fmtStamp(r.decided_at))})</span></div>`;
+      ${money(r.old_amount)} إلى ${money(r.new_amount)} ريال${r.new_collected != null && Number(r.new_collected) !== Number(r.old_collected) ? `، التحصيل ${money(r.old_collected)} إلى ${money(r.new_collected)}` : ''} <span class="muted">(${esc(fmtStamp(r.decided_at))})</span></div>`;
   }).join('') + '</div>';
 }
 
@@ -448,41 +648,314 @@ function renderDetail() {
   const total = brs.reduce((a, b) => a + branchTotal(b.id), 0);
   const entered = days.filter(d => dayTotal(d, brs) != null).length;
   const head = b => all ? label(b) : b.name;
+  const anyCredit = brs.some(b => b.credit);
+  const allCredit = brs.every(b => b.credit);
+  const m = summary(brs);
 
-  let cum = 0;
+  const creditBrs = brs.filter(b => b.credit);
+  let cum = 0, cumCol = 0, cumCred = 0;
   const rows = days.map(d => {
-    const dt = dayTotal(d, brs) || 0; cum += dt;
+    const dt = dayTotal(d, brs) || 0, dc = dayCol(d, brs); cum += dt; cumCol += dc;
+    cumCred += dayTotal(d, creditBrs) || 0;
     const cells = brs.map(b => {
       const v = amt(b.id, d);
-      if (v == null) return `<td class="n"><button class="cell-add" data-add="${b.id}|${d}">${d === S.today ? 'لم يُدخل بعد' : 'لم يُدخل'}، إضافة</button></td>`;
-      return `<td class="n">${S.by[b.id + '|' + d] === 'admin' ? '<span class="by-adm" title="أدخلته الإدارة">إدارة</span>' : ''}${money(v)}</td>`;
+      if (v == null) return `<td class="n"><button class="cell-add" data-add="${b.id}|${d}">${d === S.today ? 'لم يُدخل بعد' : 'لم يُدخل'}، إضافة</button></td>${b.credit ? '<td class="n muted">—</td>' : ''}`;
+      return `<td class="n">${S.by[b.id + '|' + d] === 'admin' ? '<span class="by-adm" title="أدخلته الإدارة">إدارة</span>' : ''}${money(v)}</td>${b.credit ? `<td class="n col">${money(col(b.id, d))}</td>` : ''}`;
     }).join('');
     return `<tr class="${d === S.today ? 'is-today' : ''}"><td>${esc(fmtShort(d))}</td><td>${esc(fmtDayName(d))}</td>${cells}
-      ${multi ? `<td class="n tot">${money(dt)}</td>` : ''}<td class="n cum">${money(cum)}</td></tr>`;
+      ${multi ? `<td class="n tot">${money(dt)}</td>` : ''}${multi && anyCredit ? `<td class="n tot col">${money(dc)}</td>` : ''}<td class="n cum">${money(cum)}</td>${anyCredit ? `<td class="n cum">${money(cumCred - cumCol)}</td>` : ''}</tr>`;
   }).join('');
+
+  const pills = anyCredit ? `
+      ${!allCredit ? `<div class="pill"><span>مبيعات نقدية</span><b>${money(m.cash)}</b></div>` : ''}
+      <div class="pill"><span>إجمالي المبيعات الآجلة</span><b>${money(m.credit)}</b></div>
+      <div class="pill"><span>التحصيل</span><b class="ok">${money(m.collected)}</b></div>
+      <div class="pill"><span>المبلغ الباقي</span><b>${money(m.rest)}</b></div>
+      <div class="pill"><span>نسبة المحصّل من المبيعات</span><b>${fmtPct(m.pct)}</b></div>
+      ${!allCredit ? `<div class="pill"><span>الدخل الحقيقي</span><b class="ok">${money(m.real)}</b></div>` : ''}` : '';
+  const colHead = b => b.credit ? `<th class="n">${esc(head(b))}${multi ? ' مبيعات' : ' (المبيعات)'}</th><th class="n">${multi ? esc(head(b)) + ' تحصيل' : 'التحصيل'}</th>` : `<th class="n">${esc(head(b))}</th>`;
+  const colFoot = b => `<td class="n">${money(branchTotal(b.id))}</td>${b.credit ? `<td class="n col">${money(branchCol(b.id))}</td>` : ''}`;
 
   $('detail').innerHTML = `
     <div class="detail-head"><button class="btn btn-ghost btn-sm" id="backBtn">رجوع للوحة</button><h2>${esc(all ? 'جميع الفروع' : g.name)}</h2></div>
     <div class="detail-sum">
-      <div class="pill main"><span>الإجمالي</span><b>${money(total)}${R}</b></div>
+      <div class="pill main"><span>${anyCredit && allCredit ? 'إجمالي المبيعات (آجل)' : 'الإجمالي'}</span><b>${money(total)}${R}</b></div>
       ${multi ? brs.map(b => `<div class="pill"><span>${esc(head(b))}</span><b>${money(branchTotal(b.id))}</b></div>`).join('') : ''}
+      ${pills}
       <div class="pill"><span>متوسط اليوم</span><b>${money(Math.round(days.length ? total / days.length : 0))}</b></div>
       <div class="pill"><span>أيام فيها إدخال</span><b>${entered} من ${days.length}</b></div>
     </div>
     ${days.length ? `<div class="tbl-wrap"><table>
-      <thead><tr><th>التاريخ</th><th>اليوم</th>${brs.map(b => `<th class="n">${esc(head(b))}</th>`).join('')}${multi ? '<th class="n">الإجمالي</th>' : ''}<th class="n">التراكمي</th></tr></thead>
+      <thead><tr><th>التاريخ</th><th>اليوم</th>${brs.map(colHead).join('')}${multi ? '<th class="n">إجمالي المبيعات</th>' : ''}${multi && anyCredit ? '<th class="n">إجمالي التحصيل</th>' : ''}<th class="n">المبيعات التراكمية</th>${anyCredit ? '<th class="n">الآجل المتبقي التراكمي</th>' : ''}</tr></thead>
       <tbody>${rows}</tbody>
-      <tfoot><tr><td colspan="2">المجموع</td>${brs.map(b => `<td class="n">${money(branchTotal(b.id))}</td>`).join('')}${multi ? `<td class="n">${money(total)}</td>` : ''}<td class="n">${money(total)}</td></tr></tfoot>
+      <tfoot><tr><td colspan="2">المجموع</td>${brs.map(colFoot).join('')}${multi ? `<td class="n">${money(total)}</td>` : ''}${multi && anyCredit ? `<td class="n col">${money(m.collected)}</td>` : ''}<td class="n">${money(total)}</td>${anyCredit ? `<td class="n">${money(m.rest)}</td>` : ''}</tr></tfoot>
     </table></div>` : `<p class="muted">لا توجد أيام في هذه الفترة بعد.</p>`}`;
   $('backBtn').onclick = closeDetail;
 }
-function openDetail(key) { S.detail = key; $('overview').hidden = true; $('detail').hidden = false; renderDetail(); scrollTo({ top: 0 }); }
-function closeDetail() { S.detail = null; $('detail').hidden = true; $('overview').hidden = false; }
+function openDetail(key) { S.detail = key; S.wasteView = false; $('overview').hidden = true; $('waste').hidden = true; $('detail').hidden = false; renderDetail(); scrollTo({ top: 0 }); }
+function closeDetail() { S.detail = null; S.wasteView = false; $('detail').hidden = true; $('waste').hidden = true; $('overview').hidden = false; }
+function openWaste(filter) {
+  S.detail = null; S.wasteView = true; if (filter) S.wasteFilter = filter;
+  $('overview').hidden = true; $('detail').hidden = true; $('waste').hidden = false;
+  renderWaste(); scrollTo({ top: 0 });
+}
+
+// =====================================================================
+//  البضائع التالفة
+// =====================================================================
+const ICON_TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/><path d="M10 11v6M14 11v6"/></svg>';
+const wasteBranches = () => S.branches.filter(b => b.waste);
+const wasteTotal = recs => recs.reduce((a, r) => a + Number(r.cost), 0);
+const unitName = u => u === 'weight' ? 'كيلو' : 'حبة';
+function fmtQty(unit, q) {
+  q = Number(q);
+  if (unit === 'piece') return `${money(q)} حبة`;
+  const kg = Math.floor(q / 1000), g = Math.round(q % 1000);
+  if (!kg) return `${g} جرام`;
+  return g ? `${money(kg)} كيلو و ${g} جرام` : `${money(kg)} كيلو`;
+}
+function wByItem(recs) {
+  const map = {};
+  for (const r of recs) {
+    const k = r.item_name + '|' + r.unit;
+    (map[k] = map[k] || { item: r.item_name, unit: r.unit, qty: 0, cost: 0, br: {} });
+    map[k].qty += Number(r.qty); map[k].cost += Number(r.cost);
+    map[k].br[r.branch_id] = (map[k].br[r.branch_id] || 0) + Number(r.cost);
+  }
+  return Object.values(map).sort((a, b) => b.cost - a.cost);
+}
+
+function renderWasteSum() {
+  const brs = wasteBranches();
+  if (!brs.length) { $('wasteSum').innerHTML = ''; return; }
+  const total = wasteTotal(S.waste.filter(r => brs.some(b => b.id === r.branch_id)));
+  $('wasteSum').innerHTML = `<div class="wsum" role="button" tabindex="0" data-waste-open="all">
+    <div class="ic">${ICON_TRASH}</div>
+    <div><span>البضائع التالفة للفترة</span><b class="num">${money(total)}<span class="cur">ريال</span></b>
+      <div class="parts">${brs.map(b => `<span>${esc(label(b))}: <em>${money(wasteTotal(S.waste.filter(r => r.branch_id === b.id)))}</em></span>`).join('')}</div></div>
+    <button class="btn btn-ghost btn-sm" type="button">التقرير المفصل</button></div>`;
+}
+
+function renderWaste() {
+  const brs = wasteBranches();
+  const f = S.wasteFilter;
+  const shown = f === 'all' ? brs : brs.filter(b => String(b.id) === String(f));
+  if (!shown.length && brs.length) { S.wasteFilter = 'all'; return renderWaste(); }
+  const recs = S.waste.filter(r => shown.some(b => b.id === r.branch_id));
+  const total = wasteTotal(recs);
+  const days = elapsedDays();
+  const multi = shown.length > 1;
+  const dayAmt = (d, bid) => recs.reduce((a, r) => a + (r.waste_date === d && (bid == null || r.branch_id === bid) ? Number(r.cost) : 0), 0);
+  const items = wByItem(recs);
+  const activeDays = new Set(recs.map(r => r.waste_date)).size;
+
+  let cum = 0;
+  const rows = days.map(d => {
+    const t = dayAmt(d); cum += t;
+    return `<tr class="${d === S.today ? 'is-today' : ''}"><td>${esc(fmtShort(d))}</td><td>${esc(fmtDayName(d))}</td>
+      ${multi ? shown.map(b => { const v = dayAmt(d, b.id); return `<td class="n${v ? ' wc' : ' muted'}">${v ? money(v) : '—'}</td>`; }).join('') : ''}
+      <td class="n tot">${t ? money(t) : '<span class="muted">0</span>'}</td><td class="n cum">${money(cum)}</td></tr>`;
+  }).join('');
+
+  // سجل الإدخالات (كل إرسال من الموظف دفعة واحدة)
+  const batches = {};
+  for (const r of recs) (batches[r.batch_id] = batches[r.batch_id] || { id: r.batch_id, branch: r.branch_id, date: r.waste_date, at: r.created_at, lines: [], total: 0 }).lines.push(r);
+  const blist = Object.values(batches).map(b => (b.total = wasteTotal(b.lines), b)).sort((a, b) => (b.at > a.at ? 1 : -1));
+
+  $('waste').innerHTML = `
+    <div class="detail-head"><button class="btn btn-ghost btn-sm" id="wBackBtn">رجوع للوحة</button><h2>البضائع التالفة</h2>
+      <div class="wtools"><button class="btn btn-primary btn-sm" id="itemsBtn">إدارة الأصناف (${S.items.filter(i => i.active).length})</button></div></div>
+    ${!brs.length ? `<p class="muted" style="margin-top:14px">لا يوجد فرع مفعّل له قسم التوالف. فعّله من الإعدادات في اللوحة.</p>` : `
+    <div class="seg wseg" role="group" aria-label="الفرع">
+      <button data-wf="all" aria-pressed="${f === 'all'}">كل الفروع</button>
+      ${brs.map(b => `<button data-wf="${b.id}" aria-pressed="${String(f) === String(b.id)}">${esc(label(b))}</button>`).join('')}
+    </div>
+    <div class="detail-sum">
+      <div class="pill main"><span>إجمالي تكلفة التوالف</span><b>${money(total)}${R}</b></div>
+      ${multi ? shown.map(b => `<div class="pill"><span>${esc(label(b))}</span><b>${money(wasteTotal(recs.filter(r => r.branch_id === b.id)))}</b></div>`).join('') : ''}
+      <div class="pill"><span>عدد الإدخالات</span><b>${blist.length}</b></div>
+      <div class="pill"><span>أيام فيها توالف</span><b>${activeDays} من ${days.length}</b></div>
+      <div class="pill"><span>متوسط اليوم</span><b>${money(Math.round(days.length ? total / days.length : 0))}</b></div>
+    </div>
+
+    <h3 class="sub-title">الأصناف من الأعلى تكلفة إلى الأقل</h3>
+    ${items.length ? `<div class="tbl-wrap"><table>
+      <thead><tr><th class="n">#</th><th>الصنف</th><th>إجمالي الكمية</th>${multi ? shown.map(b => `<th class="n">${esc(label(b))}</th>`).join('') : ''}<th class="n">التكلفة</th><th class="n">النسبة</th><th></th></tr></thead>
+      <tbody>${items.map((i, k) => { const p = total ? i.cost / total * 100 : 0; return `<tr><td class="n">${k + 1}</td><td><b>${esc(i.item)}</b></td><td>${esc(fmtQty(i.unit, i.qty))}</td>
+        ${multi ? shown.map(b => `<td class="n">${i.br[b.id] ? money(i.br[b.id]) : '<span class="muted">—</span>'}</td>`).join('') : ''}
+        <td class="n wc tot">${money(i.cost)}</td><td class="n">${p.toFixed(1)}%</td><td><span class="rank-bar"><i style="width:${p}%"></i></span></td></tr>`; }).join('')}</tbody>
+      <tfoot><tr><td colspan="3">الإجمالي</td>${multi ? shown.map(b => `<td class="n">${money(wasteTotal(recs.filter(r => r.branch_id === b.id)))}</td>`).join('') : ''}<td class="n">${money(total)}</td><td class="n">100%</td><td></td></tr></tfoot>
+    </table></div>` : `<p class="muted">لا توجد توالف في هذه الفترة.</p>`}
+
+    <h3 class="sub-title">التوالف اليومية والقيمة التراكمية</h3>
+    ${days.length ? `<div class="tbl-wrap"><table>
+      <thead><tr><th>التاريخ</th><th>اليوم</th>${multi ? shown.map(b => `<th class="n">${esc(label(b))}</th>`).join('') : ''}<th class="n">توالف اليوم</th><th class="n">التراكمي</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr><td colspan="2">المجموع</td>${multi ? shown.map(b => `<td class="n">${money(wasteTotal(recs.filter(r => r.branch_id === b.id)))}</td>`).join('') : ''}<td class="n">${money(total)}</td><td class="n">${money(total)}</td></tr></tfoot>
+    </table></div>` : `<p class="muted">لا توجد أيام في هذه الفترة بعد.</p>`}
+
+    <details class="box"><summary>سجل الإدخالات (${blist.length})</summary><div style="margin-top:6px">
+      ${blist.length ? blist.map(b => { const br = S.byId[b.branch]; return `<div class="batch">
+        <div class="batch-h"><b>${esc(br ? label(br) : '')}</b><span class="muted">${esc(fmtShort(b.date))} · أُرسل ${esc(fmtStamp(b.at))}</span>
+          <b class="num">${money(b.total)}${R}</b>
+          <button class="btn btn-ghost btn-sm btn-danger" data-delbatch="${b.id}">حذف</button></div>
+        <div class="batch-l">${b.lines.map(l => `${esc(l.item_name)} (${esc(fmtQty(l.unit, l.qty))}): ${money(l.cost)}`).join('، ')}</div></div>`; }).join('')
+      : '<p class="muted">لا توجد إدخالات.</p>'}</div></details>`}`;
+
+  $('wBackBtn').onclick = closeDetail;
+  $('itemsBtn').onclick = openItems;
+  $('waste').querySelectorAll('[data-wf]').forEach(b => b.onclick = () => { S.wasteFilter = b.dataset.wf; renderWaste(); });
+}
+
+async function deleteBatch(id) {
+  if (!confirm('حذف هذا الإدخال من التوالف؟ لا يمكن التراجع.')) return;
+  const { error } = await sb.from('waste_records').delete().eq('batch_id', id);
+  if (error) return toast(errMsg(error), 'err');
+  toast('تم حذف الإدخال'); reload();
+}
+
+// ---------------- الأصناف ----------------
+let editItem = null;
+function openItems() { resetItemForm(); renderItemsList(); $('itemsDlg').showModal(); }
+function unitVal() { return document.querySelector('input[name="iUnit"]:checked').value; }
+function syncUnit() {
+  const w = unitVal() === 'weight';
+  $('iCostLbl').textContent = w ? 'تكلفة 1 كيلو (ريال)' : 'تكلفة الحبة (ريال)';
+  $('iCostHint').hidden = !w;
+}
+document.querySelectorAll('input[name="iUnit"]').forEach(r => r.onchange = syncUnit);
+function resetItemForm(it) {
+  editItem = it || null;
+  $('itemFormTitle').textContent = it ? `تعديل: ${it.name}` : 'إضافة صنف جديد';
+  $('iName').value = it ? it.name : '';
+  $('iCost').value = it ? String(Number(it.cost)) : '';
+  document.querySelector(`input[name="iUnit"][value="${it ? it.unit : 'piece'}"]`).checked = true;
+  const sel = it && it.branch_ids && it.branch_ids.length ? it.branch_ids : null;
+  $('iBranches').innerHTML = wasteBranches().map(b => `<label><input type="checkbox" value="${b.id}" ${!sel || sel.includes(b.id) ? 'checked' : ''}>${esc(label(b))}</label>`).join('')
+    || '<span class="muted">فعّل قسم التوالف لفرع من الإعدادات أولاً</span>';
+  $('iSave').textContent = it ? 'حفظ التعديل' : 'إضافة الصنف';
+  $('iCancel').hidden = !it; $('iErr').textContent = '';
+  syncUnit();
+}
+function renderItemsList() {
+  const brs = wasteBranches();
+  const brNames = it => !it.branch_ids || !it.branch_ids.length || brs.every(b => it.branch_ids.includes(b.id))
+    ? 'كل فروع التوالف' : it.branch_ids.map(id => S.byId[id] ? label(S.byId[id]) : '').filter(Boolean).join('، ');
+  $('itemsList').innerHTML = S.items.length ? S.items.map(it => `<div class="irow${it.active ? '' : ' off'}">
+      <div><b>${esc(it.name)}</b><span class="chip-u">${it.unit === 'weight' ? 'وزن' : 'حبة'}</span>
+        <small>${money(it.cost)} ريال / ${unitName(it.unit)} · ${esc(brNames(it))}${it.active ? '' : ' · موقوف'}</small></div>
+      <div class="acts">
+        <button class="btn btn-ghost btn-sm" data-iedit="${it.id}">تعديل</button>
+        <button class="btn btn-ghost btn-sm" data-itoggle="${it.id}">${it.active ? 'إيقاف' : 'تفعيل'}</button>
+        <button class="btn btn-ghost btn-sm btn-danger" data-idel="${it.id}">حذف</button>
+      </div></div>`).join('')
+    : '<p class="muted">لا توجد أصناف بعد. أضف أول صنف من النموذج أعلاه.</p>';
+}
+$('itemsClose').onclick = () => $('itemsDlg').close();
+$('iCancel').onclick = () => resetItemForm();
+$('itemForm').onsubmit = async ev => {
+  ev.preventDefault();
+  const err = $('iErr'), name = $('iName').value.trim(), cost = parseAmount($('iCost').value), unit = unitVal();
+  if (!name) { err.textContent = 'اكتب اسم الصنف'; return; }
+  if (isNaN(cost)) { err.textContent = 'اكتب التكلفة رقماً فقط، مثل 12.5'; return; }
+  const checked = [...$('iBranches').querySelectorAll('input:checked')].map(c => Number(c.value));
+  const all = wasteBranches().length;
+  if (all && !checked.length) { err.textContent = 'اختر فرعاً واحداً على الأقل'; return; }
+  const row = { name, unit, cost, branch_ids: checked.length === all ? null : checked };
+  $('iSave').disabled = true;
+  const { error } = editItem
+    ? await sb.from('waste_items').update(row).eq('id', editItem.id)
+    : await sb.from('waste_items').insert(row);
+  $('iSave').disabled = false;
+  if (error) { err.textContent = errMsg(error); return; }
+  toast(editItem ? 'تم حفظ التعديل' : `تمت إضافة ${name}`);
+  resetItemForm(); await loadWasteData(); renderAll(); $('iName').focus();
+};
+$('itemsList').addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const id = Number(b.dataset.iedit || b.dataset.itoggle || b.dataset.idel), it = S.items.find(x => x.id === id);
+  if (!it) return;
+  if (b.dataset.iedit) { resetItemForm(it); $('iName').focus(); return; }
+  let error;
+  if (b.dataset.itoggle) ({ error } = await sb.from('waste_items').update({ active: !it.active }).eq('id', id));
+  else {
+    if (!confirm(`حذف الصنف "${it.name}"؟ التقارير السابقة تبقى كما هي.`)) return;
+    ({ error } = await sb.from('waste_items').delete().eq('id', id));
+  }
+  if (error) return toast(errMsg(error), 'err');
+  await loadWasteData(); renderAll();
+});
+
+// ---------------- الإعدادات: الشعارات ورابط القروب ----------------
+let logoFor = null;
+function renderSettings() {
+  const el = $('settings'); if (!el) return;
+  const link = S.settings.waste_whatsapp_link || '';
+  const active = document.activeElement && document.activeElement.id === 'waLink';
+  if (active) return; // لا نعيد الرسم أثناء الكتابة
+  el.innerHTML = `
+    <div class="set-sec"><h3>رابط قروب واتساب الخاص بالتوالف</h3>
+      <div class="set-row"><input id="waLink" dir="ltr" placeholder="https://chat.whatsapp.com/..." value="${esc(link)}">
+        <button class="btn btn-primary btn-sm" id="saveLink">حفظ</button></div>
+      <p class="muted" style="font-size:13px;margin-top:6px">${link ? 'بعد إرسال التوالف يظهر للموظف زر فتح القروب.' : 'لم يُضف الرابط بعد. يمكنك إضافته لاحقاً.'}</p></div>
+    <div class="set-sec"><h3>شعارات الفروع وقسم التوالف</h3>
+      ${S.branches.map(b => `<div class="logo-row">
+        <div class="logo-box">${b.logo ? `<img src="${esc(b.logo)}" alt="">` : esc(b.name.slice(0, 1))}</div>
+        <span class="nm">${esc(label(b))}</span>
+        <div class="acts">
+          <button class="btn btn-ghost btn-sm" data-logo="${b.id}">${b.logo ? 'تغيير الشعار' : 'رفع شعار'}</button>
+          ${b.logo ? `<button class="btn btn-ghost btn-sm btn-danger" data-logodel="${b.id}">حذف</button>` : ''}
+          <label class="tgl"><input type="checkbox" data-wtoggle="${b.id}" ${b.waste ? 'checked' : ''}>قسم التوالف</label>
+        </div></div>`).join('')}
+      <p class="muted" style="font-size:13px">الشعار يظهر في صفحة الفرع وفي تقرير PDF وفي بطاقات اللوحة.</p></div>`;
+  $('saveLink').onclick = async () => {
+    const v = $('waLink').value.trim();
+    if (v && !/^https?:\/\//i.test(v)) return toast('الرابط يجب أن يبدأ بـ https://', 'err');
+    const { error } = await sb.from('app_settings').upsert({ key: 'waste_whatsapp_link', value: v });
+    if (error) return toast(errMsg(error), 'err');
+    S.settings.waste_whatsapp_link = v; $('waLink').blur(); renderSettings(); toast('تم حفظ رابط القروب');
+  };
+}
+$('settings').addEventListener('click', async e => {
+  const b = e.target.closest('[data-logo],[data-logodel]'); if (!b) return;
+  if (b.dataset.logo) { logoFor = Number(b.dataset.logo); $('logoFile').value = ''; $('logoFile').click(); return; }
+  if (!confirm('حذف شعار الفرع؟')) return;
+  await saveBranch(Number(b.dataset.logodel), { logo: null }, 'تم حذف الشعار');
+});
+$('settings').addEventListener('change', async e => {
+  const c = e.target.closest('[data-wtoggle]'); if (!c) return;
+  await saveBranch(Number(c.dataset.wtoggle), { waste: c.checked }, c.checked ? 'تم تفعيل قسم التوالف' : 'تم إيقاف قسم التوالف');
+});
+async function saveBranch(id, patch, msg) {
+  const { error } = await sb.from('branches').update(patch).eq('id', id);
+  if (error) { toast(errMsg(error), 'err'); return; }
+  toast(msg); await loadBranches(); renderAll();
+}
+// تصغير الصورة قبل الحفظ (أقصى 320 بكسل)
+$('logoFile').onchange = async () => {
+  const f = $('logoFile').files[0]; if (!f || !logoFor) return;
+  if (!f.type.startsWith('image/')) return toast('اختر صورة', 'err');
+  try {
+    const url = await new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = bad; r.readAsDataURL(f); });
+    const img = await new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => bad(new Error('تعذّر قراءة الصورة')); i.src = url; });
+    const k = Math.min(1, 320 / Math.max(img.naturalWidth || 320, img.naturalHeight || 320));
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round((img.naturalWidth || 320) * k)); c.height = Math.max(1, Math.round((img.naturalHeight || 320) * k));
+    const cx = c.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, c.width, c.height);
+    cx.drawImage(img, 0, 0, c.width, c.height);
+    const keepAlpha = /png|webp|svg|gif/.test(f.type);
+    let data = c.toDataURL(keepAlpha ? 'image/png' : 'image/jpeg', 0.9);
+    if (data.length > 350000) data = c.toDataURL('image/jpeg', 0.8);
+    await saveBranch(logoFor, { logo: data }, 'تم حفظ الشعار');
+  } catch (e) { toast(errMsg(e), 'err'); }
+};
 
 // ---------------- الأحداث ----------------
 document.addEventListener('click', async e => {
-  const t = e.target.closest('[data-detail],[data-approve],[data-reject],[data-copy],[data-add]');
+  const t = e.target.closest('[data-detail],[data-approve],[data-reject],[data-copy],[data-add],[data-waste-open],[data-delbatch]');
   if (!t) return;
+  if (t.dataset.wasteOpen) return openWaste(t.dataset.wasteOpen);
+  if (t.dataset.delbatch) return deleteBatch(t.dataset.delbatch);
   if (t.dataset.add) { const [bid, d] = t.dataset.add.split('|'); return openEntry(Number(bid), d); }
   if (t.dataset.detail) return openDetail(t.dataset.detail);
   if (t.dataset.copy) {
@@ -498,11 +971,12 @@ document.addEventListener('click', async e => {
   reload();
 });
 document.addEventListener('keydown', e => {
-  const t = e.target.closest && e.target.closest('.gcard');
-  if (t && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openDetail(t.dataset.detail); }
+  const t = e.target.closest && e.target.closest('.gcard,.wsum');
+  if (t && e.target === t && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); t.dataset.detail ? openDetail(t.dataset.detail) : openWaste('all'); }
 });
+$('wasteBtn').onclick = () => openWaste();
 $('bellBtn').onclick = () => {
-  if (S.detail) closeDetail();
+  if (S.detail || S.wasteView) closeDetail();
   const p = $('corrPanel');
   if (p) p.scrollIntoView({ behavior: 'smooth', block: 'start' }); else toast('لا توجد طلبات تعديل حالياً');
 };
@@ -534,7 +1008,8 @@ function openEntry(bid, d) {
   $('eBranch').value = bid ? String(bid) : '';
   $('eDate').max = todayISO();
   $('eDate').value = d || todayISO();
-  $('eAmount').value = '';
+  $('eAmount').value = ''; $('eCollected').value = '';
+  syncEntryCredit();
   $('eSave').disabled = false; $('eSave').textContent = 'حفظ المبيعات';
   eDlg.showModal();
   checkEntry();
@@ -545,14 +1020,19 @@ async function checkEntry() {
   st.className = 'entry-status'; st.textContent = ''; eTaken = false; $('eSave').disabled = false;
   if (!bid || !d) return;
   if (d > todayISO()) { st.className = 'entry-status bad'; st.textContent = 'لا يمكن الإدخال لتاريخ لم يأتِ بعد'; $('eSave').disabled = true; return; }
-  const { data, error } = await sb.from('sales').select('amount,entered_by').eq('branch_id', bid).eq('sale_date', d).maybeSingle();
+  const { data, error } = await sb.from('sales').select('amount,collected,entered_by').eq('branch_id', bid).eq('sale_date', d).maybeSingle();
   if (my !== eCheck || error) return;
   if (data) {
     eTaken = true; $('eSave').disabled = true; st.className = 'entry-status bad';
-    st.textContent = `هذا اليوم مُدخل مسبقاً ${data.entered_by === 'admin' ? 'من الإدارة' : 'من الفرع'}: ${money(data.amount)} ريال`;
+    st.textContent = `هذا اليوم مُدخل مسبقاً ${data.entered_by === 'admin' ? 'من الإدارة' : 'من الفرع'}: ${money(data.amount)} ريال${S.byId[bid] && S.byId[bid].credit ? `، التحصيل ${money(data.collected)} ريال` : ''}`;
   } else { st.className = 'entry-status good'; st.textContent = `${fmtLong(d)} متاح للإدخال`; }
 }
-$('eBranch').onchange = checkEntry;
+function syncEntryCredit() {
+  const b = S.byId[Number($('eBranch').value)], c = !!(b && b.credit);
+  $('eColWrap').hidden = !c;
+  $('eAmountLbl').textContent = c ? 'المبيعات الآجلة (ريال)' : 'إجمالي المبيعات (ريال)';
+}
+$('eBranch').onchange = () => { syncEntryCredit(); checkEntry(); };
 $('eDate').onchange = checkEntry;
 $('eCancel').onclick = () => eDlg.close();
 $('addBtn').onclick = () => openEntry(S.detail && S.detail !== '__all' && S.gmap[S.detail].branches.length === 1 ? S.gmap[S.detail].branches[0].id : null);
@@ -562,17 +1042,21 @@ $('entryForm').onsubmit = async ev => {
   if (!bid) { st.className = 'entry-status bad'; st.textContent = 'اختر الفرع'; return; }
   if (!d) { st.className = 'entry-status bad'; st.textContent = 'اختر التاريخ'; return; }
   if (isNaN(a)) { st.className = 'entry-status bad'; st.textContent = 'اكتب المبلغ رقماً فقط، مثل 12500'; $('eAmount').focus(); return; }
+  const isCr = !!S.byId[bid].credit, cs = $('eCollected').value;
+  const c = !isCr || cs.trim() === '' ? 0 : parseAmount(cs);
+  if (isNaN(c)) { st.className = 'entry-status bad'; st.textContent = 'اكتب التحصيل رقماً فقط، أو اتركه فارغاً'; $('eCollected').focus(); return; }
   if (eTaken) return;
   $('eSave').disabled = true; $('eSave').textContent = 'جارٍ الحفظ…';
-  const { error } = await sb.rpc('admin_submit_sale', { p_branch_id: bid, p_date: d, p_amount: a });
+  const { error } = await sb.rpc('admin_submit_sale', { p_branch_id: bid, p_date: d, p_amount: a, p_collected: c });
   $('eSave').disabled = false; $('eSave').textContent = 'حفظ المبيعات';
   if (error) { st.className = 'entry-status bad'; st.textContent = errMsg(error); return; }
   eDlg.close();
-  toast(`تم حفظ مبيعات ${label(S.byId[bid])} ليوم ${fmtShort(d)}: ${money(a)} ريال`);
+  toast(`تم حفظ مبيعات ${label(S.byId[bid])} ليوم ${fmtShort(d)}: ${money(a)} ريال${isCr ? `، التحصيل ${money(c)}` : ''}`);
   reload();
 };
 
 // ---------------- التحديث اللحظي ----------------
+let lastWasteToast = null;
 function setLive(on) { $('live').textContent = on ? 'تحديث لحظي' : 'جارٍ إعادة الاتصال'; $('live').classList.toggle('on', on); }
 function subscribe() {
   if (S.channel) sb.removeChannel(S.channel);
@@ -580,10 +1064,19 @@ function subscribe() {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, p => {
       if (p.eventType === 'INSERT' && p.new && p.new.entered_by !== 'admin') {
         const b = S.byId[p.new.branch_id];
-        if (b) toast(`إدخال جديد من ${label(b)}: ${money(p.new.amount)} ريال (${fmtShort(p.new.sale_date)})`);
+        if (b) toast(`إدخال جديد من ${label(b)}: ${money(p.new.amount)} ريال${b.credit ? `، تحصيل ${money(p.new.collected)}` : ''} (${fmtShort(p.new.sale_date)})`);
       }
       scheduleReload();
     })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'waste_records' }, p => {
+      if (p.eventType === 'INSERT' && p.new && p.new.batch_id !== lastWasteToast) {
+        lastWasteToast = p.new.batch_id;
+        const b = S.byId[p.new.branch_id];
+        if (b) toast(`توالف جديدة من ${label(b)} (${fmtShort(p.new.waste_date)})`);
+      }
+      scheduleReload();
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'waste_items' }, () => scheduleReload())
     .on('postgres_changes', { event: '*', schema: 'public', table: 'correction_requests' }, p => {
       if (p.eventType === 'INSERT' && p.new) {
         const b = S.byId[p.new.branch_id];
