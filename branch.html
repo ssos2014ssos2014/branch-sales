@@ -112,6 +112,8 @@
   .stepper button:active { background: var(--line); }
   .stepper input, .gram input { height: 48px; text-align: center; font-family: var(--font-head); font-size: 22px; font-weight: 600; outline: none; direction: ltr; background: transparent; }
   .stepper input { width: 64px; border: none; border-inline: 1px solid var(--line); }
+  .stepper.kg input { width: 86px; }
+  .kg-hint { font-size: 12px; color: var(--muted); }
   .gram input { width: 84px; border: 1.5px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
   .stepper:focus-within, .gram input:focus { border-color: var(--ink); }
   .line-cost { margin-inline-start: auto; text-align: end; }
@@ -443,13 +445,24 @@ function toInt(s, emptyVal) {
   const n = parseAmount(s);
   return Number.isInteger(n) ? n : NaN;
 }
-// الكمية: الحبة بالعدد، والوزن بالجرام
+// الكيلو بالفاصلة: "1.5" أو "1,5" أو "١٫٥" = كيلو ونص (حتى 3 أرقام بعد الفاصلة)
+function parseKg(s) {
+  s = String(s ?? '').trim()
+    .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+    .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+    .replace(/[٫,،]/g, '.').replace(/\s/g, '');
+  if (s === '') return 0;
+  if (/^\.\d/.test(s)) s = '0' + s;
+  if (!/^\d+(\.\d{0,3})?$/.test(s)) return NaN;
+  return Number(s);
+}
+const fmtKgNum = n => (Math.round(n * 1000) / 1000).toString();
+// الكمية: الحبة بالعدد، والوزن يُرسل بالجرام (الكيلو × 1000)
 function lineQty(l) {
   const it = itemOf(l.id); if (!it) return NaN;
   if (it.unit === 'piece') return toInt(l.n, 0);
-  const kg = toInt(l.kg, 0), g = toInt(l.g, 0);
-  if (isNaN(kg) || isNaN(g) || g > 999) return NaN;
-  return kg * 1000 + g;
+  const kg = parseKg(l.kg);
+  return isNaN(kg) ? NaN : Math.round(kg * 1000);
 }
 function lineCost(l) {
   const it = itemOf(l.id), q = lineQty(l);
@@ -459,10 +472,9 @@ function lineCost(l) {
 function fmtQty(unit, q) {
   q = Number(q);
   if (unit === 'piece') return `${money(q)} حبة`;
-  const kg = Math.floor(q / 1000), g = Math.round(q % 1000);
-  if (!kg) return `${g} جرام`;
-  return g ? `${money(kg)} كيلو و ${g} جرام` : `${money(kg)} كيلو`;
+  return `${KG.format(q / 1000)} كيلو`;
 }
+const KG = new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 });
 const countItems = n => n === 1 ? 'صنف واحد' : n === 2 ? 'صنفان' : n <= 10 ? `${n} أصناف` : `${n} صنفاً`;
 const basketTotal = () => r2(W.basket.reduce((a, l) => a + lineCost(l), 0));
 
@@ -530,7 +542,7 @@ function renderWForm() {
     if (!W.basket.length) { err.textContent = 'اختر صنفاً واحداً على الأقل'; return; }
     for (const l of W.basket) {
       const it = itemOf(l.id), q = lineQty(l);
-      if (isNaN(q)) { err.textContent = it.unit === 'weight' ? `اكتب الوزن أرقاماً صحيحة للصنف: ${it.name} (الجرام من 0 إلى 999)` : `اكتب العدد رقماً صحيحاً للصنف: ${it.name}`; return; }
+      if (isNaN(q)) { err.textContent = it.unit === 'weight' ? `اكتب الوزن بالكيلو للصنف: ${it.name}، مثل 1.5 لكيلو ونص` : `اكتب العدد رقماً صحيحاً للصنف: ${it.name}`; return; }
       if (q <= 0) { err.textContent = `اكتب الكمية للصنف: ${it.name}، أو احذفه`; return; }
     }
     W.step = 'confirm'; renderWForm();
@@ -547,7 +559,7 @@ function renderChips() {
   box.querySelectorAll('[data-item]').forEach(b => b.onclick = () => {
     const id = Number(b.dataset.item);
     let l = W.basket.find(x => x.id === id);
-    if (!l) { l = { id, n: '1', kg: '0', g: '' }; W.basket.push(l); renderChips(); renderLines(); }
+    if (!l) { l = { id, n: '1', kg: '0' }; W.basket.push(l); renderChips(); renderLines(); }
     const inp = document.querySelector(`.wline[data-id="${id}"] input`);
     if (inp) { inp.scrollIntoView({ block: 'center', behavior: 'smooth' }); inp.focus({ preventScroll: true }); inp.select(); }
   });
@@ -562,11 +574,11 @@ function renderLines() {
            <button type="button" data-step="n" data-d="1" aria-label="زيادة">+</button>
            <input data-f="n" inputmode="numeric" autocomplete="off" value="${esc(l.n)}" placeholder="0" aria-label="العدد">
            <button type="button" data-step="n" data-d="-1" aria-label="إنقاص">−</button></div></div>`
-      : `<div class="qty-box"><span>كيلو</span><div class="stepper">
+      : `<div class="qty-box"><span>الوزن بالكيلو</span><div class="stepper kg">
            <button type="button" data-step="kg" data-d="1" aria-label="زيادة كيلو">+</button>
-           <input data-f="kg" inputmode="numeric" autocomplete="off" value="${esc(l.kg)}" placeholder="0" aria-label="كيلو">
-           <button type="button" data-step="kg" data-d="-1" aria-label="إنقاص كيلو">−</button></div></div>
-         <div class="qty-box gram"><span>جرام</span><input data-f="g" inputmode="numeric" autocomplete="off" value="${esc(l.g)}" placeholder="00" maxlength="3" aria-label="جرام"></div>`;
+           <input data-f="kg" inputmode="decimal" autocomplete="off" value="${esc(l.kg)}" placeholder="0" aria-label="الوزن بالكيلو">
+           <button type="button" data-step="kg" data-d="-1" aria-label="إنقاص كيلو">−</button></div>
+           <small class="kg-hint">مثال: 1.5 = كيلو ونص، 0.25 = ربع كيلو</small></div>`;
     return `<div class="wline" data-id="${l.id}">
       <div class="wline-top"><div><b>${esc(it.name)}</b><small>${money(it.cost)} ريال / ${unitName(it.unit)}</small></div>
         <button type="button" class="x" data-rm="${l.id}" aria-label="حذف ${esc(it.name)}">×</button></div>
@@ -582,9 +594,9 @@ function renderLines() {
       inp.onfocus = () => { if (inp.value === '0') inp.select(); };
     });
     row.querySelectorAll('[data-step]').forEach(btn => btn.onclick = () => {
-      const f = btn.dataset.step, cur = toInt(l[f], 0);
+      const f = btn.dataset.step, cur = f === 'kg' ? parseKg(l[f]) : toInt(l[f], 0);
       const v = Math.max(0, (isNaN(cur) ? 0 : cur) + Number(btn.dataset.d));
-      l[f] = String(v); row.querySelector(`input[data-f="${f}"]`).value = l[f]; upd();
+      l[f] = f === 'kg' ? fmtKgNum(v) : String(v); row.querySelector(`input[data-f="${f}"]`).value = l[f]; upd();
     });
     row.querySelector('[data-rm]').onclick = () => { W.basket = W.basket.filter(x => x !== l); renderChips(); renderLines(); document.getElementById('wTotal').textContent = money(basketTotal()); };
   });
