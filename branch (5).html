@@ -1,0 +1,937 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>إدخال المبيعات اليومية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .wrap { max-width: 480px; margin: 0 auto; padding: calc(20px + env(safe-area-inset-top, 0px)) 16px 48px; }
+  .head .group { color: var(--muted); font-size: 15px; }
+  .head h1 { font-size: 28px; font-weight: 700; }
+  .head .today { margin-top: 2px; font-size: 14px; color: var(--muted); }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px; margin-top: 16px; }
+
+  .cal-head { display: flex; align-items: center; justify-content: space-between; }
+  .cal-head h2 { font-size: 18px; }
+  .nav { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); font-size: 22px; line-height: 1; }
+  .nav:disabled { opacity: .3; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 12px; }
+  .dow { font-size: 12px; color: var(--muted); text-align: center; padding-bottom: 2px; }
+  .day {
+    aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--line); background: var(--surface);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+    font-family: var(--font-head); font-size: 16px; padding: 0; position: relative;
+  }
+  .day .mk { font-size: 11px; line-height: 1; height: 11px; }
+  .day.done { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+  .day.adm { background: var(--bg); border: 1.5px solid var(--ink); color: var(--ink); }
+  .day.pend { background: var(--caramel-soft); border-color: transparent; color: var(--caramel); }
+  .day.future { opacity: .35; border-style: dashed; background: transparent; }
+  .day.today:not(.sel) { box-shadow: inset 0 0 0 2px var(--ink); }
+  .day.sel { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; font-size: 13px; color: var(--muted); }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 4px; vertical-align: -1px; margin-inline-end: 5px; }
+
+  .sel-date { text-align: center; }
+  .sel-date span { display: block; font-size: 14px; color: var(--muted); }
+  .sel-date b { font-family: var(--font-head); font-size: 19px; font-weight: 600; }
+  .amount-wrap {
+    display: flex; align-items: baseline; gap: 8px; margin: 16px 0;
+    border: 2px solid var(--line); border-radius: var(--r-lg); padding: 10px 16px; background: var(--bg);
+  }
+  .amount-wrap:focus-within { border-color: var(--ink); }
+  .amount-wrap input {
+    flex: 1; min-width: 0; border: none; background: transparent; outline: none;
+    font-family: var(--font-head); font-size: 36px; font-weight: 600; text-align: center; direction: ltr;
+  }
+  .amount-wrap .cur { font-size: 16px; }
+  .amt-lbl { display: block; font-weight: 600; margin-top: 14px; }
+  .amt-lbl small { font-weight: 400; color: var(--muted); margin-inline-start: 6px; }
+  .amt-lbl + .amount-wrap { margin-top: 6px; margin-bottom: 4px; }
+  .confirm .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .confirm .pair div { background: var(--bg); border-radius: var(--r-md); padding: 10px; }
+  .confirm .pair span { display: block; font-size: 13px; color: var(--muted); }
+  .confirm .pair b { font-family: var(--font-head); font-size: 24px; }
+  .entry .a small { display: block; font-family: var(--font-body); font-weight: 400; font-size: 12px; color: var(--muted); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  .confirm { text-align: center; }
+  .confirm .big { font-family: var(--font-head); font-size: 40px; font-weight: 700; margin: 6px 0; }
+  .confirm .warn { font-size: 14px; color: var(--caramel); background: var(--caramel-soft); border-radius: var(--r-sm); padding: 8px 10px; margin: 12px 0 16px; }
+  .row2 { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+
+  .done-box { text-align: center; padding: 8px 0; }
+  .tick { width: 64px; height: 64px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 34px; margin: 0 auto 10px; animation: pop .35s ease-out; }
+  @keyframes pop { from { transform: scale(.4); opacity: 0; } }
+
+  .list h2 { font-size: 17px; margin-bottom: 6px; }
+  .entry { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 0; border-top: 1px solid var(--line); }
+  .entry:first-of-type { border-top: none; }
+  .entry .d b { display: block; font-weight: 600; }
+  .entry .d small { color: var(--muted); }
+  .entry .a { font-family: var(--font-head); font-weight: 600; white-space: nowrap; }
+  .by-adm { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 99px; border: 1px solid var(--ink); margin-inline-start: 6px; }
+  .adm-note { color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 8px 10px; font-size: 14px; margin-top: 10px; }
+  .tag { font-size: 12px; padding: 3px 8px; border-radius: 99px; background: var(--caramel-soft); color: var(--caramel); white-space: nowrap; }
+
+  /* ---- الشعار والتبويبات ---- */
+  .brand-row { display: flex; align-items: center; gap: 12px; }
+  .logo { width: 58px; height: 58px; border-radius: 14px; object-fit: contain; background: #fff; border: 1px solid var(--line); flex: none; }
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 4px; margin-top: 16px; }
+  .tabs button { border: none; background: transparent; border-radius: 14px; padding: 11px 8px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 7px; }
+  .tabs button[aria-selected="true"] { background: var(--ink); color: var(--on-ink); }
+  .tabs svg { width: 20px; height: 20px; flex: none; }
+
+  /* ---- التوالف ---- */
+  .w-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .w-head h2 { font-size: 18px; }
+  .w-head input { padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--bg); }
+  .w-search { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--bg); margin-top: 12px; }
+  .w-hint { font-size: 14px; color: var(--muted); margin-top: 12px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .chip { border: 1px solid var(--line); background: var(--bg); border-radius: 99px; padding: 8px 14px; font-size: 15px; }
+  .chip small { color: var(--muted); font-size: 12px; margin-inline-start: 4px; }
+  .chip.on { background: var(--rose-soft); border-color: var(--rose); color: var(--rose); }
+  .chip.on small { color: inherit; }
+  .wline { border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px; margin-top: 10px; background: var(--bg); }
+  .wline-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .wline-top b { font-size: 16px; }
+  .wline-top small { color: var(--muted); font-size: 12px; display: block; }
+  .wline-top .x { border: none; background: transparent; color: var(--muted); font-size: 24px; width: 38px; height: 38px; line-height: 1; }
+  .qty-row { display: flex; align-items: flex-end; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+  .qty-box { display: flex; flex-direction: column; gap: 4px; }
+  .qty-box > span { font-size: 13px; color: var(--muted); }
+  .stepper { display: flex; align-items: center; border: 1.5px solid var(--line); border-radius: var(--r-md); overflow: hidden; background: var(--surface); }
+  .stepper button { width: 46px; height: 48px; border: none; background: var(--surface); font-size: 24px; font-weight: 600; }
+  .stepper button:active { background: var(--line); }
+  .stepper input, .gram input { height: 48px; text-align: center; font-family: var(--font-head); font-size: 22px; font-weight: 600; outline: none; direction: ltr; background: transparent; }
+  .stepper input { width: 64px; border: none; border-inline: 1px solid var(--line); }
+  .stepper.kg input { width: 86px; }
+  .kg-hint { font-size: 12px; color: var(--muted); }
+  .gram input { width: 84px; border: 1.5px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+  .stepper:focus-within, .gram input:focus { border-color: var(--ink); }
+  .line-cost { margin-inline-start: auto; text-align: end; }
+  .line-cost span { display: block; font-size: 12px; color: var(--muted); }
+  .line-cost b { font-family: var(--font-head); font-size: 18px; }
+  .w-total { display: flex; justify-content: space-between; align-items: baseline; margin: 16px 0 4px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .w-total b { font-family: var(--font-head); font-size: 26px; color: var(--rose); }
+  a.btn { text-decoration: none; color: inherit; }
+  .btn-wa { background: #1E8E4E; color: #fff; }
+  .btn-wa:disabled { opacity: .6; }
+  .stack { display: grid; gap: 10px; }
+  .clist { text-align: start; margin: 12px 0; }
+  .clist div { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 15px; }
+  .clist div:first-child { border-top: none; }
+  .clist b { font-family: var(--font-head); white-space: nowrap; }
+  .rep-sum { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .rep-sum div { background: var(--bg); border-radius: var(--r-md); padding: 10px 12px; }
+  .rep-sum span { display: block; font-size: 13px; color: var(--muted); }
+  .rep-sum b { font-family: var(--font-head); font-size: 22px; }
+  .rep-sum .main b { color: var(--rose); }
+  .rep h3 { font-size: 15px; margin: 18px 0 6px; }
+  .rank { padding: 7px 0; border-top: 1px solid var(--line); }
+  .rank:first-of-type { border-top: none; }
+  .rank-top { display: flex; justify-content: space-between; gap: 8px; font-size: 15px; }
+  .rank-top b { font-family: var(--font-head); white-space: nowrap; }
+  .rank-top small { color: var(--muted); font-size: 12px; margin-inline-start: 6px; }
+  .rank .bar { height: 4px; background: var(--bg); border-radius: 4px; overflow: hidden; margin-top: 4px; }
+  .rank .bar i { display: block; height: 100%; background: var(--rose); }
+  .wday { border-top: 1px solid var(--line); padding: 9px 0; }
+  .wday:first-of-type { border-top: none; }
+  .wday-h { display: flex; justify-content: space-between; font-weight: 600; }
+  .wday-h b { font-family: var(--font-head); }
+  .wday-l { display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); }
+
+  /* ---- قالب تقرير PDF (ألوان ثابتة) ---- */
+  .pdf { position: fixed; left: -20000px; top: 0; width: 794px; background: #fff; color: #1d1a17; direction: rtl; padding: 36px 40px 30px; font-family: 'IBM Plex Sans Arabic', Tahoma, sans-serif; font-size: 14px; line-height: 1.6; }
+  .pdf * { color-scheme: light; }
+  .pdf-head { display: flex; align-items: center; gap: 16px; border-bottom: 3px solid #A63D52; padding-bottom: 14px; }
+  .pdf-head img { width: 76px; height: 76px; object-fit: contain; border-radius: 12px; border: 1px solid #e3e0dc; }
+  .pdf-head h1 { font-family: 'Readex Pro', sans-serif; font-size: 24px; margin: 0; color: #1d1a17; }
+  .pdf-head p { margin: 0; color: #6d645c; }
+  .pdf-head .t { font-size: 17px; color: #A63D52; font-weight: 600; }
+  .pdf-head .meta { margin-inline-start: auto; text-align: left; font-size: 12px; color: #6d645c; }
+  .pdf-tot { display: flex; gap: 12px; margin: 16px 0 6px; }
+  .pdf-tot div { flex: 1; border-radius: 12px; padding: 10px 14px; background: #f4f1ee; }
+  .pdf-tot div.main { background: #A63D52; color: #fff; }
+  .pdf-tot span { display: block; font-size: 12px; opacity: .8; }
+  .pdf-tot b { font-family: 'Readex Pro', sans-serif; font-size: 22px; }
+  .pdf h2 { font-family: 'Readex Pro', sans-serif; font-size: 16px; margin: 18px 0 8px; color: #1d1a17; }
+  .pdf table { width: 100%; border-collapse: collapse; }
+  .pdf th { background: #2B1E18; color: #fff; font-weight: 600; font-size: 13px; padding: 7px 10px; text-align: right; }
+  .pdf td { padding: 6px 10px; border-bottom: 1px solid #e8e4e0; text-align: right; }
+  .pdf td.n, .pdf th.n { text-align: left; font-family: 'Readex Pro', sans-serif; white-space: nowrap; }
+  .pdf tr.sub td { background: #F6DFE3; font-weight: 700; color: #7d2a3b; }
+  .pdf tr.pdf-day td { border-top: 2px solid #cfc7bf; }
+  .pdf tfoot td { background: #2B1E18; color: #fff; font-weight: 700; }
+  .pdf .foot { margin-top: 18px; font-size: 11px; color: #8a8178; text-align: center; }
+
+  /* ---- إشعار التأخير ---- */
+  .late-box { margin-top: 16px; background: #B3261E; color: #fff; border-radius: var(--r-lg); padding: 16px; box-shadow: 0 6px 18px rgba(179,38,30,.25); }
+  .late-top { display: flex; align-items: center; gap: 10px; font-size: 18px; font-family: var(--font-head); }
+  .late-ic { width: 30px; height: 30px; border-radius: 50%; background: #fff; color: #B3261E; display: grid; place-items: center; font-weight: 800; flex: none; }
+  .late-box p { margin-top: 8px; }
+  .late-days { font-family: var(--font-head); font-weight: 600; background: rgba(255,255,255,.14); border-radius: var(--r-sm); padding: 6px 10px; }
+  .late-btn { margin-top: 12px; background: #fff; color: #B3261E; font-weight: 700; }
+  .late-note { margin-top: 10px; font-size: 13px; color: var(--muted); }
+  /* ---- صنف آخر ---- */
+  .chip-other { border-style: dashed; font-weight: 600; }
+  #chips { display: block; }
+  .chip-group { margin-bottom: 10px; }
+  .chip-cat { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 6px; padding-bottom: 3px; border-bottom: 1px dashed var(--line); }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  #chips > .chip { margin: 4px 0 0 6px; }
+  .other-form select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); font: inherit; }
+  .other-form { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px; margin-top: 4px; }
+  .other-form .field { margin-top: 8px; }
+  .other-form .field:first-child { margin-top: 0; }
+  .unit-seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 3px; gap: 2px; }
+  .unit-seg button { border: none; background: transparent; padding: 8px 16px; border-radius: 9px; font-weight: 500; }
+  .unit-seg button[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); }
+  .other-form .row2 { margin-top: 10px; }
+
+  .fatal { text-align: center; padding: 40px 16px; }
+  .fatal h1 { font-size: 22px; margin-bottom: 8px; }
+  .skeleton { height: 340px; border-radius: var(--r-lg); background: var(--surface); margin-top: 16px; opacity: .6; }
+</style>
+</head>
+<body>
+<main class="wrap" id="root">
+  <div class="skeleton"></div>
+</main>
+
+<dialog id="corrDlg">
+  <form id="corrForm" method="dialog">
+    <h2 style="font-size:20px">طلب تعديل المبلغ</h2>
+    <div class="muted" id="corrInfo" style="margin-top:6px"></div>
+    <label class="field"><span id="corrAmountLbl">المبلغ الصحيح</span><input id="corrAmount" inputmode="decimal" autocomplete="off" required dir="ltr"></label>
+    <label class="field" id="corrColWrap" hidden><span>التحصيل الصحيح</span><input id="corrCollected" inputmode="decimal" autocomplete="off" dir="ltr"></label>
+    <label class="field"><span>ملاحظة للإدارة (اختياري)</span><textarea id="corrNote" rows="2"></textarea></label>
+    <p class="err" id="corrErr" role="alert"></p>
+    <div class="row2" style="margin-top:6px">
+      <button class="btn btn-primary" id="corrSend" value="send" type="submit">إرسال طلب التعديل</button>
+      <button class="btn btn-ghost" value="cancel" type="button" id="corrCancel">إلغاء</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="common.js"></script>
+<script>
+const token = new URLSearchParams(location.search).get('t');
+const root = document.getElementById('root');
+let info = null, map = {}, viewMonth = null, selected = null, amountStr = '', colStr = '', step = 'form', firstLoad = true, busy = false, lastDone = null;
+const DOW = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
+
+function fatal(title, msg) {
+  root.innerHTML = `<div class="fatal"><h1>${esc(title)}</h1><p class="muted">${esc(msg)}</p></div>`;
+}
+
+async function load() {
+  const { data, error } = await sb.rpc('branch_info', { p_token: token });
+  if (error) { fatal('تعذّر فتح صفحة الفرع', errMsg(error)); return; }
+  info = data; map = {};
+  for (const e of info.entries) map[e.date] = e;
+  if (!viewMonth) viewMonth = monthStart(info.today);
+  if (selected && map[selected]) selected = null;
+  if (firstLoad && !map[info.today]) selected = info.today;
+  firstLoad = false;
+  document.title = 'مبيعات ' + (info.group_name === info.name ? info.name : info.group_name + ' - ' + info.name);
+  render();
+}
+
+const ICON_SALES = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>';
+const ICON_WASTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/><path d="M10 11v6M14 11v6"/></svg>';
+let tab = location.hash === '#waste' ? 'waste' : 'sales';
+
+// إشعار التأخير: يظهر من الساعة 9 صباحاً لأي يوم سابق لم تُدخل مبيعاته
+function lateBanner() {
+  const L = info.late || { missing: [], count: 0 };
+  const miss = (L.missing || []).filter(d => !map[d]);
+  if (!miss.length) {
+    return L.count ? `<p class="late-note">عدد مرات التأخير في الإدخال: <b>${L.count}</b></p>` : '';
+  }
+  const n = miss.length;
+  const days = n === 1 ? 'يوم واحد' : n === 2 ? 'يومين' : n <= 10 ? `${n} أيام` : `${n} يوماً`;
+  return `<div class="late-box" role="alert">
+    <div class="late-top"><span class="late-ic">!</span><b>إشعار التأخير رقم ${L.count}</b></div>
+    <p>تأخرت في إدخال المبيعات. لم تُدخل مبيعات <b>${days}</b>:</p>
+    <p class="late-days">${miss.map(d => esc(fmtShort(d))).join('، ')}</p>
+    <button class="btn btn-block late-btn" id="lateGo">إدخال المبيعات الآن</button>
+  </div>`;
+}
+
+function render() {
+  const showGroup = info.group_name !== info.name;
+  if (!info.waste) tab = 'sales';
+  root.innerHTML = `
+    <header class="head brand-row">
+      ${info.logo ? `<img class="logo" src="${esc(info.logo)}" alt="">` : ''}
+      <div>
+        ${showGroup ? `<p class="group">${esc(info.group_name)}</p>` : ''}
+        <h1>${esc(info.name)}</h1>
+        <p class="today">اليوم ${esc(fmtLong(info.today))}</p>
+      </div>
+    </header>
+    ${lateBanner()}
+    ${info.waste ? `<nav class="tabs" role="tablist">
+      <button role="tab" data-tab="sales" aria-selected="${tab === 'sales'}">${ICON_SALES}المبيعات</button>
+      <button role="tab" data-tab="waste" aria-selected="${tab === 'waste'}">${ICON_WASTE}البضائع التالفة</button>
+    </nav>` : ''}
+    ${tab === 'sales' ? `
+    <section class="panel" id="cal"></section>
+    <section class="panel" id="form"></section>
+    <section class="panel list" id="list"></section>` : `
+    <section class="panel" id="wform"></section>
+    <section class="panel rep" id="wrep"></section>`}`;
+  const lg = root.querySelector('#lateGo');
+  if (lg) lg.onclick = () => {
+    tab = 'sales'; history.replaceState(null, '', location.pathname + location.search);
+    selected = info.late.missing.find(d => !map[d]) || info.late.missing[0]; viewMonth = monthStart(selected); step = 'form'; render();
+    const f = document.getElementById('form'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  root.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
+    tab = b.dataset.tab; history.replaceState(null, '', tab === 'waste' ? '#waste' : location.pathname + location.search);
+    render(); scrollTo({ top: 0 });
+  });
+  if (tab === 'sales') { renderCal(); renderForm(); renderList(); }
+  else { renderWForm(); renderWRep(); if (!W.loaded && !W.loading) loadWaste(); }
+}
+
+function renderCal() {
+  const el = document.getElementById('cal');
+  const start = viewMonth, end = monthEnd(viewMonth), today = info.today;
+  const lead = parseISO(start).getUTCDay();
+  let cells = DOW.map(d => `<div class="dow">${d}</div>`).join('');
+  for (let i = 0; i < lead; i++) cells += '<div></div>';
+  for (const d of daysRange(start, end)) {
+    const e = map[d], fut = d > today;
+    const cls = ['day', e ? (e.pending ? 'pend' : e.by === 'admin' ? 'adm' : 'done') : '', fut ? 'future' : '', d === today ? 'today' : '', d === selected ? 'sel' : ''].join(' ');
+    const stateTxt = e ? `مُدخل ${e.by === 'admin' ? 'من قبل الإدارة ' : ''}${money(e.amount)} ريال${info.credit ? `، التحصيل ${money(e.collected)} ريال` : ''}` : fut ? 'لم يأتِ بعد' : 'متاح للإدخال';
+    cells += `<button type="button" class="${cls}" data-d="${d}" ${fut ? 'disabled' : ''} aria-label="${esc(fmtLong(d))}، ${stateTxt}">
+      <span>${Number(d.slice(8))}</span><span class="mk">${e ? (e.pending ? '•' : '✓') : ''}</span></button>`;
+  }
+  const atCurrent = viewMonth >= monthStart(today);
+  el.innerHTML = `
+    <div class="cal-head">
+      <button class="nav" id="prevM" aria-label="الشهر السابق">›</button>
+      <h2>${esc(fmtMonth(viewMonth))}</h2>
+      <button class="nav" id="nextM" aria-label="الشهر التالي" ${atCurrent ? 'disabled' : ''}>‹</button>
+    </div>
+    <div class="cal-grid">${cells}</div>
+    <div class="legend">
+      <span><i style="background:var(--accent-soft)"></i>تم الإدخال</span>
+      <span><i style="background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--ink)"></i>أدخلته الإدارة</span>
+      <span><i style="background:var(--caramel-soft)"></i>تعديل قيد المراجعة</span>
+      <span><i style="box-shadow:inset 0 0 0 1px var(--line)"></i>متاح</span>
+    </div>`;
+  el.querySelector('#prevM').onclick = () => { viewMonth = addMonths(viewMonth, -1); renderCal(); };
+  el.querySelector('#nextM').onclick = () => { viewMonth = addMonths(viewMonth, 1); renderCal(); };
+  el.querySelectorAll('.day').forEach(b => b.onclick = () => {
+    const d = b.dataset.d;
+    if (map[d]) { openCorr(d); return; }
+    selected = d; step = 'form';
+    renderCal(); renderForm();
+    const inp = document.getElementById('amount'); if (inp) inp.focus();
+  });
+}
+
+function renderForm() {
+  const el = document.getElementById('form');
+  if (step === 'done') {
+    el.innerHTML = `<div class="done-box"><div class="tick">✓</div>
+      <h2 style="font-size:20px">تم إرسال المبيعات</h2>
+      <p class="muted" style="margin:4px 0 16px">${esc(fmtLong(lastDone.date))}: ${info.credit
+        ? `المبيعات ${money(lastDone.amount)} ريال، التحصيل ${money(lastDone.collected)} ريال`
+        : `${money(lastDone.amount)} ريال`}</p>
+      <button class="btn btn-ghost btn-block" id="again">إدخال يوم آخر</button></div>`;
+    el.querySelector('#again').onclick = () => { step = 'form'; renderForm(); };
+    return;
+  }
+  if (step === 'confirm') {
+    const amt = parseAmount(amountStr), col = colValue();
+    el.innerHTML = `<div class="confirm">
+      <p class="muted">راجع قبل الإرسال</p>
+      <p style="font-weight:600;margin-top:6px">${esc(fmtLong(selected))}</p>
+      ${info.credit
+        ? `<div class="pair"><div><span>المبيعات (آجل)</span><b class="num">${money(amt)}</b></div><div><span>التحصيل</span><b class="num">${money(col)}</b></div></div>`
+        : `<p class="big num">${money(amt)} <span class="cur">ريال</span></p>`}
+      <p class="warn">بعد الإرسال لا يمكن إدخال هذا التاريخ مرة أخرى، والتصحيح يكون بطلب تعديل للإدارة.</p>
+      <div class="row2">
+        <button class="btn btn-accent btn-lg" id="sendBtn">تأكيد الإرسال</button>
+        <button class="btn btn-ghost btn-lg" id="backBtn">رجوع</button>
+      </div></div>`;
+    el.querySelector('#backBtn').onclick = () => { step = 'form'; renderForm(); };
+    el.querySelector('#sendBtn').onclick = submit;
+    return;
+  }
+  el.innerHTML = `
+    <div class="sel-date">${selected
+      ? `<span>تاريخ المبيعات</span><b>${esc(fmtLong(selected))}</b>`
+      : `<span>اختر يوماً من التقويم أعلاه</span>`}</div>
+    ${info.credit ? `<label class="amt-lbl" for="amount">المبيعات <small>(كلها آجلة)</small></label>` : ''}
+    <label class="amount-wrap"><span class="sr">${info.credit ? 'المبيعات الآجلة' : 'إجمالي المبيعات'}</span>
+      <input id="amount" inputmode="decimal" autocomplete="off" placeholder="0" value="${esc(amountStr)}">
+      <span class="cur">ريال</span></label>
+    ${info.credit ? `<label class="amt-lbl" for="collected">التحصيل <small>(المبالغ المستلمة اليوم)</small></label>
+    <label class="amount-wrap"><span class="sr">التحصيل</span>
+      <input id="collected" inputmode="decimal" autocomplete="off" placeholder="0" value="${esc(colStr)}">
+      <span class="cur">ريال</span></label>` : ''}
+    <p class="err" id="formErr" role="alert"></p>
+    <button class="btn btn-primary btn-block btn-lg" id="nextBtn" style="margin-top:12px">إرسال المبيعات</button>`;
+  const inp = el.querySelector('#amount'), cinp = el.querySelector('#collected');
+  inp.oninput = () => { amountStr = inp.value; el.querySelector('#formErr').textContent = ''; };
+  inp.onkeydown = e => { if (e.key === 'Enter') (cinp ? cinp.focus() : el.querySelector('#nextBtn').click()); };
+  if (cinp) {
+    cinp.oninput = () => { colStr = cinp.value; el.querySelector('#formErr').textContent = ''; };
+    cinp.onkeydown = e => { if (e.key === 'Enter') el.querySelector('#nextBtn').click(); };
+  }
+  el.querySelector('#nextBtn').onclick = () => {
+    const errEl = el.querySelector('#formErr');
+    if (!selected) { errEl.textContent = 'اختر التاريخ من التقويم أولاً'; return; }
+    const amt = parseAmount(amountStr);
+    if (isNaN(amt)) { errEl.textContent = info.credit ? 'اكتب المبيعات رقماً فقط، مثل 12500 (اكتب 0 إذا لا توجد مبيعات)' : 'اكتب إجمالي المبيعات رقماً فقط، مثل 12500'; inp.focus(); return; }
+    if (info.credit && isNaN(colValue())) { errEl.textContent = 'اكتب التحصيل رقماً فقط، أو اتركه فارغاً إذا لا يوجد تحصيل'; cinp.focus(); return; }
+    step = 'confirm'; renderForm();
+  };
+}
+
+// التحصيل الفارغ = صفر
+function colValue() { return colStr.trim() === '' ? 0 : parseAmount(colStr); }
+
+async function submit() {
+  if (busy) return; busy = true;
+  const btn = document.getElementById('sendBtn'); btn.disabled = true; btn.textContent = 'جارٍ الإرسال…';
+  const amt = parseAmount(amountStr), col = info.credit ? colValue() : 0;
+  const { error } = await sb.rpc('submit_sale', { p_token: token, p_date: selected, p_amount: amt, p_collected: col });
+  busy = false;
+  if (error) { toast(errMsg(error), 'err'); step = 'form'; await load(); return; }
+  lastDone = { date: selected, amount: amt, collected: col };
+  selected = null; amountStr = ''; colStr = ''; step = 'done';
+  await load();
+}
+
+function renderList() {
+  const el = document.getElementById('list');
+  const items = info.entries.slice(0, 45);
+  if (!items.length) { el.innerHTML = `<h2>إدخالاتك السابقة</h2><p class="muted">لا توجد إدخالات بعد. أول إدخال سيظهر هنا.</p>`; return; }
+  el.innerHTML = `<h2>إدخالاتك السابقة</h2>` + items.map(e => `
+    <div class="entry">
+      <div class="d"><b>${esc(fmtShort(e.date))}</b><small>${esc(fmtDayName(e.date))}</small>${e.by === 'admin' ? '<span class="by-adm">أدخلته الإدارة</span>' : ''}</div>
+      <div class="a num">${money(e.amount)}${info.credit ? `<small>تحصيل ${money(e.collected)}</small>` : ''}</div>
+      ${e.pending ? `<span class="tag">التعديل قيد المراجعة</span>` : `<button class="btn btn-ghost btn-sm" data-c="${e.date}">طلب تعديل</button>`}
+    </div>`).join('');
+  el.querySelectorAll('[data-c]').forEach(b => b.onclick = () => openCorr(b.dataset.c));
+}
+
+// ---------- طلب التعديل ----------
+const dlg = document.getElementById('corrDlg');
+let corrDate = null;
+function openCorr(d) {
+  const e = map[d]; if (!e) return;
+  corrDate = d;
+  document.getElementById('corrErr').textContent = '';
+  // في الفروع الآجلة: الخانتان معبأتان بالمسجل، يغيّر الموظف ما يحتاج تعديله فقط
+  document.getElementById('corrAmount').value = info.credit ? String(Number(e.amount)) : '';
+  document.getElementById('corrCollected').value = info.credit ? String(Number(e.collected)) : '';
+  document.getElementById('corrColWrap').hidden = !info.credit;
+  document.getElementById('corrAmountLbl').textContent = info.credit ? 'المبيعات الصحيحة (آجل)' : 'المبلغ الصحيح';
+  document.getElementById('corrNote').value = '';
+  const send = document.getElementById('corrSend');
+  const admNote = e.by === 'admin' ? '<p class="adm-note">تم إدخال مبيعات هذا اليوم من قبل الإدارة.</p>' : '';
+  const recorded = info.credit
+    ? `المبيعات المسجلة: <b class="num">${money(e.amount)}</b> ريال<br>التحصيل المسجل: <b class="num">${money(e.collected)}</b> ريال`
+    : `المبلغ المسجل: <b class="num">${money(e.amount)}</b> ريال`;
+  if (e.pending) {
+    document.getElementById('corrInfo').innerHTML = `${esc(fmtLong(d))}<br>يوجد طلب تعديل لهذا اليوم بانتظار الإدارة.${admNote}`;
+    send.disabled = true;
+  } else {
+    document.getElementById('corrInfo').innerHTML = `${esc(fmtLong(d))}<br>${recorded}${admNote}<span style="display:block;margin-top:8px">${info.credit ? 'عدّل الرقم غير الصحيح وأرسل طلب تعديل.' : 'إذا كان المبلغ غير صحيح اكتب المبلغ الصحيح وأرسل طلب تعديل.'}</span>`;
+    send.disabled = false;
+  }
+  dlg.showModal();
+  if (!e.pending) setTimeout(() => document.getElementById('corrAmount').focus(), 50);
+}
+document.getElementById('corrCancel').onclick = () => dlg.close();
+document.getElementById('corrForm').onsubmit = async ev => {
+  ev.preventDefault();
+  const errEl = document.getElementById('corrErr');
+  const amt = parseAmount(document.getElementById('corrAmount').value);
+  if (isNaN(amt)) { errEl.textContent = 'اكتب المبلغ الصحيح رقماً فقط'; return; }
+  const args = { p_token: token, p_date: corrDate, p_new_amount: amt, p_note: document.getElementById('corrNote').value };
+  if (info.credit) {
+    const cs = document.getElementById('corrCollected').value;
+    const col = cs.trim() === '' ? 0 : parseAmount(cs);
+    if (isNaN(col)) { errEl.textContent = 'اكتب التحصيل الصحيح رقماً فقط'; return; }
+    args.p_new_collected = col;
+  }
+  const send = document.getElementById('corrSend'); send.disabled = true; send.textContent = 'جارٍ الإرسال…';
+  const { error } = await sb.rpc('request_correction', args);
+  send.disabled = false; send.textContent = 'إرسال طلب التعديل';
+  if (error) { errEl.textContent = errMsg(error); return; }
+  dlg.close(); toast('أُرسل طلب التعديل إلى الإدارة'); await load();
+};
+
+// =====================================================================
+//  البضائع التالفة
+// =====================================================================
+const W = { other: { open: false, name: '', unit: 'piece', cost: '', cat: 'أخرى' }, date: null, basket: [], step: 'form', search: '', month: null, recs: [], loaded: false, loading: false, last: null, pdf: null, preparing: false };
+const itemOf = id => (info.items || []).find(i => i.id === id);
+// ترتيب الأصناف: حسب التصنيف، ثم نوع الصنف، ثم الحجم (كبير ← مستطيل ← وسط ← صغير)
+const CATS = ['المعجنات', 'الخلايا والكرواسون', 'ورق العنب', 'الحلويات الشرقية', 'التمور', 'الكيك والصواني', 'أخرى'];
+const catOf = i => (i.category || 'أخرى').trim() || 'أخرى';
+const catRank = c => { const k = CATS.indexOf(c); return k < 0 ? CATS.length - 1.5 : k; };
+const SIZE_RE = /\s+(كبير|مستطيل|وسط|صغير|ربع)(\s.*)?$/;
+const sizeRank = n => /كبير/.test(n) ? 1 : /مستطيل/.test(n) ? 2 : /وسط/.test(n) ? 3 : /(صغير|ربع)/.test(n) ? 4 : 5;
+const baseName = n => n.replace(SIZE_RE, '');
+function sortItems(list) {
+  return list.slice().sort((a, b) => catRank(catOf(a)) - catRank(catOf(b)) || catOf(a).localeCompare(catOf(b), 'ar')
+    || baseName(a.name).localeCompare(baseName(b.name), 'ar') || sizeRank(a.name) - sizeRank(b.name) || a.name.localeCompare(b.name, 'ar'));
+}
+const r2 = n => Math.round(n * 100) / 100;
+const unitName = u => u === 'weight' ? 'كيلو' : 'حبة';
+
+// رقم صحيح من نص (يقبل الأرقام العربية)، الفارغ = emptyVal
+function toInt(s, emptyVal) {
+  if (String(s ?? '').trim() === '') return emptyVal;
+  const n = parseAmount(s);
+  return Number.isInteger(n) ? n : NaN;
+}
+// الكيلو بالفاصلة: "1.5" أو "1,5" أو "١٫٥" = كيلو ونص (حتى 3 أرقام بعد الفاصلة)
+function parseKg(s) {
+  s = String(s ?? '').trim()
+    .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+    .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+    .replace(/[٫,،]/g, '.').replace(/\s/g, '');
+  if (s === '') return 0;
+  if (/^\.\d/.test(s)) s = '0' + s;
+  if (!/^\d+(\.\d{0,3})?$/.test(s)) return NaN;
+  return Number(s);
+}
+const fmtKgNum = n => (Math.round(n * 1000) / 1000).toString();
+// الكمية: الحبة بالعدد، والوزن يُرسل بالجرام (الكيلو × 1000)
+function lineQty(l) {
+  const it = itemOf(l.id); if (!it) return NaN;
+  if (it.unit === 'piece') return toInt(l.n, 0);
+  const kg = parseKg(l.kg);
+  return isNaN(kg) ? NaN : Math.round(kg * 1000);
+}
+function lineCost(l) {
+  const it = itemOf(l.id), q = lineQty(l);
+  if (!it || isNaN(q)) return 0;
+  return r2(it.unit === 'weight' ? q / 1000 * Number(it.cost) : q * Number(it.cost));
+}
+function fmtQty(unit, q) {
+  q = Number(q);
+  if (unit === 'piece') return `${money(q)} حبة`;
+  return `${KG.format(q / 1000)} كيلو`;
+}
+const KG = new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 });
+const countItems = n => n === 1 ? 'صنف واحد' : n === 2 ? 'صنفان' : n <= 10 ? `${n} أصناف` : `${n} صنفاً`;
+const basketTotal = () => r2(W.basket.reduce((a, l) => a + lineCost(l), 0));
+
+// ---------- نموذج الإدخال ----------
+function renderWForm() {
+  const el = document.getElementById('wform'); if (!el) return;
+  if (!W.date) W.date = info.today;
+  const items = info.items || [];
+
+  if (W.step === 'done') {
+    const L = W.last;
+    el.innerHTML = `<div class="done-box"><div class="tick">✓</div>
+      <h2 style="font-size:20px">تم إرسال البضائع التالفة</h2>
+      <p class="muted" style="margin:4px 0 16px">${esc(fmtLong(L.date))}: ${countItems(L.lines.length)} بتكلفة <b class="num">${money(L.total)}</b> ريال</p>
+      <div class="stack">
+        <button class="btn btn-wa btn-block btn-lg" id="waShare">إرسال تقرير PDF على قروب الواتساب</button>
+        <p class="muted" id="pdfState" style="font-size:13px">${W.pdf ? 'التقرير جاهز' : 'جارٍ تجهيز التقرير…'}</p>
+        ${info.waste_link ? `<a class="btn btn-ghost btn-block" href="${esc(info.waste_link)}" target="_blank" rel="noopener">فتح قروب التوالف</a>` : ''}
+        <button class="btn btn-ghost btn-block" id="wAgain">إدخال جديد</button>
+      </div></div>`;
+    el.querySelector('#wAgain').onclick = () => { W.step = 'form'; W.pdf = null; renderWForm(); };
+    el.querySelector('#waShare').onclick = e => sharePrepared(e.currentTarget, () => buildPdf({ batch: W.last, recs: W.recs, month: W.month }));
+    return;
+  }
+
+  if (W.step === 'confirm') {
+    el.innerHTML = `<div class="confirm">
+      <p class="muted">راجع قبل الإرسال</p>
+      <p style="font-weight:600;margin-top:6px">${esc(fmtLong(W.date))}</p>
+      <div class="clist">${W.basket.map(l => { const it = itemOf(l.id);
+        return `<div><span>${esc(it.name)} <span class="muted">(${esc(fmtQty(it.unit, lineQty(l)))})</span></span><b>${money(lineCost(l))}</b></div>`; }).join('')}</div>
+      <div class="w-total"><span>إجمالي التكلفة</span><b>${money(basketTotal())} <span class="cur">ريال</span></b></div>
+      <p class="warn">بعد الإرسال لا يمكن تعديل الإدخال. إذا أخطأت تواصل مع الإدارة.</p>
+      <div class="row2">
+        <button class="btn btn-accent btn-lg" id="wSend">تأكيد الإرسال</button>
+        <button class="btn btn-ghost btn-lg" id="wBack">رجوع</button>
+      </div></div>`;
+    el.querySelector('#wBack').onclick = () => { W.step = 'form'; renderWForm(); };
+    el.querySelector('#wSend').onclick = submitWaste;
+    return;
+  }
+
+  el.innerHTML = `
+    <div class="w-head"><h2>إدخال البضائع التالفة</h2>
+      <label class="muted" style="font-size:14px">التاريخ <input type="date" id="wDate" max="${info.today}" value="${W.date}"></label></div>
+    ${items.length > 8 ? `<input class="w-search" id="wSearch" placeholder="ابحث عن صنف" value="${esc(W.search)}">` : ''}
+    <p class="w-hint">${items.length ? 'اختر الصنف التالف، وإذا لم تجده اضغط "صنف آخر"' : 'لا توجد أصناف بعد. اضغط "صنف آخر" لإضافة صنف'}</p>
+    <div class="chips" id="chips"></div>
+    <div id="wlines"></div>
+    <div class="w-total"><span>إجمالي التكلفة</span><b><span id="wTotal">${money(basketTotal())}</span> <span class="cur">ريال</span></b></div>
+    <p class="err" id="wErr" role="alert"></p>
+    <button class="btn btn-primary btn-block btn-lg" id="wNext">إرسال التوالف</button>`;
+  el.querySelector('#wDate').onchange = e => { W.date = e.target.value; };
+  const s = el.querySelector('#wSearch'); if (s) s.oninput = () => { W.search = s.value; renderChips(); };
+  el.querySelector('#wNext').onclick = () => {
+    const err = el.querySelector('#wErr');
+    W.date = el.querySelector('#wDate').value;
+    if (!W.date) { err.textContent = 'اختر التاريخ'; return; }
+    if (W.date > info.today) { err.textContent = 'لا يمكن الإدخال لتاريخ لم يأتِ بعد'; return; }
+    if (!W.basket.length) { err.textContent = 'اختر صنفاً واحداً على الأقل'; return; }
+    for (const l of W.basket) {
+      const it = itemOf(l.id), q = lineQty(l);
+      if (isNaN(q)) { err.textContent = it.unit === 'weight' ? `اكتب الوزن بالكيلو للصنف: ${it.name}، مثل 1.5 لكيلو ونص` : `اكتب العدد رقماً صحيحاً للصنف: ${it.name}`; return; }
+      if (q <= 0) { err.textContent = `اكتب الكمية للصنف: ${it.name}، أو احذفه`; return; }
+    }
+    W.step = 'confirm'; renderWForm();
+  };
+  renderChips(); renderLines();
+}
+
+// ---------- صنف آخر: الموظف يكتب الاسم والتكلفة فيُضاف لقائمة الأصناف رسمياً ----------
+function otherFormHtml() {
+  const o = W.other, w = o.unit === 'weight';
+  return `<div class="other-form" id="otherForm">
+    <label class="field"><span>اسم الصنف</span><input id="oName" autocomplete="off" value="${esc(o.name)}" maxlength="80"></label>
+    <div class="field"><span>نوع الصنف</span><div class="unit-seg">
+      <button type="button" data-ounit="piece" aria-pressed="${!w}">بالحبة</button>
+      <button type="button" data-ounit="weight" aria-pressed="${w}">بالوزن</button></div></div>
+    <label class="field"><span>التصنيف</span><select id="oCat">${[...new Set([...CATS, ...(info.items || []).map(catOf)])].map(c => `<option${c === o.cat ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select></label>
+    <label class="field"><span>${w ? 'سعر تكلفة 1 كيلو (ريال)' : 'سعر تكلفة الحبة (ريال)'}</span>
+      <input id="oCost" inputmode="decimal" autocomplete="off" dir="ltr" value="${esc(o.cost)}" placeholder="0"></label>
+    <p class="err" id="oErr" role="alert"></p>
+    <div class="row2"><button type="button" class="btn btn-primary" id="oAdd">إضافة الصنف</button>
+      <button type="button" class="btn btn-ghost" id="oCancel">إلغاء</button></div>
+  </div>`;
+}
+function bindOther(box) {
+  box.querySelector('#otherChip').onclick = () => {
+    W.other.open = !W.other.open; renderChips();
+    if (W.other.open) document.getElementById('oName').focus();
+  };
+  if (!W.other.open) return;
+  const nm = box.querySelector('#oName'), cs = box.querySelector('#oCost');
+  nm.oninput = () => { W.other.name = nm.value; };
+  cs.oninput = () => { W.other.cost = cs.value; };
+  box.querySelector('#oCat').onchange = e => { W.other.cat = e.target.value; };
+  box.querySelectorAll('[data-ounit]').forEach(b => b.onclick = () => { W.other.unit = b.dataset.ounit; renderChips(); });
+  box.querySelector('#oCancel').onclick = () => { W.other = { open: false, name: '', unit: 'piece', cost: '', cat: 'أخرى' }; renderChips(); };
+  box.querySelector('#oAdd').onclick = addOtherItem;
+  cs.onkeydown = e => { if (e.key === 'Enter') addOtherItem(); };
+}
+async function addOtherItem() {
+  const err = document.getElementById('oErr'), o = W.other;
+  const name = o.name.trim().replace(/\s+/g, ' '), cost = parseAmount(o.cost);
+  if (!name) { err.textContent = 'اكتب اسم الصنف'; return; }
+  if (isNaN(cost)) { err.textContent = 'اكتب سعر التكلفة رقماً فقط، مثل 12.5'; return; }
+  const btn = document.getElementById('oAdd'); btn.disabled = true; btn.textContent = 'جارٍ الإضافة…';
+  const { data, error } = await sb.rpc('branch_add_item', { p_token: token, p_name: name, p_unit: o.unit, p_cost: cost, p_category: o.cat || 'أخرى' });
+  if (error) { btn.disabled = false; btn.textContent = 'إضافة الصنف'; err.textContent = errMsg(error); return; }
+  const item = { id: data.id, name: data.name, unit: data.unit, cost: data.cost, category: data.category };
+  if (!itemOf(item.id)) { info.items.push(item); info.items = sortItems(info.items); }
+  if (!W.basket.some(l => l.id === item.id)) W.basket.push({ id: item.id, n: '1', kg: '0' });
+  W.other = { open: false, name: '', unit: 'piece', cost: '', cat: 'أخرى' };
+  if (!document.getElementById('chips')) { renderWForm(); } else { renderChips(); renderLines(); document.getElementById('wTotal').textContent = money(basketTotal()); }
+  toast(data.existed ? `الصنف "${item.name}" موجود في القائمة وتمت إضافته للإدخال` : `تمت إضافة "${item.name}" إلى قائمة الأصناف`);
+}
+
+function renderChips() {
+  const box = document.getElementById('chips'); if (!box) return;
+  const q = W.search.trim();
+  const list = sortItems((info.items || []).filter(i => !q || i.name.includes(q)));
+  const chip = i => `<button type="button" class="chip${W.basket.some(l => l.id === i.id) ? ' on' : ''}" data-item="${i.id}">${esc(i.name)}<small>${i.unit === 'weight' ? 'وزن' : 'حبة'}</small></button>`;
+  // بدون بحث: الأصناف في مجموعات حسب التصنيف | مع البحث: قائمة واحدة
+  let html = '';
+  if (q) html = list.map(chip).join('') || '<p class="muted" style="font-size:14px">لا يوجد صنف بهذا الاسم</p>';
+  else {
+    const groups = [];
+    for (const i of list) { const c = catOf(i); let g = groups.find(x => x.c === c); if (!g) groups.push(g = { c, items: [] }); g.items.push(i); }
+    html = groups.map(g => `<div class="chip-group"><p class="chip-cat">${esc(g.c)}</p><div class="chip-row">${g.items.map(chip).join('')}</div></div>`).join('');
+  }
+  box.innerHTML = html
+    + `<button type="button" class="chip chip-other${W.other.open ? ' on' : ''}" id="otherChip">+ صنف آخر</button>`
+    + (W.other.open ? otherFormHtml() : '');
+  bindOther(box);
+  box.querySelectorAll('[data-item]').forEach(b => b.onclick = () => {
+    const id = Number(b.dataset.item);
+    let l = W.basket.find(x => x.id === id);
+    if (!l) { l = { id, n: '1', kg: '0' }; W.basket.push(l); renderChips(); renderLines(); }
+    const inp = document.querySelector(`.wline[data-id="${id}"] input`);
+    if (inp) { inp.scrollIntoView({ block: 'center', behavior: 'smooth' }); inp.focus({ preventScroll: true }); inp.select(); }
+  });
+}
+
+function renderLines() {
+  const box = document.getElementById('wlines'); if (!box) return;
+  box.innerHTML = W.basket.map(l => {
+    const it = itemOf(l.id); if (!it) return '';
+    const qty = it.unit === 'piece'
+      ? `<div class="qty-box"><span>العدد</span><div class="stepper">
+           <button type="button" data-step="n" data-d="1" aria-label="زيادة">+</button>
+           <input data-f="n" inputmode="numeric" autocomplete="off" value="${esc(l.n)}" placeholder="0" aria-label="العدد">
+           <button type="button" data-step="n" data-d="-1" aria-label="إنقاص">−</button></div></div>`
+      : `<div class="qty-box"><span>الوزن بالكيلو</span><div class="stepper kg">
+           <button type="button" data-step="kg" data-d="1" aria-label="زيادة كيلو">+</button>
+           <input data-f="kg" inputmode="decimal" autocomplete="off" value="${esc(l.kg)}" placeholder="0" aria-label="الوزن بالكيلو">
+           <button type="button" data-step="kg" data-d="-1" aria-label="إنقاص كيلو">−</button></div>
+           <small class="kg-hint">مثال: 1.5 = كيلو ونص، 0.25 = ربع كيلو</small></div>`;
+    return `<div class="wline" data-id="${l.id}">
+      <div class="wline-top"><div><b>${esc(it.name)}</b><small>${money(it.cost)} ريال / ${unitName(it.unit)}</small></div>
+        <button type="button" class="x" data-rm="${l.id}" aria-label="حذف ${esc(it.name)}">×</button></div>
+      <div class="qty-row">${qty}<div class="line-cost"><span>التكلفة</span><b class="lc">${money(lineCost(l))}</b></div></div>
+    </div>`;
+  }).join('');
+
+  box.querySelectorAll('.wline').forEach(row => {
+    const l = W.basket.find(x => x.id === Number(row.dataset.id));
+    const upd = () => { row.querySelector('.lc').textContent = money(lineCost(l)); document.getElementById('wTotal').textContent = money(basketTotal()); document.getElementById('wErr').textContent = ''; };
+    row.querySelectorAll('input[data-f]').forEach(inp => {
+      inp.oninput = () => { l[inp.dataset.f] = inp.value; upd(); };
+      inp.onfocus = () => { if (inp.value === '0') inp.select(); };
+    });
+    row.querySelectorAll('[data-step]').forEach(btn => btn.onclick = () => {
+      const f = btn.dataset.step, cur = f === 'kg' ? parseKg(l[f]) : toInt(l[f], 0);
+      const v = Math.max(0, (isNaN(cur) ? 0 : cur) + Number(btn.dataset.d));
+      l[f] = f === 'kg' ? fmtKgNum(v) : String(v); row.querySelector(`input[data-f="${f}"]`).value = l[f]; upd();
+    });
+    row.querySelector('[data-rm]').onclick = () => { W.basket = W.basket.filter(x => x !== l); renderChips(); renderLines(); document.getElementById('wTotal').textContent = money(basketTotal()); };
+  });
+}
+
+async function submitWaste() {
+  if (busy) return; busy = true;
+  const btn = document.getElementById('wSend'); btn.disabled = true; btn.textContent = 'جارٍ الإرسال…';
+  const lines = W.basket.map(l => ({ item_id: l.id, qty: lineQty(l) }));
+  const { data, error } = await sb.rpc('submit_waste', { p_token: token, p_date: W.date, p_lines: lines });
+  busy = false;
+  if (error) { toast(errMsg(error), 'err'); W.step = 'form'; await load(); return; }
+  W.last = {
+    batch: data.batch_id, date: W.date, total: Number(data.total),
+    lines: W.basket.map(l => { const it = itemOf(l.id); return { item: it.name, unit: it.unit, qty: lineQty(l), unit_cost: Number(it.cost), cost: lineCost(l) }; })
+  };
+  W.basket = []; W.search = ''; W.step = 'done'; W.pdf = null;
+  W.month = monthStart(W.last.date);
+  renderWForm();
+  await loadWaste();
+  // تجهيز التقرير مسبقاً حتى تفتح المشاركة فوراً عند الضغط
+  W.preparing = true;
+  try { W.pdf = await buildPdf({ batch: W.last, recs: W.recs, month: W.month }); } catch (e) { console.error(e); }
+  W.preparing = false;
+  const st = document.getElementById('pdfState'); if (st) st.textContent = W.pdf ? 'التقرير جاهز، اضغط الزر لإرساله' : 'تعذّر تجهيز التقرير، اضغط الزر للمحاولة مرة أخرى';
+}
+
+// ---------- تقرير الفرع ----------
+async function loadWaste() {
+  if (!W.month) W.month = monthStart(info.today);
+  W.loading = true;
+  const m = W.month;
+  const { data, error } = await sb.rpc('branch_waste', { p_token: token, p_from: m, p_to: monthEnd(m) });
+  W.loading = false;
+  if (m !== W.month) return;
+  if (error) { toast(errMsg(error), 'err'); return; }
+  W.recs = data || []; W.loaded = true;
+  renderWRep();
+}
+
+function byItem(recs) {
+  const map = {};
+  for (const r of recs) {
+    const k = r.item + '|' + r.unit;
+    (map[k] = map[k] || { item: r.item, unit: r.unit, qty: 0, cost: 0 });
+    map[k].qty += Number(r.qty); map[k].cost += Number(r.cost);
+  }
+  return Object.values(map).sort((a, b) => b.cost - a.cost);
+}
+function byDay(recs) {
+  const map = {};
+  for (const r of recs) (map[r.date] = map[r.date] || []).push(r);
+  return Object.keys(map).sort().map(d => ({ date: d, items: byItem(map[d]), total: r2(map[d].reduce((a, r) => a + Number(r.cost), 0)) }));
+}
+
+function renderWRep() {
+  const el = document.getElementById('wrep'); if (!el) return;
+  if (!W.month) W.month = monthStart(info.today);
+  const atCurrent = W.month >= monthStart(info.today);
+  const head = `<div class="cal-head">
+      <button class="nav" id="wPrev" aria-label="الشهر السابق">›</button>
+      <h2>تقرير التوالف: ${esc(fmtMonth(W.month))}</h2>
+      <button class="nav" id="wNextM" aria-label="الشهر التالي" ${atCurrent ? 'disabled' : ''}>‹</button></div>`;
+  let body;
+  if (!W.loaded) body = `<p class="muted" style="margin-top:12px">جارٍ التحميل…</p>`;
+  else if (!W.recs.length) body = `<p class="muted" style="margin-top:12px">لا توجد توالف مسجلة في هذا الشهر.</p>`;
+  else {
+    const total = r2(W.recs.reduce((a, r) => a + Number(r.cost), 0));
+    const items = byItem(W.recs), days = byDay(W.recs);
+    body = `
+      <div class="rep-sum"><div class="main"><span>إجمالي تكلفة التوالف</span><b>${money(total)}</b></div>
+        <div><span>أيام فيها توالف</span><b>${days.length}</b></div></div>
+      <h3>حسب الأصناف (الأعلى تكلفة أولاً)</h3>
+      ${items.map(i => `<div class="rank"><div class="rank-top"><span>${esc(i.item)}<small>${esc(fmtQty(i.unit, i.qty))}</small></span><b>${money(i.cost)}</b></div>
+        <div class="bar"><i style="width:${total ? i.cost / total * 100 : 0}%"></i></div></div>`).join('')}
+      <h3>حسب الأيام</h3>
+      ${days.slice().reverse().map(d => `<div class="wday"><div class="wday-h"><span>${esc(fmtShort(d.date))} <span class="muted" style="font-weight:400">${esc(fmtDayName(d.date))}</span></span><b>${money(d.total)}</b></div>
+        ${d.items.map(i => `<div class="wday-l"><span>${esc(i.item)} (${esc(fmtQty(i.unit, i.qty))})</span><span class="num">${money(i.cost)}</span></div>`).join('')}</div>`).join('')}
+      <button class="btn btn-ghost btn-block" id="monthPdf" style="margin-top:14px">مشاركة تقرير الشهر PDF</button>`;
+  }
+  el.innerHTML = head + body;
+  el.querySelector('#wPrev').onclick = () => { W.month = addMonths(W.month, -1); W.loaded = false; renderWRep(); loadWaste(); };
+  el.querySelector('#wNextM').onclick = () => { W.month = addMonths(W.month, 1); W.loaded = false; renderWRep(); loadWaste(); };
+  const mp = el.querySelector('#monthPdf');
+  if (mp) { let prepared = null; mp.onclick = () => sharePrepared(mp, () => buildPdf({ recs: W.recs, month: W.month }), () => prepared, f => prepared = f); }
+}
+
+// ---------- PDF ----------
+const PDF_LIBS = [
+  'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js',
+  'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js'
+];
+function loadScript(src) {
+  return new Promise((ok, bad) => {
+    if (document.querySelector(`script[src="${src}"]`)) return ok();
+    const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => bad(new Error('تعذّر تحميل أداة التقرير. تحقق من الإنترنت.'));
+    document.head.appendChild(s);
+  });
+}
+const branchLabel = () => info.group_name === info.name ? info.name : `${info.group_name} - ${info.name}`;
+
+function pdfHtml({ batch, recs, month }) {
+  const now = new Intl.DateTimeFormat(AR, { timeZone: TZ, day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date());
+  const total = r2(recs.reduce((a, r) => a + Number(r.cost), 0));
+  const items = byItem(recs), days = byDay(recs);
+  const upTo = month === monthStart(info.today) ? ` حتى ${fmtShort(info.today)}` : '';
+  let h = `<div class="pdf-head pdf-block">
+      ${info.logo ? `<img src="${esc(info.logo)}" alt="">` : ''}
+      <div><h1>${esc(branchLabel())}</h1><p class="t">تقرير البضائع التالفة</p><p>شهر ${esc(fmtMonth(month))}${esc(upTo)}</p></div>
+      <div class="meta">تاريخ الإصدار<br>${esc(now)}</div></div>
+    <div class="pdf-tot pdf-block">
+      ${batch ? `<div><span>تكلفة إدخال ${esc(fmtShort(batch.date))}</span><b>${money(batch.total)} ريال</b></div>` : ''}
+      <div class="main"><span>إجمالي تكلفة التوالف للشهر</span><b>${money(total)} ريال</b></div>
+      <div><span>أيام فيها توالف</span><b>${days.length}</b></div></div>`;
+  if (batch) {
+    h += `<h2 class="pdf-block">الإدخال الحالي: ${esc(fmtLong(batch.date))}</h2>
+      <table><thead><tr><th>الصنف</th><th>الكمية</th><th class="n">سعر الوحدة</th><th class="n">التكلفة</th></tr></thead><tbody>
+      ${batch.lines.map(l => `<tr><td>${esc(l.item)}</td><td>${esc(fmtQty(l.unit, l.qty))}</td><td class="n">${money(l.unit_cost)} / ${unitName(l.unit)}</td><td class="n">${money(l.cost)}</td></tr>`).join('')}
+      </tbody><tfoot><tr><td colspan="3">الإجمالي</td><td class="n">${money(batch.total)}</td></tr></tfoot></table>`;
+  }
+  h += `<h2 class="pdf-block">التفاصيل اليومية</h2>`;
+  if (!days.length) h += `<p>لا توجد توالف مسجلة.</p>`;
+  else {
+    h += `<table><thead><tr><th>التاريخ</th><th>الصنف</th><th>الكمية</th><th class="n">التكلفة</th></tr></thead><tbody>`;
+    for (const d of days) {
+      d.items.forEach((i, k) => {
+        h += `<tr class="${k === 0 ? 'pdf-day' : ''}"><td>${k === 0 ? esc(fmtShort(d.date)) + ' - ' + esc(fmtDayName(d.date)) : ''}</td><td>${esc(i.item)}</td><td>${esc(fmtQty(i.unit, i.qty))}</td><td class="n">${money(i.cost)}</td></tr>`;
+      });
+      h += `<tr class="sub"><td colspan="3">إجمالي ${esc(fmtShort(d.date))}</td><td class="n">${money(d.total)}</td></tr>`;
+    }
+    h += `</tbody><tfoot><tr><td colspan="3">إجمالي الشهر</td><td class="n">${money(total)}</td></tr></tfoot></table>`;
+    h += `<h2 class="pdf-block">ملخص الأصناف (الأعلى تكلفة أولاً)</h2>
+      <table><thead><tr><th class="n">#</th><th>الصنف</th><th>إجمالي الكمية</th><th class="n">التكلفة</th><th class="n">النسبة</th></tr></thead><tbody>
+      ${items.map((i, k) => `<tr><td class="n">${k + 1}</td><td>${esc(i.item)}</td><td>${esc(fmtQty(i.unit, i.qty))}</td><td class="n">${money(i.cost)}</td><td class="n">${total ? (i.cost / total * 100).toFixed(1) : 0}%</td></tr>`).join('')}
+      </tbody><tfoot><tr><td colspan="3">الإجمالي</td><td class="n">${money(total)}</td><td class="n">100%</td></tr></tfoot></table>`;
+  }
+  h += `<p class="foot pdf-block">برنامج إدارة مبيعات الفروع</p>`;
+  return h;
+}
+
+async function buildPdf(opts) {
+  for (const s of PDF_LIBS) await loadScript(s);
+  const el = document.createElement('div');
+  el.className = 'pdf'; el.innerHTML = pdfHtml(opts);
+  document.body.appendChild(el);
+  try {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    await Promise.all([...el.querySelectorAll('img')].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+    const SCALE = 2, W_PX = 794, PAGE_PX = Math.round(W_PX * 297 / 210), TOP = 30, BOT = 34;
+    const canvas = await window.html2canvas(el, { scale: SCALE, backgroundColor: '#ffffff', useCORS: true, logging: false });
+    // نقاط القطع: نهاية كل صف أو عنوان، حتى لا ينقسم صف بين صفحتين
+    const top0 = el.getBoundingClientRect().top;
+    const cuts = [...el.querySelectorAll('tr, .pdf-block, p')].map(e => Math.round(e.getBoundingClientRect().bottom - top0)).sort((a, b) => a - b);
+    const H = el.offsetHeight, pages = [];
+    let y = 0;
+    while (y < H - 2) {
+      const room = PAGE_PX - BOT - (pages.length ? TOP : 0), limit = y + room;
+      if (limit >= H) { pages.push([y, H]); break; }
+      let cut = 0; for (const c of cuts) if (c > y + 80 && c <= limit) cut = c;
+      if (!cut) cut = limit;
+      pages.push([y, cut]); y = cut;
+    }
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
+    const mmPerPx = 210 / W_PX;
+    pages.forEach(([a, b], i) => {
+      if (i) pdf.addPage();
+      const part = document.createElement('canvas');
+      part.width = canvas.width; part.height = Math.ceil((b - a) * SCALE);
+      const ctx = part.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, part.width, part.height);
+      ctx.drawImage(canvas, 0, a * SCALE, canvas.width, part.height, 0, 0, part.width, part.height);
+      pdf.addImage(part.toDataURL('image/jpeg', 0.92), 'JPEG', 0, (i ? TOP : 0) * mmPerPx, 210, (b - a) * mmPerPx);
+      pdf.setFontSize(9); pdf.setTextColor(140);
+      pdf.text(`${i + 1} / ${pages.length}`, 105, 290, { align: 'center' });
+    });
+    const day = opts.batch ? opts.batch.date : opts.month.slice(0, 7);
+    const name = `توالف ${branchLabel()} ${day}.pdf`.replace(/[\\/:*?"<>|]/g, '-');
+    return new File([pdf.output('blob')], name, { type: 'application/pdf' });
+  } finally { el.remove(); }
+}
+
+// مشاركة الملف: قائمة المشاركة في الجوال (واتساب ثم القروب)، أو تنزيل الملف وفتح القروب في الكمبيوتر
+async function sharePdf(file, btn) {
+  const text = `تقرير البضائع التالفة - ${branchLabel()}`;
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: text, text }); return; }
+    catch (e) {
+      if (e.name === 'AbortError') return;
+      if (e.name === 'NotAllowedError') { btn.textContent = 'التقرير جاهز، اضغط للإرسال'; return; }
+    }
+  }
+  const url = URL.createObjectURL(file), a = document.createElement('a');
+  a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  toast(info.waste_link ? 'تم تنزيل التقرير. أرفقه في قروب التوالف' : 'تم تنزيل التقرير. أرسله على قروب التوالف');
+  if (info.waste_link) setTimeout(() => window.open(info.waste_link, '_blank', 'noopener'), 700);
+}
+// يجهّز الملف إن لم يكن جاهزاً ثم يشاركه
+async function sharePrepared(btn, build, get = () => W.pdf, set = f => { W.pdf = f; }) {
+  if (btn.disabled) return;
+  let f = get();
+  if (!f) {
+    const txt = btn.textContent; btn.disabled = true; btn.textContent = 'جارٍ تجهيز التقرير…';
+    try { f = await build(); set(f); }
+    catch (e) { toast(errMsg(e), 'err'); btn.disabled = false; btn.textContent = txt; return; }
+    btn.disabled = false; btn.textContent = txt;
+    const st = document.getElementById('pdfState'); if (st && btn.id === 'waShare') st.textContent = 'التقرير جاهز';
+  }
+  await sharePdf(f, btn);
+}
+
+if (!token) fatal('الرابط غير مكتمل', 'اطلب رابط الفرع الصحيح من الإدارة.');
+else {
+  load();
+  // عند الرجوع للصفحة أو بعد منتصف الليل: تحديث التاريخ والإدخالات
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && info && step !== 'confirm') load(); });
+  setInterval(() => { if (info && todayISO() !== info.today && step === 'form') load(); }, 60000);
+  // تحديث كل 5 دقائق حتى يظهر إشعار التأخير في وقته (بدون مقاطعة الكتابة)
+  setInterval(() => {
+    const ae = document.activeElement;
+    if (info && !document.hidden && step === 'form' && W.step === 'form' && !(ae && ae.tagName === 'INPUT')) load();
+  }, 300000);
+}
+</script>
+</body>
+</html>
