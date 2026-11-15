@@ -27,6 +27,12 @@
   .live.on::before { background: var(--accent); animation: pulse 2s infinite; }
   @keyframes pulse { 50% { opacity: .35; } }
   .top-actions { display: flex; gap: 8px; }
+  @media (max-width: 720px) {
+    .top-in { flex-wrap: wrap; padding: 10px 12px; gap: 8px; }
+    .top-actions { flex-wrap: wrap; gap: 6px; width: 100%; }
+    .top-actions .btn { padding-inline: 10px; }
+  }
+  body { overflow-x: hidden; }
   .badge { background: var(--rose); color: #fff; border-radius: 99px; padding: 0 7px; font-size: 12px; line-height: 20px; min-width: 20px; }
   .badge.zero { background: var(--line); color: var(--muted); }
 
@@ -131,6 +137,27 @@
   .irow .acts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
   .items-list { margin-top: 14px; }
   .chip-u { font-size: 11px; padding: 0 7px; border-radius: 99px; background: var(--bg); border: 1px solid var(--line); margin-inline-start: 6px; }
+  .icat { font-weight: 700; font-size: 14px; margin: 14px 0 2px; padding-bottom: 4px; border-bottom: 2px solid var(--line); }
+  .icat span { color: var(--muted); font-weight: 400; font-size: 12px; }
+  .imp-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .imp { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px; margin-top: 10px; }
+  .imp-head { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 14px; }
+  .imp-sum { font-size: 13px; margin-top: 4px; }
+  .imp-sum .ok { color: var(--accent); font-weight: 700; }
+  .warn-t { color: var(--caramel); font-weight: 600; }
+  .imp-t { font-weight: 700; font-size: 13px; margin: 12px 0 4px; }
+  .imp-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 6px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .imp-row input:not([type=checkbox]), .imp-row select { padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font: inherit; }
+  .imp-row input[type=checkbox] { width: 18px; height: 18px; }
+  .imp-name { flex: 1; min-width: 150px; }
+  .imp-price { width: 70px; }
+  .imp-cat { width: 140px; }
+  .imp-diff { cursor: pointer; }
+  .imp-same { margin-top: 10px; font-size: 13px; }
+  .imp-acts { display: flex; gap: 8px; margin-top: 10px; }
+  .ql-box { margin-top: 8px; background: var(--rose-soft); border-radius: var(--r-sm); padding: 10px; }
+  .ql-box code { display: block; font-size: 12px; overflow-wrap: anywhere; direction: ltr; text-align: left; }
+  .ql-acts { display: flex; gap: 6px; margin-top: 8px; }
   /* الإعدادات */
   .set-sec { padding: 12px 0; border-top: 1px solid var(--line); }
   .set-sec:first-of-type { border-top: none; margin-top: 8px; }
@@ -152,6 +179,19 @@
   /* ---- التأخير ---- */
   .late-panel { margin-top: 14px; background: #FBE9E7; border: 1.5px solid #B3261E; border-radius: var(--r-lg); padding: 14px 16px; }
   .late-panel h2 { font-size: 17px; color: #B3261E; }
+  .app-ver { text-align: center; font-size: 11px; color: var(--muted); margin: 18px 0 6px; }
+  .bell-btn { position: relative; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; color: var(--ink); cursor: pointer; flex: none; }
+  .bell-btn svg { width: 21px; height: 21px; }
+  .bell-btn[aria-expanded="true"] { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+  .bell-dot { position: absolute; top: -3px; left: -3px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 99px; background: #D32F2F; color: #fff; font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; border: 2px solid var(--surface); }
+  .bell-dot[hidden] { display: none; }
+  .late-pop { position: fixed; top: 62px; left: 12px; z-index: 60; width: min(560px, calc(100vw - 24px)); max-height: min(70vh, 560px); overflow: auto; border-radius: var(--r-lg); box-shadow: 0 14px 40px rgba(0,0,0,.18); }
+  .late-pop .late-panel { margin-top: 0; }
+  .late-pop[hidden] { display: none; }
+  .late-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .late-panel.ok { background: var(--accent-soft); border-color: var(--accent); }
+  .late-panel.ok h2 { color: var(--accent); }
+  #lateBtn[aria-expanded="true"] { border-color: #B3261E; color: #B3261E; }
   .late-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 0; border-top: 1px solid rgba(179,38,30,.2); }
   .late-row:first-of-type { border-top: none; }
   .late-info { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 2px; }
@@ -271,10 +311,12 @@
     <div class="top-actions">
       <button id="addBtn" class="btn btn-primary btn-sm edit-only">إدخال مبيعات</button>
       <button id="wasteBtn" class="btn btn-ghost btn-sm">التوالف</button>
+      <button id="lateBtn" class="bell-btn" aria-expanded="false" aria-haspopup="true" aria-label="تنبيهات التأخير" title="تنبيهات التأخير"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span id="lateDot" class="bell-dot" hidden></span></button>
       <button id="bellBtn" class="btn btn-ghost btn-sm">طلبات التعديل <span id="bellCount" class="badge zero">0</span></button>
       <button id="logoutBtn" class="btn btn-ghost btn-sm edit-only">خروج</button>
     </div>
   </div></header>
+  <section id="latePanel" class="late-pop" hidden role="dialog" aria-label="تنبيهات التأخير"></section>
 
   <main class="shell">
     <section class="period">
@@ -292,7 +334,6 @@
       <p class="period-label" id="periodLabel"></p>
     </section>
 
-    <section id="latePanel"></section>
     <section id="corrections"></section>
 
     <div id="overview">
@@ -304,6 +345,7 @@
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <details class="box edit-only"><summary>روابط إدخال المبيعات للفروع</summary><div id="links"></div></details>
       <details class="box edit-only"><summary>الإعدادات: المناديب، الشعارات، روابط الاطلاع، قروب التوالف</summary><div id="settings"></div></details>
+      <p class="app-ver">إصدار الواجهة: 2026-11-15 ج</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -344,6 +386,8 @@
     </div>
     <label class="field"><span id="iCostLbl">تكلفة الحبة (ريال)</span><input id="iCost" inputmode="decimal" autocomplete="off" dir="ltr" required></label>
     <p class="muted" id="iCostHint" style="font-size:13px;margin-top:4px" hidden>اكتب تكلفة 1 كيلو (1000 جرام)، والبرنامج يحسب الجرامات تلقائياً.</p>
+    <label class="field"><span>القسم</span><input id="iCat" list="catList" autocomplete="off" placeholder="اتركه فارغاً ليُحدد تلقائياً من الاسم"></label>
+    <datalist id="catList"></datalist>
     <div class="field"><span>يظهر في فروع</span><div class="br-checks" id="iBranches"></div></div>
     <p class="err" id="iErr" role="alert"></p>
     <div style="display:flex;gap:8px">
@@ -351,6 +395,12 @@
       <button class="btn btn-ghost" type="button" id="iCancel" hidden>إلغاء التعديل</button>
     </div>
   </form>
+  <div class="imp-bar">
+    <button class="btn btn-ghost" type="button" id="impBtn">استيراد أصناف من فواتير PDF</button>
+    <span class="muted" style="font-size:12px">ارفع فاتورة أو أكثر، والبرنامج يضيف الأصناف غير الموجودة فقط.</span>
+    <input type="file" id="impFile" accept="application/pdf,.pdf" multiple hidden>
+  </div>
+  <div id="impBox"></div>
   <div class="items-list" id="itemsList"></div>
 </dialog>
 <input type="file" id="logoFile" accept="image/*" hidden>
@@ -398,7 +448,7 @@ async function start() {
 
 // ---------------- البيانات ----------------
 async function loadBranches() {
-  const { data, error } = await sb.from('branches').select('id,name,group_name,sort_order,token,active,credit,waste,logo,is_rep,whatsapp,track_from').order('sort_order').order('id');
+  const { data, error } = await sb.from('branches').select('id,name,group_name,sort_order,token,active,credit,waste,logo,is_rep,whatsapp,track_from,late_exempt').order('sort_order').order('id');
   if (error) { toast(errMsg(error), 'err'); return; }
   S.allBranches = data; S.byId = {};
   for (const b of data) S.byId[b.id] = b;
@@ -539,9 +589,15 @@ function lateMsg(b) {
     + (b.token ? `نرجو إدخال المبيعات الآن عبر رابط الفرع:\n${branchUrl(b)}` : 'نرجو إدخال المبيعات الآن.');
 }
 function renderLate() {
-  const late = activeBranches().filter(b => lateMissing(b).length);
-  if (!late.length) { $('latePanel').innerHTML = ''; return; }
-  $('latePanel').innerHTML = `<div class="late-panel" role="alert"><h2>فروع متأخرة في إدخال المبيعات (${late.length})</h2>
+  const late = activeBranches().filter(b => !b.late_exempt && lateMissing(b).length);
+  $('lateDot').hidden = !late.length;
+  $('lateDot').textContent = late.length > 9 ? '9+' : late.length || '';
+  $('lateBtn').title = late.length ? `تنبيهات التأخير: ${late.length} ${late.length > 2 ? 'فروع' : 'فرع'}` : 'لا توجد تنبيهات تأخير';
+  if (!late.length) {
+    $('latePanel').innerHTML = `<div class="late-panel ok"><div class="late-head"><h2>لا توجد فروع متأخرة في الإدخال</h2><button class="btn btn-ghost btn-sm" id="lateClose">إغلاق</button></div></div>`;
+    $('lateClose').onclick = () => toggleLate(false); return;
+  }
+  $('latePanel').innerHTML = `<div class="late-panel"><div class="late-head"><h2>فروع متأخرة في إدخال المبيعات (${late.length})</h2><button class="btn btn-ghost btn-sm" id="lateClose">إغلاق</button></div>
     ${late.map(b => { const L = lateOf(b.id), miss = lateMissing(b); return `<div class="late-row">
       <div class="late-info"><b>${esc(label(b))}</b>
         <span>لم تُدخل ${daysWord(miss.length)}: ${miss.map(d => esc(fmtShort(d))).join('، ')}</span>
@@ -551,7 +607,20 @@ function renderLate() {
         ${b.whatsapp ? `<a class="btn btn-ghost btn-sm" href="${esc(waUrl(b.whatsapp))}" target="_blank" rel="noopener">مراسلة</a>` : '<span class="muted" style="font-size:12px">أضف رقم الواتساب من الإعدادات</span>'}
       </div></div>`; }).join('')}
   </div>`;
+  $('lateClose').onclick = () => toggleLate(false);
 }
+// تنبيهات التأخير: أيقونة جرس في الأعلى مع نقطة حمراء، تفتح قائمة صغيرة فوق الصفحة ولا تحرّك الشاشة
+function toggleLate(force) {
+  const p = $('latePanel'), open = typeof force === 'boolean' ? force : p.hidden;
+  if (open) p.style.top = Math.max(8, document.querySelector('header.top').getBoundingClientRect().bottom + 6) + 'px';
+  p.hidden = !open; $('lateBtn').setAttribute('aria-expanded', String(open));
+}
+document.addEventListener('click', e => {
+  if ($('latePanel').hidden) return;
+  if (e.target.closest('#latePanel') || e.target.closest('#lateBtn')) return;
+  toggleLate(false);
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('latePanel').hidden) toggleLate(false); });
 
 // ---------------- إدارة روابط الاطلاع (للإدارة) ----------------
 async function loadViewers() {
@@ -865,7 +934,8 @@ function wByItem(recs) {
 }
 
 function lateLine(g) {
-  const act = g.branches.filter(b => b.active);
+  const act = g.branches.filter(b => b.active && !b.late_exempt);
+  if (!act.length) return `<div class="sub"><span>مرات التأخير</span><b class="muted" style="font-weight:400;font-size:13px">مستثنى</b></div>`;
   const cnt = act.reduce((a, b) => a + lateOf(b.id).count, 0);
   const miss = act.reduce((a, b) => a + lateMissing(b).length, 0);
   const wa = act.length === 1 && act[0].whatsapp ? `<a class="wa-mini edit-only" href="${esc(waUrl(act[0].whatsapp))}" target="_blank" rel="noopener" title="مراسلة على واتساب">واتساب</a>` : '';
@@ -976,6 +1046,8 @@ function resetItemForm(it) {
   $('itemFormTitle').textContent = it ? `تعديل: ${it.name}` : 'إضافة صنف جديد';
   $('iName').value = it ? it.name : '';
   $('iCost').value = it ? String(Number(it.cost)) : '';
+  $('iCat').value = it ? catOf(it) : '';
+  $('catList').innerHTML = allCats().map(c => `<option value="${esc(c)}">`).join('');
   document.querySelector(`input[name="iUnit"][value="${it ? it.unit : 'piece'}"]`).checked = true;
   const sel = it && it.branch_ids && it.branch_ids.length ? it.branch_ids : null;
   $('iBranches').innerHTML = wasteBranches().map(b => `<label><input type="checkbox" value="${b.id}" ${!sel || sel.includes(b.id) ? 'checked' : ''}>${esc(label(b))}</label>`).join('')
@@ -984,12 +1056,222 @@ function resetItemForm(it) {
   $('iCancel').hidden = !it; $('iErr').textContent = '';
   syncUnit();
 }
+// ---------------- ترتيب الأصناف حسب التصنيف ----------------
+const CATS = ['البسبوسة', 'الكيك والتشيز', 'المعجنات', 'الخلايا والكرواسون', 'التمور', 'ورق العنب', 'الشوكولاتة', 'البيتفور والمعمول', 'البقلاوة والحلويات الشرقية', 'أخرى'];
+const catOf = i => (i.category || 'أخرى').trim() || 'أخرى';
+const catRank = c => { const k = CATS.indexOf(c); return k < 0 ? CATS.length - 1.5 : k; };
+const SIZE_RE = /\s+(كبير|مستطيل|وسط|صغير|ربع)(\s.*)?$/;
+const sizeRank = n => /كبير/.test(n) ? 1 : /مستطيل/.test(n) ? 2 : /وسط/.test(n) ? 3 : /(صغير|ربع)/.test(n) ? 4 : 5;
+const baseName = n => n.replace(SIZE_RE, '');
+function sortItems(list) {
+  return list.slice().sort((a, b) => catRank(catOf(a)) - catRank(catOf(b)) || catOf(a).localeCompare(catOf(b), 'ar')
+    || baseName(a.name).localeCompare(baseName(b.name), 'ar') || sizeRank(a.name) - sizeRank(b.name) || a.name.localeCompare(b.name, 'ar'));
+}
+const allCats = () => [...new Set([...CATS, ...S.items.map(catOf)])];
+function guessCategory(n) {
+  // نفس قواعد قاعدة البيانات (guess_category) — الترتيب مهم
+  if (/(بيتفور|بيتي فور|بتي فور|معمول|كعك|غريبة|بسكويت|بسكوت)/.test(n)) return 'البيتفور والمعمول';
+  if (/بسبوس/.test(n)) return 'البسبوسة';
+  if (/(تشيز|كيك|تورت|جاتو)/.test(n)) return 'الكيك والتشيز';
+  if (/(شوكولا|شوكلا|شكولا|شوكو)/.test(n)) return 'الشوكولاتة';
+  if (/تمر/.test(n)) return 'التمور';
+  if (/عنب/.test(n)) return 'ورق العنب';
+  if (/(خلية|كرواسون|كروسان|كرواسان)/.test(n)) return 'الخلايا والكرواسون';
+  if (/(معجنات|سمبوس|جبنية|فطائر|فطيرة|بيتزا|صفيح|مناقيش|فطاير)/.test(n)) return 'المعجنات';
+  if (/(بقلاوة|بقالوة|بلح الشام|كنافة|هريسة|قطايف|لقيمات|لقيمة)/.test(n)) return 'البقلاوة والحلويات الشرقية';
+  if (/صينية/.test(n)) return 'الكيك والتشيز';
+  return 'أخرى';
+}
+
+// ---------------- استيراد الأصناف من فواتير PDF ----------------
+const PDFJS = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/';
+let pdfjsLib = null, IMP = null;
+// pdf.js يقرأ "لا" المدمجة كأنها "ال": نصححها داخل الكلمة (عدا أدوات مثل: بال، وال، كال، فال، لل)
+function fixLig(s) {
+  return s.split(' ').map(w => {
+    let r = '';
+    for (let i = 0; i < w.length; i++) {
+      if (w[i] === 'ا' && w[i + 1] === 'ل' && i > 0 && !(i === 1 && 'بكفول'.includes(w[0]))) { r += 'لا'; i++; }
+      else r += w[i];
+    }
+    return r;
+  }).join(' ');
+}
+// تنظيف الاسم: أرقام الترميز الملتصقة، أخطاء إملائية شائعة، "بالكيلو"
+function cleanItemName(raw) {
+  let n = fixLig(String(raw).replace(/\s+/g, ' ').trim());
+  n = n.replace(/\s*1$/, '');
+  n = n.replace(/بقالوة/g, 'بقلاوة').replace(/كروسان/g, 'كرواسون').replace(/شوكلا(?!ت)/g, 'شوكولاتة')
+       .replace(/مكشوف مخمل/g, 'مكشوفة مخمل').replace(/^بسبوسة مشكل$/, 'بسبوسة مشكلة').replace(/(\d)(كيلو)/g, '$1 $2');
+  const weight = /\s*بال?كيلو(جرام)?$/.test(n);
+  n = n.replace(/\s*بال?كيلو(جرام)?$/, '').replace(/\s+/g, ' ').trim();
+  return { name: n, weight };
+}
+// للمقارنة فقط: توحيد الهمزات والتاء المربوطة والياء والمسافات
+const keyName = n => String(n).replace(/[\u064B-\u0652\u0640]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, '').toLowerCase();
+
+function pdfRows(items) {
+  const rows = [];
+  for (const it of items) {
+    const s = String(it.str).replace(/\s+/g, ' ').trim(); if (!s) continue;
+    const x = it.transform[4] + (it.width || 0) / 2, y = it.transform[5];
+    let r = rows.find(r => Math.abs(r.y - y) <= 3);
+    if (!r) rows.push(r = { y, cells: [] });
+    r.cells.push({ x, s });
+  }
+  return rows.sort((a, b) => b.y - a.y);
+}
+// يقرأ جدول الفاتورة من عناوين الأعمدة: رقم الصنف، الصنف، الوحدة، السعر ب.ض (شامل الضريبة) أو السعر ق.ض
+function pdfItems(rows) {
+  const out = []; let cols = null;
+  const flat = s => s.replace(/\s/g, '');
+  for (const r of rows) {
+    const has = t => r.cells.some(c => flat(c.s).includes(t));
+    const hName = r.cells.find(c => ['الصنف', 'اسمالصنف', 'البيان'].includes(flat(c.s)));
+    if (hName && (has('الكمية') || has('الوحده') || has('الوحدة'))) {
+      const near = rows.filter(o => Math.abs(o.y - r.y) <= 6).flatMap(o => o.cells);
+      const find = (...ts) => { const c = near.find(c => ts.some(t => flat(c.s) === flat(t))); return c ? c.x : null; };
+      cols = { name: hName.x, code: find('رقم الصنف', 'كود الصنف', 'الكود'), unit: find('الوحده', 'الوحدة'),
+               inc: find('السعر ب.ض', 'السعر شامل الضريبة', 'السعر بعد الضريبة'), exc: find('السعر ق.ض', 'السعر قبل الضريبة', 'السعر') };
+      continue;
+    }
+    if (!cols) continue;
+    if ((has('الجمالي') || has('الاجمالي') || has('الإجمالي')) && !r.cells.some(c => /^\d{3,}$/.test(c.s) && Math.abs(c.x - (cols.code ?? -999)) < 30)) { cols = null; continue; }
+    const at = x => { if (x == null) return null; let best = null, d = 1e9; for (const c of r.cells) { const dd = Math.abs(c.x - x); if (dd < d) { d = dd; best = c; } } return d < 30 ? best : null; };
+    const nameC = r.cells.filter(c => /[\u0600-\u06FF]/.test(c.s)).sort((a, b) => Math.abs(a.x - cols.name) - Math.abs(b.x - cols.name))[0];
+    if (!nameC || Math.abs(nameC.x - cols.name) > 120) continue;
+    const num = c => c && /^[\d.,]+$/.test(c.s) ? Number(c.s.replace(/,/g, '')) : null;
+    let inc = num(at(cols.inc)); const exc = num(at(cols.exc));
+    if (inc == null && exc != null) inc = Math.round(exc * 1.15 * 100) / 100;
+    if (inc == null || !(inc >= 0)) continue;
+    const codeC = at(cols.code), unitC = at(cols.unit);
+    out.push({ code: codeC && /^\d+$/.test(codeC.s) ? codeC.s : null, raw: nameC.s, unitRaw: unitC ? unitC.s : '', price: inc });
+  }
+  return out;
+}
+
+async function importPdfs(files) {
+  const box = $('impBox');
+  box.innerHTML = '<p class="muted imp-wait">جارٍ قراءة الفواتير…</p>';
+  try {
+    if (!pdfjsLib) {
+      pdfjsLib = await import(PDFJS + 'pdf.min.mjs');
+      pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.mjs';
+    }
+    const found = []; let pages = 0;
+    for (const f of files) {
+      const doc = await pdfjsLib.getDocument({ data: new Uint8Array(await f.arrayBuffer()) }).promise;
+      for (let p = 1; p <= doc.numPages; p++) {
+        const tc = await (await doc.getPage(p)).getTextContent(); pages++;
+        found.push(...pdfItems(pdfRows(tc.items)).map(x => ({ ...x, file: f.name })));
+      }
+    }
+    if (!found.length) { box.innerHTML = `<div class="imp"><p>لم أجد جدول أصناف في ${files.length > 1 ? 'الملفات' : 'الملف'}. تأكد أنها فواتير فيها أعمدة "الصنف" و"السعر".</p><button class="btn btn-ghost btn-sm" id="impCancel">إغلاق</button></div>`; $('impCancel').onclick = () => { box.innerHTML = ''; }; return; }
+    // توحيد: نفس رقم الصنف أو نفس الاسم = صنف واحد
+    const uniq = new Map();
+    for (const f of found) {
+      const c = cleanItemName(f.raw);
+      const k = f.code ? 'c' + f.code : 'n' + keyName(c.name);
+      if (!uniq.has(k)) uniq.set(k, { ...f, name: c.name, unit: (c.weight || /كيلو|كجم|كغ/.test(f.unitRaw)) ? 'weight' : 'piece', prices: new Set([f.price]) });
+      else uniq.get(k).prices.add(f.price);
+    }
+    const byCode = new Map(S.items.filter(i => i.code).map(i => [String(i.code), i]));
+    const byName = new Map(S.items.map(i => [keyName(i.name), i]));
+    const rows = [...uniq.values()].map(u => {
+      const ex = (u.code && byCode.get(u.code)) || byName.get(keyName(u.name)) || null;
+      return { ...u, ex, category: guessCategory(u.name), sel: !ex, upd: false };
+    });
+    IMP = { rows, files: files.length, pages, lines: found.length };
+    renderImport();
+  } catch (e) {
+    console.error(e);
+    box.innerHTML = `<div class="imp"><p class="err">تعذّر قراءة الملف: ${esc(errMsg(e))}</p><button class="btn btn-ghost btn-sm" id="impCancel">إغلاق</button></div>`;
+    $('impCancel').onclick = () => { box.innerHTML = ''; };
+  }
+}
+function renderImport() {
+  const R = IMP.rows, fresh = R.filter(r => !r.ex), old = R.filter(r => r.ex);
+  const diff = old.filter(r => Number(r.ex.cost) !== Number(r.price));
+  const same = old.filter(r => !diff.includes(r));
+  const cats = allCats();
+  $('impBox').innerHTML = `<div class="imp">
+    <div class="imp-head"><b>نتيجة قراءة الفواتير</b>
+      <span class="muted">${IMP.files} ${IMP.files > 1 ? 'ملفات' : 'ملف'} · ${IMP.lines} سطر · ${R.length} صنف مختلف</span></div>
+    <p class="imp-sum"><span class="ok">جديد: ${fresh.length}</span> · <span>موجود مسبقاً: ${old.length}</span>${diff.length ? ` · <span class="warn-t">سعر مختلف: ${diff.length}</span>` : ''}</p>
+    ${fresh.length ? `<p class="imp-t">أصناف جديدة (راجع الاسم والتصنيف ثم أضف)</p>
+      ${fresh.map(r => { const k = R.indexOf(r); return `<div class="imp-row">
+        <input type="checkbox" data-isel="${k}" ${r.sel ? 'checked' : ''} aria-label="اختيار">
+        <input class="imp-name" data-iname="${k}" value="${esc(r.name)}" title="الاسم في الفاتورة: ${esc(r.raw)}">
+        <select data-iunit="${k}"><option value="piece"${r.unit === 'piece' ? ' selected' : ''}>حبة</option><option value="weight"${r.unit === 'weight' ? ' selected' : ''}>وزن (كيلو)</option></select>
+        <input class="imp-price" data-iprice="${k}" value="${esc(String(r.price))}" inputmode="decimal" dir="ltr">
+        <input class="imp-cat" data-icat="${k}" value="${esc(r.category)}" list="impCats">
+        ${r.code ? `<span class="chip-u">#${esc(r.code)}</span>` : ''}
+        ${r.prices.size > 1 ? `<small class="warn-t">أسعار مختلفة في الفواتير: ${[...r.prices].join(' / ')}</small>` : ''}
+      </div>`; }).join('')}
+      <datalist id="impCats">${cats.map(c => `<option value="${esc(c)}">`).join('')}</datalist>` : '<p class="imp-t">لا توجد أصناف جديدة، كل الأصناف موجودة مسبقاً.</p>'}
+    ${diff.length ? `<p class="imp-t">أصناف موجودة بسعر مختلف في الفاتورة</p>
+      ${diff.map(r => { const k = R.indexOf(r); return `<label class="imp-row imp-diff"><input type="checkbox" data-iupd="${k}" ${r.upd ? 'checked' : ''}>
+        <span><b>${esc(r.ex.name)}</b>: المسجل ${money(r.ex.cost)}، وفي الفاتورة ${money(r.price)} ريال. <span class="muted">حدّد لتحديث السعر</span></span></label>`; }).join('')}` : ''}
+    ${same.length ? `<details class="imp-same"><summary>${same.length} صنف موجود بنفس السعر (لن يتكرر)</summary><p class="muted">${same.map(r => esc(r.ex.name)).join('، ')}</p></details>` : ''}
+    <p class="err" id="impErr"></p>
+    <div class="imp-acts">
+      <button class="btn btn-primary" id="impApply">${impApplyLabel()}</button>
+      <button class="btn btn-ghost" id="impCancel">إلغاء</button></div>
+  </div>`;
+  const box = $('impBox');
+  box.querySelectorAll('[data-isel]').forEach(c => c.onchange = () => { R[c.dataset.isel].sel = c.checked; $('impApply').textContent = impApplyLabel(); });
+  box.querySelectorAll('[data-iupd]').forEach(c => c.onchange = () => { R[c.dataset.iupd].upd = c.checked; $('impApply').textContent = impApplyLabel(); });
+  box.querySelectorAll('[data-iname]').forEach(i => i.oninput = () => { R[i.dataset.iname].name = i.value; });
+  box.querySelectorAll('[data-iunit]').forEach(i => i.onchange = () => { R[i.dataset.iunit].unit = i.value; });
+  box.querySelectorAll('[data-iprice]').forEach(i => i.oninput = () => { R[i.dataset.iprice].price = i.value; });
+  box.querySelectorAll('[data-icat]').forEach(i => i.oninput = () => { R[i.dataset.icat].category = i.value; });
+  $('impCancel').onclick = () => { IMP = null; $('impBox').innerHTML = ''; };
+  $('impApply').onclick = applyImport;
+}
+function impApplyLabel() {
+  const a = IMP.rows.filter(r => !r.ex && r.sel).length, u = IMP.rows.filter(r => r.ex && r.upd).length;
+  return a || u ? `إضافة ${a} صنف${u ? ` وتحديث ${u} سعر` : ''}` : 'لا يوجد شيء محدد';
+}
+async function applyImport() {
+  const R = IMP.rows, err = $('impErr');
+  const add = R.filter(r => !r.ex && r.sel), upd = R.filter(r => r.ex && r.upd);
+  if (!add.length && !upd.length) { err.textContent = 'حدّد صنفاً واحداً على الأقل'; return; }
+  const names = new Set(S.items.map(i => keyName(i.name)));
+  const rows = [];
+  for (const r of add) {
+    const name = String(r.name).replace(/\s+/g, ' ').trim(), cost = parseAmount(String(r.price));
+    if (!name) { err.textContent = 'يوجد صنف بدون اسم'; return; }
+    if (isNaN(cost)) { err.textContent = `سعر غير صحيح للصنف: ${name}`; return; }
+    if (names.has(keyName(name))) continue; // لا تكرار
+    names.add(keyName(name));
+    rows.push({ name, unit: r.unit, cost, code: r.code, category: String(r.category || '').trim() || guessCategory(name), branch_ids: null });
+  }
+  $('impApply').disabled = true; $('impApply').textContent = 'جارٍ الحفظ…';
+  if (rows.length) {
+    const { error } = await sb.from('waste_items').insert(rows);
+    if (error) { $('impApply').disabled = false; $('impApply').textContent = impApplyLabel(); err.textContent = errMsg(error); return; }
+  }
+  for (const r of upd) {
+    const patch = { cost: Number(r.price) }; if (r.code && !r.ex.code) patch.code = r.code;
+    const { error } = await sb.from('waste_items').update(patch).eq('id', r.ex.id);
+    if (error) { toast(errMsg(error), 'err'); break; }
+  }
+  // ربط رقم الصنف بالأصناف الموجودة التي لم يكن لها رقم (لمطابقة أدق مستقبلاً)
+  for (const r of R.filter(r => r.ex && !r.upd && r.code && !r.ex.code)) await sb.from('waste_items').update({ code: r.code }).eq('id', r.ex.id);
+  toast(`تمت إضافة ${rows.length} صنف${upd.length ? ` وتحديث ${upd.length} سعر` : ''}`);
+  IMP = null; $('impBox').innerHTML = '';
+  await loadWasteData(); renderAll();
+}
+$('impBtn').onclick = () => { $('impFile').value = ''; $('impFile').click(); };
+$('impFile').onchange = () => { const f = [...$('impFile').files]; if (f.length) importPdfs(f); };
+
 function renderItemsList() {
   const brs = wasteBranches();
   const brNames = it => !it.branch_ids || !it.branch_ids.length || brs.every(b => it.branch_ids.includes(b.id))
     ? 'كل فروع التوالف' : it.branch_ids.map(id => S.byId[id] ? label(S.byId[id]) : '').filter(Boolean).join('، ');
-  $('itemsList').innerHTML = S.items.length ? S.items.map(it => `<div class="irow${it.active ? '' : ' off'}">
-      <div><b>${esc(it.name)}</b><span class="chip-u">${it.unit === 'weight' ? 'وزن' : 'حبة'}</span>
+  let lastCat = null;
+  $('itemsList').innerHTML = S.items.length ? sortItems(S.items).map(it => `${catOf(it) !== lastCat ? `<p class="icat">${esc(lastCat = catOf(it))} <span>(${S.items.filter(x => catOf(x) === lastCat).length})</span></p>` : ''}<div class="irow${it.active ? '' : ' off'}">
+      <div><b>${esc(it.name)}</b><span class="chip-u">${it.unit === 'weight' ? 'وزن' : 'حبة'}</span>${it.code ? `<span class="chip-u">#${esc(it.code)}</span>` : ''}
         <small>${money(it.cost)} ريال / ${unitName(it.unit)} · ${esc(brNames(it))}${it.active ? '' : ' · موقوف'}${it.added_by_branch && S.byId[it.added_by_branch] ? ` · <span class="by-br">أضافه موظف ${esc(label(S.byId[it.added_by_branch]))}</span>` : ''}</small></div>
       <div class="acts">
         <button class="btn btn-ghost btn-sm" data-iedit="${it.id}">تعديل</button>
@@ -1008,7 +1290,7 @@ $('itemForm').onsubmit = async ev => {
   const checked = [...$('iBranches').querySelectorAll('input:checked')].map(c => Number(c.value));
   const all = wasteBranches().length;
   if (all && !checked.length) { err.textContent = 'اختر فرعاً واحداً على الأقل'; return; }
-  const row = { name, unit, cost, branch_ids: checked.length === all ? null : checked };
+  const row = { name, unit, cost, category: $('iCat').value.trim() || guessCategory(name), branch_ids: checked.length === all ? null : checked };
   $('iSave').disabled = true;
   const { error } = editItem
     ? await sb.from('waste_items').update(row).eq('id', editItem.id)
@@ -1046,6 +1328,13 @@ function renderSettings() {
       <div class="set-row"><input id="waLink" dir="ltr" placeholder="https://chat.whatsapp.com/..." value="${esc(link)}">
         <button class="btn btn-primary btn-sm" id="saveLink">حفظ</button></div>
       <p class="muted" style="font-size:13px;margin-top:6px">${link ? 'بعد إرسال التوالف يظهر للموظف زر فتح القروب.' : 'لم يُضف الرابط بعد. يمكنك إضافته لاحقاً.'}</p></div>
+    <div class="set-sec"><h3>رابط الدخول السريع (لأجهزتك فقط)</h3>
+      <div class="set-row"><input id="qlPass" type="password" autocomplete="current-password" placeholder="اكتب كلمة مرور الإدارة لإنشاء الرابط">
+        <button class="btn btn-primary btn-sm" id="qlMake">إنشاء الرابط</button></div>
+      <div id="qlOut" hidden></div>
+      <p class="muted" style="font-size:13px;margin-top:6px">افتح الرابط مرة واحدة على كل جوال فيدخل اللوحة مباشرة ويبقى الدخول محفوظاً.
+        <b style="color:var(--rose)">الرابط يعطي صلاحية الإدارة كاملة، فلا ترسله لأحد ولا تضعه في قروب.</b>
+        لإلغاء كل الروابط القديمة: غيّر كلمة مرور الإدارة.</p></div>
     <div class="set-sec"><h3>روابط الاطلاع فقط</h3>
       ${S.viewers == null ? '<p class="muted" style="font-size:13px">شغّل ملف viewer.sql في Supabase لتفعيل هذه الخاصية.</p>' : `
       ${S.viewers.map(v => `<div class="vrow${v.active ? '' : ' off'}">
@@ -1072,14 +1361,15 @@ function renderSettings() {
         <input id="newRep" placeholder="اسم المندوب الجديد" autocomplete="off">
         <button class="btn btn-primary btn-sm" id="addRep">إضافة مندوب</button></div>
       <p class="muted" style="font-size:13px;margin-top:6px">كل مندوب له رابط إدخال خاص (يظهر أيضاً في روابط إدخال المبيعات)، ومبيعاته آجلة مع خانة التحصيل، ويظهر داخل بطاقة ${esc(repGroup())}. إيقاف المندوب يعطّل رابطه وتبقى مبيعاته السابقة في التقارير.</p></div>
-    <div class="set-sec"><h3>أرقام واتساب الفروع</h3>
+    <div class="set-sec"><h3>أرقام واتساب الفروع والاستثناء من إشعار التأخير</h3>
       ${activeBranches().map(b => `<div class="rep-row">
         <span class="nm" style="min-width:180px">${esc(label(b))}</span>
         <input data-wanum="${b.id}" dir="ltr" inputmode="tel" placeholder="05xxxxxxxx" value="${esc(b.whatsapp ? '0' + b.whatsapp.replace(/^966/, '') : '')}" autocomplete="off">
         <button class="btn btn-primary btn-sm" data-wasave="${b.id}">حفظ</button>
         ${b.whatsapp ? `<a class="btn btn-ghost btn-sm" href="${esc(waUrl(b.whatsapp))}" target="_blank" rel="noopener">مراسلة</a>` : ''}
+        <label class="tgl"><input type="checkbox" data-lexempt="${b.id}" ${b.late_exempt ? 'checked' : ''}>استثناء من إشعار التأخير</label>
       </div>`).join('')}
-      <p class="muted" style="font-size:13px;margin-top:6px">اكتب الرقم مثل 0551234567. يُستخدم لزر المراسلة وإرسال إشعار التأخير.</p></div>
+      <p class="muted" style="font-size:13px;margin-top:6px">اكتب الرقم مثل 0551234567. يُستخدم لزر المراسلة وإرسال إشعار التأخير. الفرع المستثنى لا يظهر له إشعار التأخير ولا يُحسب عليه تأخير.</p></div>
     <div class="set-sec"><h3>شعارات الفروع وقسم التوالف</h3>
       ${activeBranches().map(b => `<div class="logo-row">
         <div class="logo-box">${b.logo ? `<img src="${esc(b.logo)}" alt="">` : esc(b.name.slice(0, 1))}</div>
@@ -1170,9 +1460,11 @@ async function saveWa(id) {
   inp.blur();
   await saveBranch(id, { whatsapp: num }, num ? 'تم حفظ رقم الواتساب' : 'تم حذف رقم الواتساب');
 }
+$('settings').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'qlPass') { e.preventDefault(); makeQuickLink(); } });
 $('settings').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.dataset && e.target.dataset.wanum) { e.preventDefault(); saveWa(Number(e.target.dataset.wanum)); } });
 
 $('settings').addEventListener('click', async e => {
+  if (e.target.closest('#qlMake')) return makeQuickLink();
   const ws = e.target.closest('[data-wasave]'); if (ws) return saveWa(Number(ws.dataset.wasave));
   if (e.target.closest('#addViewer')) return addViewer();
   const vt = e.target.closest('[data-vtoggle]'); if (vt) return viewerAction(Number(vt.dataset.vtoggle), false);
@@ -1186,6 +1478,11 @@ $('settings').addEventListener('click', async e => {
   await saveBranch(Number(b.dataset.logodel), { logo: null }, 'تم حذف الشعار');
 });
 $('settings').addEventListener('change', async e => {
+  const lx = e.target.closest('[data-lexempt]');
+  if (lx) {
+    await saveBranch(Number(lx.dataset.lexempt), { late_exempt: lx.checked }, lx.checked ? 'تم استثناء الفرع من إشعار التأخير' : 'تم إلغاء الاستثناء');
+    return loadLate().then(renderAll);
+  }
   const c = e.target.closest('[data-wtoggle]'); if (!c) return;
   await saveBranch(Number(c.dataset.wtoggle), { waste: c.checked }, c.checked ? 'تم تفعيل قسم التوالف' : 'تم إيقاف قسم التوالف');
 });
@@ -1239,6 +1536,7 @@ document.addEventListener('keydown', e => {
   if (t && e.target === t && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); t.dataset.detail ? openDetail(t.dataset.detail) : openWaste('all'); }
 });
 $('wasteBtn').onclick = () => openWaste();
+$('lateBtn').onclick = () => toggleLate();
 $('bellBtn').onclick = () => {
   if (S.detail || S.wasteView) closeDetail();
   const p = $('corrPanel');
@@ -1355,8 +1653,47 @@ function subscribe() {
 setInterval(() => { if (S.started && todayISO() !== S.today) { $('monthInput').max = todayISO().slice(0, 7); reload(); } }, 60000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && S.started) reload(); });
 
+// ---------------- رابط الدخول السريع (لأجهزة المدير فقط) ----------------
+// الرابط: ...#k=XXXX — الجزء بعد # لا يُرسل للخادم، ويُحذف من شريط العنوان فور الدخول
+const b64e = t => btoa(String.fromCharCode(...new TextEncoder().encode(t))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const b64d = t => new TextDecoder().decode(Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)));
+async function quickLogin() {
+  const m = location.hash.match(/^#k=([\w-]+)$/);
+  if (!m) return false;
+  history.replaceState(null, '', location.pathname + location.search);
+  try {
+    const [email, ...rest] = b64d(m[1]).split('\n');
+    const { error } = await sb.auth.signInWithPassword({ email, password: rest.join('\n') });
+    if (error) throw error;
+    return true;
+  } catch (e) {
+    showLogin('رابط الدخول السريع لم يعد صالحاً (ربما تغيّرت كلمة المرور). سجّل الدخول وأنشئ رابطاً جديداً من الإعدادات.');
+    return null;
+  }
+}
+async function makeQuickLink() {
+  const pw = $('qlPass').value, out = $('qlOut');
+  if (!pw) { toast('اكتب كلمة مرور الإدارة', 'err'); $('qlPass').focus(); return; }
+  const { data: { session } } = await sb.auth.getSession();
+  const email = session && session.user && session.user.email;
+  if (!email) return toast('سجّل الدخول أولاً', 'err');
+  $('qlMake').disabled = true;
+  const { error } = await sb.auth.signInWithPassword({ email, password: pw }); // تأكيد أن كلمة المرور صحيحة
+  $('qlMake').disabled = false;
+  if (error) { toast('كلمة المرور غير صحيحة', 'err'); return; }
+  $('qlPass').value = '';
+  const url = location.origin + location.pathname + '#k=' + b64e(email + '\n' + pw);
+  out.hidden = false;
+  out.innerHTML = `<div class="ql-box"><code dir="ltr">${esc(url)}</code>
+    <div class="ql-acts"><button class="btn btn-primary btn-sm" data-copy="${esc(url)}">نسخ الرابط</button>
+    <button class="btn btn-ghost btn-sm" id="qlHide">إخفاء</button></div></div>`;
+  $('qlHide').onclick = () => { out.hidden = true; out.innerHTML = ''; };
+}
+
 (async () => {
   if (VIEW) return startViewer();
+  const q = await quickLogin();
+  if (q === null) return;
   const { data: { session } } = await sb.auth.getSession();
   if (session) start(); else showLogin();
 })();
