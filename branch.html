@@ -221,6 +221,14 @@
   .pc-v { font-size: 9px; color: #1d1a17; font-family: 'Readex Pro', sans-serif; margin-bottom: 2px; white-space: nowrap; }
   .pc-d { font-size: 10px; color: #6d645c; border-top: 1px solid #cfc7bf; width: 100%; text-align: center; margin-top: 2px; padding-top: 2px; }
   .pc-cap { font-size: 11px; color: #8a8178; text-align: center; margin-top: 4px; }
+  .pdf .sr-date { font-size: 17px; font-weight: 700; color: #1d1a17; }
+  .sr-cmp div { background: #fff; border: 1px solid #e8e4e0; }
+  .sr-cmp b { font-size: 18px; }
+  .sr-cmp .up, .sr-cmp .down { display: block !important; margin-top: 2px; }
+  .pdf .up { color: #2e7d32; font-weight: 700; font-size: 12px; opacity: 1; display: inline; }
+  .pdf .down { color: #b3261e; font-weight: 700; font-size: 12px; opacity: 1; display: inline; }
+  .pc-col.cur i { background: #2B1E18; }
+  .pc-col.cur .pc-d { color: #2B1E18; font-weight: 700; }
   .pdf .foot { margin-top: 18px; font-size: 11px; color: #8a8178; text-align: center; }
 
   /* ---- إشعار التأخير ---- */
@@ -234,6 +242,8 @@
   .resend-box { margin-top: 16px; background: #9a5b00; color: #fff; border-radius: var(--r-lg); padding: 16px; box-shadow: 0 6px 18px rgba(154,91,0,.25); }
   .resend-box .late-ic { color: #9a5b00; font-size: 18px; }
   .rs-item { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.25); }
+  .e-acts { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+  .e-rep { color: #1f7a3e; border-color: #1f7a3e55; }
   .late-top + .rs-item { border-top: none; padding-top: 0; }
   .rs-note { margin-top: 4px; font-size: 14px; background: rgba(255,255,255,.14); border-radius: var(--r-sm); padding: 6px 10px; }
   .rs-btn { margin-top: 10px; background: #fff; color: #9a5b00; font-weight: 700; }
@@ -566,8 +576,12 @@ function renderForm() {
       <p class="muted" style="margin:4px 0 16px">${esc(fmtLong(lastDone.date))}: ${info.credit
         ? `المبيعات ${money(lastDone.amount)} ريال، التحصيل ${money(lastDone.collected)} ريال${lastDone.collected ? ` (${PAY_KEYS.filter(k => lastDone.pay[k]).map(k => PAY_TTL[k] + ' ' + money(lastDone.pay[k])).join('، ')})` : ''}`
         : `${money(lastDone.amount)} ريال`}</p>
+      ${info.sales_link ? `<button class="btn btn-wa btn-block btn-lg" id="salesShare">إرسال تقرير المبيعات على قروب الواتساب</button>
+        <p class="muted" style="font-size:13px;margin:6px 0 12px">التقرير بتاريخ يوم المبيعات ${esc(fmtShort(lastDone.date))}</p>` : ''}
       <button class="btn btn-ghost btn-block" id="again">إدخال يوم آخر</button></div>`;
     el.querySelector('#again').onclick = () => { step = 'form'; renderForm(); };
+    const ss = el.querySelector('#salesShare');
+    if (ss) { const d = lastDone.date; ss.onclick = () => shareSalesReport(d, ss); prepSalesReport(d); }
     return;
   }
   if (step === 'confirm') {
@@ -662,9 +676,11 @@ function renderList() {
     <div class="entry">
       <div class="d"><b>${esc(fmtShort(e.date))}</b><small>${esc(fmtDayName(e.date))}</small>${e.by === 'admin' ? '<span class="by-adm">أدخلته الإدارة</span>' : ''}</div>
       <div class="a num">${money(e.amount)}${info.credit ? `<small>تحصيل ${money(e.collected)}</small>${Number(e.collected) ? `<small class="pay-mini">${esc(entryPay(e))}</small>` : ''}` : ''}</div>
-      ${e.pending ? `<span class="tag">التعديل قيد المراجعة</span>` : `<button class="btn btn-ghost btn-sm" data-c="${e.date}">طلب تعديل</button>`}
+      <div class="e-acts">${info.sales_link ? `<button class="btn btn-ghost btn-sm e-rep" data-srep="${e.date}" title="إرسال تقرير مبيعات هذا اليوم على القروب">تقرير</button>` : ''}
+      ${e.pending ? `<span class="tag">التعديل قيد المراجعة</span>` : `<button class="btn btn-ghost btn-sm" data-c="${e.date}">طلب تعديل</button>`}</div>
     </div>`).join('');
   el.querySelectorAll('[data-c]').forEach(b => b.onclick = () => openCorr(b.dataset.c));
+  el.querySelectorAll('[data-srep]').forEach(b => b.onclick = () => shareSalesReport(b.dataset.srep, b));
 }
 
 // ---------- طلب التعديل ----------
@@ -1172,9 +1188,13 @@ function pdfHtml({ batch, recs, month }) {
 }
 
 async function buildPdf(opts) {
+  const day = opts.batch ? opts.batch.date : opts.month.slice(0, 7);
+  return buildPdfDoc(pdfHtml(opts), `توالف ${branchLabel()} ${day}.pdf`);
+}
+async function buildPdfDoc(html, fileName) {
   for (const s of PDF_LIBS) await loadScript(s);
   const el = document.createElement('div');
-  el.className = 'pdf'; el.innerHTML = pdfHtml(opts);
+  el.className = 'pdf'; el.innerHTML = html;
   document.body.appendChild(el);
   try {
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
@@ -1206,15 +1226,15 @@ async function buildPdf(opts) {
       pdf.setFontSize(9); pdf.setTextColor(140);
       pdf.text(`${i + 1} / ${pages.length}`, 105, 290, { align: 'center' });
     });
-    const day = opts.batch ? opts.batch.date : opts.month.slice(0, 7);
-    const name = `توالف ${branchLabel()} ${day}.pdf`.replace(/[\\/:*?"<>|]/g, '-');
+    const name = fileName.replace(/[\\/:*?"<>|]/g, '-');
     return new File([pdf.output('blob')], name, { type: 'application/pdf' });
   } finally { el.remove(); }
 }
 
 // مشاركة الملف: قائمة المشاركة في الجوال (واتساب ثم القروب)، أو تنزيل الملف وفتح القروب في الكمبيوتر
-async function sharePdf(file, btn) {
-  const text = `تقرير البضائع التالفة - ${branchLabel()}`;
+async function sharePdf(file, btn, kind = 'waste') {
+  const link = kind === 'sales' ? info.sales_link : info.waste_link, grp = kind === 'sales' ? 'قروب المبيعات' : 'قروب التوالف';
+  const text = `${kind === 'sales' ? 'تقرير المبيعات' : 'تقرير البضائع التالفة'} - ${branchLabel()}`;
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try { await navigator.share({ files: [file], title: text, text }); return; }
     catch (e) {
@@ -1225,11 +1245,11 @@ async function sharePdf(file, btn) {
   const url = URL.createObjectURL(file), a = document.createElement('a');
   a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 60000);
-  toast(info.waste_link ? 'تم تنزيل التقرير. أرفقه في قروب التوالف' : 'تم تنزيل التقرير. أرسله على قروب التوالف');
-  if (info.waste_link) setTimeout(() => window.open(info.waste_link, '_blank', 'noopener'), 700);
+  toast(link ? `تم تنزيل التقرير. أرفقه في ${grp}` : `تم تنزيل التقرير. أرسله على ${grp}`);
+  if (link) setTimeout(() => window.open(link, '_blank', 'noopener'), 700);
 }
 // يجهّز الملف إن لم يكن جاهزاً ثم يشاركه
-async function sharePrepared(btn, build, get = () => W.pdf, set = f => { W.pdf = f; }) {
+async function sharePrepared(btn, build, get = () => W.pdf, set = f => { W.pdf = f; }, kind = 'waste') {
   if (btn.disabled) return;
   let f = get();
   if (!f) {
@@ -1239,7 +1259,76 @@ async function sharePrepared(btn, build, get = () => W.pdf, set = f => { W.pdf =
     btn.disabled = false; btn.textContent = txt;
     const st = document.getElementById('pdfState'); if (st && btn.id === 'waShare') st.textContent = 'التقرير جاهز';
   }
-  await sharePdf(f, btn);
+  await sharePdf(f, btn, kind);
+}
+
+// =====================================================================
+//  تقرير المبيعات اليومي (PDF) — يحمل تاريخ يوم المبيعات حتى لو أُرسل في يوم آخر
+// =====================================================================
+const SR = { cache: {} };
+function salesReportHtml(d) {
+  const e = map[d]; if (!e) return '';
+  const now = new Intl.DateTimeFormat(AR, { timeZone: TZ, day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date());
+  const m = monthStart(d), days = []; for (let x = m; x <= d; x = addDays(x, 1)) days.push(x);
+  const ent = days.filter(x => map[x]);
+  const amt = x => map[x] ? Number(map[x].amount) : 0, colOf = x => map[x] ? Number(map[x].collected) || 0 : 0;
+  const mTot = ent.reduce((a, x) => a + amt(x), 0), mCol = ent.reduce((a, x) => a + colOf(x), 0);
+  const avg = ent.length ? mTot / ent.length : 0;
+  const prev = addDays(d, -1), wk = addDays(d, -7);
+  const chg = (a, b) => b ? (a - b) / b * 100 : null;
+  const chip = (lbl, base) => { const c = map[base] ? chg(amt(d), amt(base)) : null;
+    return `<div><span>${lbl}</span><b>${map[base] ? money(amt(base)) : '—'}</b>${c == null ? '' : `<span class="${c >= 0 ? 'up' : 'down'}">${c >= 0 ? '▲' : '▼'} ${Math.abs(c).toFixed(1)}%</span>`}</div>`; };
+  const best = ent.slice().sort((a, b) => amt(b) - amt(a))[0];
+  const max = Math.max(1, ...days.map(amt));
+  let h = `<div class="pdf-head pdf-block">
+      ${info.logo ? `<img src="${esc(info.logo)}" alt="">` : ''}
+      <div><h1>${esc(branchLabel())}</h1><p class="t">تقرير المبيعات اليومي</p><p class="sr-date">${esc(fmtLong(d))}</p></div>
+      <div class="meta">تاريخ الإصدار<br>${esc(now)}</div></div>
+    <div class="pdf-tot pdf-block">
+      <div class="main"><span>مبيعات يوم ${esc(fmtShort(d))}</span><b>${money(amt(d))} ريال</b></div>
+      ${info.credit ? `<div><span>تحصيل اليوم</span><b>${money(colOf(d))} ريال</b></div>` : ''}
+      <div><span>إجمالي الشهر حتى ${esc(fmtShort(d))}</span><b>${money(mTot)} ريال</b></div></div>
+    <div class="pdf-tot sr-cmp pdf-block">${chip('اليوم السابق', prev)}${chip(`نفس اليوم الأسبوع الماضي`, wk)}
+      <div><span>متوسط اليوم هذا الشهر</span><b>${money(Math.round(avg))}</b>${avg ? `<span class="${amt(d) >= avg ? 'up' : 'down'}">${amt(d) >= avg ? 'أعلى' : 'أقل'} من المتوسط</span>` : ''}</div></div>`;
+  if (info.credit) {
+    const v = { cash: Number(e.cash) || 0, bank: Number(e.bank) || 0, card: Number(e.card) || 0 };
+    const other = Math.max(0, Number(e.collected) - paySum(v));
+    h += `<h2 class="pdf-block">تفصيل تحصيل اليوم</h2>
+      <table><thead><tr><th>طريقة التحصيل</th><th class="n">المبلغ</th></tr></thead><tbody>
+      ${PAY_KEYS.map(k => `<tr><td>${PAY_TTL[k]}</td><td class="n">${money(v[k])}</td></tr>`).join('')}
+      ${other ? `<tr><td>بدون تفصيل</td><td class="n">${money(other)}</td></tr>` : ''}
+      </tbody><tfoot><tr><td>مجموع التحصيل</td><td class="n">${money(e.collected)}</td></tr></tfoot></table>`;
+  }
+  h += `<div class="pdf-divider pdf-block"><span>مبيعات شهر ${esc(fmtMonth(m))} حتى ${esc(fmtShort(d))}</span></div>
+    <div class="pdf-tot pdf-block">
+      <div class="main"><span>إجمالي المبيعات</span><b>${money(mTot)} ريال</b></div>
+      <div><span>أيام الإدخال</span><b>${ent.length} من ${days.length}</b></div>
+      <div><span>أعلى يوم</span><b>${best ? money(amt(best)) : '0'}</b><span>${best ? esc(fmtShort(best)) : ''}</span></div>
+      ${info.credit ? `<div><span>تحصيل الشهر</span><b>${money(mCol)}</b></div>` : ''}</div>
+    <div class="pc-wrap pdf-block"><div class="pc-cols">${days.map(x => { const v = amt(x);
+      return `<div class="pc-col${x === d ? ' cur' : ''}"><span class="pc-v">${v ? shortNum(v) : ''}</span><i style="height:${v ? Math.max(2, v / max * 100) : 0}%"></i><span class="pc-d">${Number(x.slice(8))}</span></div>`; }).join('')}</div>
+      <p class="pc-cap">المبيعات اليومية (ريال) — العمود الداكن هو يوم التقرير</p></div>
+    <h2 class="pdf-block">المبيعات اليومية للشهر</h2>
+    <table><thead><tr><th>التاريخ</th><th>اليوم</th><th class="n">المبيعات</th>${info.credit ? '<th class="n">التحصيل</th>' : ''}<th class="n">التراكمي</th></tr></thead><tbody>`;
+  let cum = 0;
+  for (const x of days) { cum += amt(x);
+    h += `<tr${x === d ? ' class="sub"' : ''}><td>${esc(fmtShort(x))}</td><td>${esc(fmtDayName(x))}</td><td class="n">${map[x] ? money(amt(x)) : '<span style="color:#b3261e">لم يُدخل</span>'}</td>${info.credit ? `<td class="n">${map[x] ? money(colOf(x)) : '—'}</td>` : ''}<td class="n">${money(cum)}</td></tr>`; }
+  h += `</tbody><tfoot><tr><td colspan="2">الإجمالي</td><td class="n">${money(mTot)}</td>${info.credit ? `<td class="n">${money(mCol)}</td>` : ''}<td class="n">${money(mTot)}</td></tr></tfoot></table>
+    <p class="foot pdf-block">برنامج إدارة مبيعات الفروع</p>`;
+  return h;
+}
+const srKey = d => d + '|' + (map[d] ? [map[d].amount, map[d].collected].join('/') : '');
+async function prepSalesReport(d) {
+  const k = srKey(d); if (SR.cache[k]) return SR.cache[k];
+  return (SR.cache[k] = buildPdfDoc(salesReportHtml(d), `مبيعات ${branchLabel()} ${d}.pdf`).catch(e => { delete SR.cache[k]; throw e; }));
+}
+async function shareSalesReport(d, btn) {
+  if (!map[d]) return toast('لا توجد مبيعات مسجلة لهذا اليوم', 'err');
+  if (btn.disabled) return;
+  const txt = btn.textContent; btn.disabled = true; btn.textContent = 'جارٍ تجهيز التقرير…';
+  let f; try { f = await prepSalesReport(d); } catch (e) { toast(errMsg(e), 'err'); }
+  btn.disabled = false; btn.textContent = txt;
+  if (f) await sharePdf(f, btn, 'sales');
 }
 
 if (!token) fatal('الرابط غير مكتمل', 'اطلب رابط الفرع الصحيح من الإدارة.');
@@ -1255,6 +1344,6 @@ else {
   }, 300000);
 }
 </script>
-<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-16 ي</p>
+<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-16 ك</p>
 </body>
 </html>

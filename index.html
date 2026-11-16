@@ -480,6 +480,78 @@
   #ePay .pay-f .in { padding: 10px 6px; }
   .mv-form .pay-grid { margin-bottom: 8px; }
   @media (max-width: 480px) { .pay-grid { grid-template-columns: repeat(3, 1fr); } .pay-f.tot { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: baseline; } }
+  /* ---- قالب تقرير PDF (ألوان ثابتة) ---- */
+  .pdf { position: fixed; left: -20000px; top: 0; width: 794px; background: #fff; color: #1d1a17; direction: rtl; padding: 36px 40px 30px; font-family: 'IBM Plex Sans Arabic', Tahoma, sans-serif; font-size: 14px; line-height: 1.6; }
+  .pdf * { color-scheme: light; }
+  .pdf-head { display: flex; align-items: center; gap: 16px; border-bottom: 3px solid #A63D52; padding-bottom: 14px; }
+  .pdf-head img { width: 76px; height: 76px; object-fit: contain; border-radius: 12px; border: 1px solid #e3e0dc; }
+  .pdf-head h1 { font-family: 'Readex Pro', sans-serif; font-size: 24px; margin: 0; color: #1d1a17; }
+  .pdf-head p { margin: 0; color: #6d645c; }
+  .pdf-head .t { font-size: 17px; color: #A63D52; font-weight: 600; }
+  .pdf-head .meta { margin-inline-start: auto; text-align: left; font-size: 12px; color: #6d645c; }
+  .pdf-tot { display: flex; gap: 12px; margin: 16px 0 6px; }
+  .pdf-tot div { flex: 1; border-radius: 12px; padding: 10px 14px; background: #f4f1ee; }
+  .pdf-tot div.main { background: #A63D52; color: #fff; }
+  .pdf-tot span { display: block; font-size: 12px; opacity: .8; }
+  .pdf-tot b { font-family: 'Readex Pro', sans-serif; font-size: 22px; }
+  .pdf h2 { font-family: 'Readex Pro', sans-serif; font-size: 16px; margin: 18px 0 8px; color: #1d1a17; }
+  .pdf table { width: 100%; border-collapse: collapse; }
+  .pdf th { background: #2B1E18; color: #fff; font-weight: 600; font-size: 13px; padding: 7px 10px; text-align: right; }
+  .pdf td { padding: 6px 10px; border-bottom: 1px solid #e8e4e0; text-align: right; }
+  .pdf td.n, .pdf th.n { text-align: left; font-family: 'Readex Pro', sans-serif; white-space: nowrap; }
+  .pdf tr.sub td { background: #F6DFE3; font-weight: 700; color: #7d2a3b; }
+  .pdf tr.pdf-day td { border-top: 2px solid #cfc7bf; }
+  .pdf tfoot td { background: #2B1E18; color: #fff; font-weight: 700; }
+  .pdf tr.old td { color: #6d645c; }
+  .pdf-divider { position: relative; margin: 30px 0 6px; border-top: 3px dashed #A63D52; text-align: center; }
+  .pdf-divider span { position: relative; top: -14px; background: #fff; padding: 0 14px; font-family: 'Readex Pro', sans-serif; font-weight: 700; font-size: 16px; color: #A63D52; }
+  .pb-list { border: 1px solid #e8e4e0; border-radius: 12px; padding: 4px 12px; }
+  .pb-row { display: grid; grid-template-columns: 210px 1fr 92px; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #f0ece8; }
+  .pb-row:last-child { border-bottom: none; }
+  .pb-lbl b { display: block; font-size: 13px; line-height: 1.35; }
+  .pb-lbl small { display: block; font-size: 11px; color: #6d645c; line-height: 1.3; }
+  .pb-track { height: 16px; background: #f4f1ee; border-radius: 4px; overflow: hidden; direction: rtl; }
+  .pb-track i { display: block; height: 100%; background: #A63D52; border-radius: 4px; }
+  .pb-val { text-align: left; }
+  .pb-val b { display: block; font-family: 'Readex Pro', sans-serif; font-size: 14px; }
+  .pb-val small { font-size: 11px; color: #6d645c; }
+  .pb-list.top .pb-row { grid-template-columns: 30px 200px 1fr 92px; padding: 9px 0; }
+  .pb-list.top .pb-track { height: 24px; }
+  .pb-list.top .pb-track i { background: #2B1E18; }
+  .pb-list.top .pb-lbl b { font-size: 14px; }
+  .pb-rank { width: 26px; height: 26px; border-radius: 50%; background: #A63D52; color: #fff; display: grid; place-items: center; font-weight: 700; font-family: 'Readex Pro', sans-serif; }
+  .pc-wrap { border: 1px solid #e8e4e0; border-radius: 12px; padding: 12px 12px 6px; margin-top: 8px; }
+  .pc-cols { display: flex; align-items: flex-end; gap: 3px; height: 190px; direction: ltr; }
+  .pc-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; }
+  .pc-col i { display: block; width: 78%; background: #A63D52; border-radius: 3px 3px 0 0; }
+  .pc-v { font-size: 9px; color: #1d1a17; font-family: 'Readex Pro', sans-serif; margin-bottom: 2px; white-space: nowrap; }
+  .pc-d { font-size: 10px; color: #6d645c; border-top: 1px solid #cfc7bf; width: 100%; text-align: center; margin-top: 2px; padding-top: 2px; }
+  .pc-cap { font-size: 11px; color: #8a8178; text-align: center; margin-top: 4px; }
+  .pdf .sr-date { font-size: 17px; font-weight: 700; color: #1d1a17; }
+  .sr-cmp div { background: #fff; border: 1px solid #e8e4e0; }
+  .sr-cmp b { font-size: 18px; }
+  .pdf .up { color: #2e7d32; font-weight: 700; font-size: 12px; opacity: 1; display: inline; }
+  .pdf .down { color: #b3261e; font-weight: 700; font-size: 12px; opacity: 1; display: inline; }
+  .pc-col.cur i { background: #2B1E18; }
+  .pc-col.cur .pc-d { color: #2B1E18; font-weight: 700; }
+  .pdf .foot { margin-top: 18px; font-size: 11px; color: #8a8178; text-align: center; }
+  .pdf.pv { position: static; left: auto; width: 100%; max-width: 794px; margin: 0 auto; box-shadow: 0 4px 24px rgba(0,0,0,.12); border-radius: 6px; padding: 28px 30px; }
+  .pdf table.tight td, .pdf table.tight th { padding: 4px 5px; font-size: 11.5px; }
+  .pdf td small { color: #6d645c; font-size: 11px; }
+  /* ---- التقارير الإدارية ---- */
+  #repBtn.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+  .rep-intro { font-size: 14px; margin-top: 10px; }
+  .rep-types { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin-top: 12px; }
+  .rep-t { text-align: start; border: 1.5px solid var(--line); background: var(--surface); border-radius: var(--r-md); padding: 10px 12px; font: inherit; color: var(--ink); cursor: pointer; }
+  .rep-t b { display: block; font-size: 14px; }
+  .rep-t small { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+  .rep-t.on { border-color: var(--ink); background: var(--ink); color: var(--on-ink); }
+  .rep-t.on small { color: inherit; opacity: .75; }
+  .rep-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin: 14px 0; position: sticky; top: 0; background: var(--bg); padding: 8px 0; z-index: 3; }
+  .rep-prev { overflow-x: auto; padding: 6px 2px 20px; }
+  @media (max-width: 720px) { .pdf.pv { zoom: .46; } .rep-types { grid-template-columns: 1fr 1fr; } .rep-t small { display: none; } .rep-t { padding: 9px 10px; } }
+  .chip-on { font-size: 11px; font-weight: 700; color: #1f7a3e; background: #1f7a3e1a; border-radius: 99px; padding: 2px 9px; }
+  .wa-links .rep-row input { min-width: 0; flex: 1 1 220px; }
   /* ---- الحذف وإعادة الإرسال ---- */
   .cell-del { border: none; background: transparent; color: var(--muted); font-size: 15px; line-height: 1; padding: 2px 5px; margin-inline-end: 4px; border-radius: 6px; cursor: pointer; opacity: .55; }
   .cell-del:hover, .cell-del:focus-visible { opacity: 1; background: var(--no-c); color: #fff; }
@@ -648,6 +720,7 @@
     </div>
     <div class="top-actions">
       <button id="addBtn" class="btn btn-primary btn-sm edit-only">إدخال مبيعات</button>
+      <button id="repBtn" class="btn btn-ghost btn-sm">تقارير إدارية</button>
       <button id="cmpBtn" class="btn btn-ghost btn-sm">المقارنة</button>
       <button id="wasteBtn" class="btn btn-ghost btn-sm">التوالف</button>
       <button id="lateBtn" class="bell-btn" aria-expanded="false" aria-haspopup="true" aria-label="تنبيهات التأخير" title="تنبيهات التأخير"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span id="lateDot" class="bell-dot" hidden></span></button>
@@ -689,13 +762,14 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-16 ي</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-16 ك</p>
     </div>
 
     <section id="detail" hidden></section>
     <section id="waste" hidden></section>
     <section id="fund" hidden></section>
     <section id="compare" hidden></section>
+    <section id="reports" hidden></section>
     <section id="settingsView" hidden>
       <div class="page-head"><button class="back-btn" id="setBack" type="button"><span aria-hidden="true">→</span> رجوع للوحة</button><h2>الإعدادات</h2></div>
       <nav class="set-tabs" id="setTabs" role="tablist"></nav>
@@ -820,7 +894,7 @@ async function start() {
 
 // ---------------- البيانات ----------------
 async function loadBranches() {
-  const { data, error } = await sb.from('branches').select('id,name,group_name,sort_order,token,active,credit,waste,logo,is_rep,whatsapp,track_from,late_exempt,monthly_target,profit_margin').order('sort_order').order('id');
+  const { data, error } = await sb.from('branches').select('id,name,group_name,sort_order,token,active,credit,waste,logo,is_rep,whatsapp,track_from,late_exempt,monthly_target,profit_margin,sales_wa_link,waste_wa_link').order('sort_order').order('id');
   if (error) { toast(errMsg(error), 'err'); return; }
   S.allBranches = data; S.byId = {};
   for (const b of data) S.byId[b.id] = b;
@@ -1840,6 +1914,323 @@ function bindCompare() {
   });
 }
 
+// =====================================================================
+//  التقارير الإدارية: معاينة + PDF + إرسال لقروب واتساب
+// =====================================================================
+const REP_LIBS = ['https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js', 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js'];
+function repLoadScript(src) {
+  return new Promise((ok, no) => {
+    if ([...document.scripts].some(s => s.src === src)) return ok();
+    const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => no(new Error('تعذّر تحميل أداة PDF. تحقق من الاتصال بالإنترنت.')); document.head.appendChild(s);
+  });
+}
+const REP = { type: 'all', branch: null, target: '', cache: {} };
+const REP_TYPES = [
+  { id: 'all', t: 'ملخص جميع الفروع', d: 'المبيعات والمردود والصافي والهدف والتحصيل والتوالف والربح مقابل الالتزامات لكل فرع' },
+  { id: 'daily', t: 'المبيعات اليومية لجميع الفروع', d: 'جدول يومي بمبيعات كل فرع والإجمالي والتراكمي، مع الأيام غير المدخلة' },
+  { id: 'branch', t: 'تقرير فرع مفصل', d: 'كل أرقام الفرع: الهدف والربح والتحصيل والجدول اليومي والتوالف والتأخير', pick: true },
+  { id: 'credit', t: 'الآجل والتحصيل', d: 'الفروع الآجلة: المبيعات والمردود والصافي والتحصيل (نقدي/تحويل/شبكة) والمتبقي' },
+  { id: 'waste', t: 'البضائع التالفة', d: 'توالف كل فرع وأكثر الأصناف تلفاً والتفاصيل حسب الصنف' },
+  { id: 'commit', t: 'الالتزامات المالية', d: 'التزامات كل فرع بالبنود والبنود الفرعية مقابل الربح التقريبي' },
+  { id: 'fund', t: 'حساب التمويلات', d: 'أقساط الفروع الأسبوعية والتمويلات البنكية: المسدد والمتبقي والرصيد' },
+  { id: 'late', t: 'الالتزام بالإدخال', d: 'أيام الإدخال والأيام الناقصة ومرات التأخير لكل فرع' }
+];
+const repPeriod = () => $('periodLabel') ? $('periodLabel').textContent.trim() : `${fmtShort(S.from)} - ${fmtShort(S.to)}`;
+const pdfMoney = n => money(Math.round(Number(n) || 0));
+const negP = n => '\u2066−' + pdfMoney(n) + '\u2069';
+const sgnP = n => '\u2066' + (n < 0 ? '−' : '') + pdfMoney(Math.abs(n)) + '\u2069';
+function repHead(title, sub, logo) {
+  const now = new Intl.DateTimeFormat('ar-SA-u-nu-latn-ca-gregory', { timeZone: 'Asia/Riyadh', day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date());
+  return `<div class="pdf-head pdf-block">${logo ? `<img src="${esc(logo)}" alt="">` : ''}
+    <div><h1>${esc(title)}</h1><p class="t">${esc(sub)}</p><p>${esc(repPeriod())}</p></div>
+    <div class="meta">تاريخ الإصدار<br>${esc(now)}</div></div>`;
+}
+const repTot = cards => `<div class="pdf-tot pdf-block">${cards.map((c, i) => `<div${i === 0 ? ' class="main"' : ''}><span>${esc(c[0])}</span><b>${c[1]}</b>${c[2] ? `<span>${esc(c[2])}</span>` : ''}</div>`).join('')}</div>`;
+function repBars(rows, opt = {}) {
+  const max = Math.max(1, ...rows.map(r => Math.abs(r.v))), tot = rows.reduce((a, r) => a + r.v, 0);
+  return `<div class="pb-list${opt.dark ? ' top' : ''}">${rows.map((r, k) => `<div class="pb-row pdf-block">
+      ${opt.dark ? `<span class="pb-rank">${k + 1}</span>` : ''}
+      <div class="pb-lbl"><b>${esc(r.l)}</b>${r.s ? `<small>${esc(r.s)}</small>` : ''}</div>
+      <div class="pb-track"><i style="width:${Math.max(1.5, Math.abs(r.v) / max * 100)}%${r.c ? ';background:' + r.c : ''}"></i></div>
+      <div class="pb-val"><b>${pdfMoney(r.v)}</b>${opt.pct !== false && tot ? `<small>${(r.v / tot * 100).toFixed(1)}%</small>` : ''}</div></div>`).join('')}</div>`;
+}
+const repFoot = '<p class="foot pdf-block">برنامج إدارة مبيعات الفروع · تقرير إداري</p>';
+const repBrs = () => activeBranches();
+const pctTxt = (a, b) => b ? fmtPct(a / b * 100) : '—';
+
+// ---------- 1) ملخص جميع الفروع ----------
+function repAll() {
+  const brs = repBrs(), m = summary(brs), fin = S.fin && S.fin.ok;
+  const rows = brs.map(b => { const x = summary([b]), t = targetOf([b]), c = fin ? commitOf([b]) : 0, p = b.profit_margin != null ? profitOf([b]) : null;
+    return { b, x, t, c, p, w: wasteTotal(S.waste.filter(r => r.branch_id === b.id)) }; }).sort((a, b) => b.x.net - a.x.net);
+  const tgt = targetOf(brs), wt = wasteTotal(S.waste), cm = fin ? commitOf(brs) : 0, pr = profitOf(brs);
+  let h = repHead('ملخص جميع الفروع', 'تقرير إداري شامل') + repTot([
+    ['صافي المبيعات لكل الفروع', pdfMoney(m.net) + ' ريال'], ['المحصّل من الآجل', pdfMoney(m.collected)], ['الدخل الحقيقي', pdfMoney(m.real)],
+    ['نسبة تحقيق الهدف', tgt ? pctTxt(targetSales(brs), tgt) : '—']]);
+  h += `<h2 class="pdf-block">الفروع مرتبة حسب صافي المبيعات</h2>
+    <table><thead><tr><th class="n">#</th><th>الفرع</th><th class="n">المبيعات</th><th class="n">المردود</th><th class="n">الصافي</th><th class="n">الهدف</th><th class="n">التحقق</th><th class="n">التحصيل</th><th class="n">التوالف</th></tr></thead><tbody>
+    ${rows.map((r, i) => `<tr><td class="n">${i + 1}</td><td><b>${esc(label(r.b))}</b>${r.b.credit ? ' <small>(آجل)</small>' : ''}</td><td class="n">${pdfMoney(r.x.sales)}</td>
+      <td class="n">${r.x.returns ? negP(r.x.returns) : '—'}</td><td class="n"><b>${pdfMoney(r.x.net)}</b></td><td class="n">${r.t ? pdfMoney(r.t) : '—'}</td>
+      <td class="n">${r.t ? pctTxt(r.x.sales, r.t) : '—'}</td><td class="n">${r.b.credit ? pdfMoney(r.x.collected) : '—'}</td><td class="n">${r.w ? pdfMoney(r.w) : '—'}</td></tr>`).join('')}
+    </tbody><tfoot><tr><td colspan="2">الإجمالي</td><td class="n">${pdfMoney(m.sales)}</td><td class="n">${m.returns ? negP(m.returns) : '—'}</td><td class="n">${pdfMoney(m.net)}</td>
+      <td class="n">${tgt ? pdfMoney(tgt) : '—'}</td><td class="n">${tgt ? pctTxt(targetSales(brs), tgt) : '—'}</td><td class="n">${pdfMoney(m.collected)}</td><td class="n">${pdfMoney(wt)}</td></tr></tfoot></table>
+    <h2 class="pdf-block">صافي المبيعات لكل فرع</h2>
+    ${repBars(rows.map(r => ({ l: label(r.b), s: r.t ? `الهدف ${pdfMoney(r.t)} · التحقق ${pctTxt(r.x.sales, r.t)}` : '', v: r.x.net })))}`;
+  if (fin && (cm || hasMargin(brs))) {
+    h += `<h2 class="pdf-block">الربح التقريبي مقابل الالتزامات</h2>
+      <table><thead><tr><th>الفرع</th><th class="n">الهامش</th><th class="n">الربح التقريبي</th><th class="n">الالتزامات</th><th class="n">الصافي بعد الالتزامات</th><th class="n">التغطية</th></tr></thead><tbody>
+      ${rows.map(r => `<tr><td>${esc(label(r.b))}</td><td class="n">${r.b.profit_margin != null ? Number(r.b.profit_margin) + '%' : '—'}</td><td class="n">${r.p != null ? pdfMoney(r.p) : '—'}</td>
+        <td class="n">${r.c ? pdfMoney(r.c) : '—'}</td><td class="n">${r.p != null ? `<b style="color:${r.p - r.c >= 0 ? '#2e7d32' : '#b3261e'}">${sgnP(r.p - r.c)}</b>` : '—'}</td>
+        <td class="n">${r.p != null && r.c ? pctTxt(r.p, r.c) : '—'}</td></tr>`).join('')}
+      </tbody><tfoot><tr><td colspan="2">الإجمالي</td><td class="n">${pdfMoney(pr)}</td><td class="n">${pdfMoney(cm)}</td><td class="n">${sgnP(pr - cm)}</td><td class="n">${cm ? pctTxt(pr, cm) : '—'}</td></tr></tfoot></table>`;
+  }
+  return h + repFoot;
+}
+
+// ---------- 2) المبيعات اليومية لجميع الفروع ----------
+function repDaily() {
+  const brs = repBrs(), days = elapsedDays();
+  const sh = b => nameParts(b.name)[0].replace(/^(حلويات|فرع)\s+/, '').slice(0, 14) + (nameParts(b.name)[1] ? ' ' + nameParts(b.name)[1].replace(/^فرع\s+/, '').slice(0, 10) : '');
+  let cum = 0;
+  let h = repHead('المبيعات اليومية لجميع الفروع', 'جدول يومي مقارن') + repTot([['إجمالي المبيعات', pdfMoney(salesOf(brs)) + ' ريال'], ['عدد الأيام', String(days.length)], ['متوسط اليوم', pdfMoney(days.length ? salesOf(brs) / days.length : 0)]]);
+  h += `<table class="tight"><thead><tr><th>التاريخ</th>${brs.map(b => `<th class="n">${esc(sh(b))}</th>`).join('')}<th class="n">الإجمالي</th><th class="n">التراكمي</th></tr></thead><tbody>
+    ${days.map(d => { const t = dayTotal(d, brs) || 0; cum += t; return `<tr><td>${esc(fmtShort(d))} <small>${esc(fmtDayName(d))}</small></td>${brs.map(b => { const v = amt(b.id, d); return `<td class="n">${v == null ? '<span style="color:#b3261e">—</span>' : pdfMoney(v)}</td>`; }).join('')}<td class="n"><b>${pdfMoney(t)}</b></td><td class="n">${pdfMoney(cum)}</td></tr>`; }).join('')}
+    </tbody><tfoot><tr><td>الإجمالي</td>${brs.map(b => `<td class="n">${pdfMoney(branchTotal(b.id))}</td>`).join('')}<td class="n">${pdfMoney(salesOf(brs))}</td><td></td></tr></tfoot></table>
+    <p class="pc-cap pdf-block">الشرطة الحمراء (—) تعني أن مبيعات اليوم لم تُدخل</p>`;
+  return h + repFoot;
+}
+
+// ---------- 3) تقرير فرع مفصل ----------
+function repBranch() {
+  const ents = cmpEntities(), e = ents.find(x => x.key === REP.branch) || ents[0];
+  if (!e) return '<p>لا توجد فروع.</p>';
+  const brs = e.brs.filter(b => b.active || salesOf([b])), m = summary(brs), credit = brs.some(b => b.credit), days = elapsedDays();
+  const fin = S.fin && S.fin.ok, tgt = targetOf(brs), cm = fin ? commitOf(brs) : 0, pr = profitOf(brs), hm = hasMargin(brs);
+  const logo = (brs.find(b => b.logo) || {}).logo;
+  const w = S.waste.filter(r => brs.some(b => b.id === r.branch_id)), wt = wasteTotal(w), late = brs.reduce((a, b) => a + lateOf(b.id).count, 0);
+  const entered = days.filter(d => brs.some(b => amt(b.id, d) != null)).length;
+  let h = repHead(e.name, 'تقرير الفرع المفصل', logo) + repTot([
+    [credit ? 'صافي المبيعات' : 'المبيعات', pdfMoney(m.net) + ' ريال'], ['متوسط اليوم', pdfMoney(entered ? m.net / entered : 0)],
+    ['أيام الإدخال', `${entered} من ${days.length}`], ['مرات التأخير', String(late)]]);
+  if (tgt || (fin && (cm || hm))) h += repTot([
+    ['الهدف', tgt ? pdfMoney(tgt) : '—', tgt ? `التحقق ${pctTxt(targetSales(brs), tgt)}` : ''],
+    ['الربح التقريبي', hm ? pdfMoney(pr) : '—', hm ? `الهامش ${marginLabel(brs)}` : ''],
+    ['الالتزامات', cm ? pdfMoney(cm) : '—'],
+    ['الصافي بعد الالتزامات', hm ? `${sgnP(pr - cm)}` : '—', hm && cm ? `التغطية ${pctTxt(pr, cm)}` : '']]);
+  if (credit) {
+    const p = m.pay;
+    h += `<h2 class="pdf-block">الآجل والتحصيل</h2>
+      <table><tbody>
+        <tr><td>إجمالي المبيعات الآجلة</td><td class="n">${pdfMoney(m.credit)}</td></tr>
+        <tr><td>مردود المبيعات</td><td class="n">${m.returns ? negP(m.returns) : '0'}</td></tr>
+        <tr><td><b>صافي المبيعات الآجلة</b></td><td class="n"><b>${pdfMoney(m.netCredit)}</b></td></tr>
+        <tr><td>التحصيل: نقدي</td><td class="n">${pdfMoney(p.cash)}</td></tr>
+        <tr><td>التحصيل: تحويل بنكي</td><td class="n">${pdfMoney(p.bank)}</td></tr>
+        <tr><td>التحصيل: شبكة</td><td class="n">${pdfMoney(p.card)}</td></tr>
+        ${p.other > 0.004 ? `<tr><td>التحصيل: بدون تفصيل</td><td class="n">${pdfMoney(p.other)}</td></tr>` : ''}
+        <tr class="sub"><td>مجموع التحصيل (${fmtPct(m.pct)})</td><td class="n">${pdfMoney(m.collected)}</td></tr>
+        <tr><td><b>المتبقي من الآجل</b></td><td class="n"><b>${pdfMoney(m.rest)}</b></td></tr>
+      </tbody></table>`;
+  }
+  let cum = 0, cumC = 0;
+  h += `<div class="pdf-divider pdf-block"><span>التفاصيل اليومية</span></div>
+    <table><thead><tr><th>التاريخ</th><th>اليوم</th><th class="n">المبيعات</th>${credit ? '<th class="n">التحصيل</th><th class="n">المردود</th>' : ''}<th class="n">التراكمي</th>${tgt ? '<th class="n">مسار الهدف</th>' : ''}</tr></thead><tbody>
+    ${days.map((d, i) => { const v = dayTotal(d, brs), c = dayCol(d, brs), r = dayRet(d, brs); cum += (v || 0) - r; cumC += c;
+      return `<tr><td>${esc(fmtShort(d))}</td><td>${esc(fmtDayName(d))}</td><td class="n">${v == null ? '<span style="color:#b3261e">لم يُدخل</span>' : pdfMoney(v)}</td>
+        ${credit ? `<td class="n">${c ? pdfMoney(c) : '—'}</td><td class="n">${r ? negP(r) : '—'}</td>` : ''}<td class="n">${pdfMoney(cum)}</td>
+        ${tgt ? `<td class="n">${pdfMoney(tgt / days.length * (i + 1))}</td>` : ''}</tr>`; }).join('')}
+    </tbody><tfoot><tr><td colspan="2">الإجمالي</td><td class="n">${pdfMoney(m.sales)}</td>${credit ? `<td class="n">${pdfMoney(m.collected)}</td><td class="n">${m.returns ? negP(m.returns) : '—'}</td>` : ''}<td class="n">${pdfMoney(m.net)}</td>${tgt ? `<td class="n">${pdfMoney(tgt)}</td>` : ''}</tr></tfoot></table>`;
+  if (w.length) {
+    const it = wByItem(w).sort((a, b) => b.cost - a.cost);
+    h += `<h2 class="pdf-block">البضائع التالفة (${pdfMoney(wt)} ريال · ${pctTxt(wt, m.sales)} من المبيعات)</h2>
+      ${repBars(it.slice(0, 10).map(i => ({ l: i.item, s: fmtQty(i.unit, i.qty), v: i.cost })), { dark: true })}`;
+  }
+  if (fin && cm) {
+    const cats = S.fin.cats, cs = S.fin.commitments.filter(c => brs.some(b => b.id === c.branch_id)), f = periodFactor();
+    h += `<h2 class="pdf-block">الالتزامات المالية للفترة</h2><table><thead><tr><th>البند</th><th>التفصيل</th><th class="n">المبلغ</th></tr></thead><tbody>
+      ${cs.map(c => `<tr><td>${esc((cats.find(x => x.id === c.cat_id) || {}).name || '')}</td><td>${esc(c.name || '')}</td><td class="n">${pdfMoney(Number(c.amount) * f)}</td></tr>`).join('')}
+      </tbody><tfoot><tr><td colspan="2">الإجمالي</td><td class="n">${pdfMoney(cm)}</td></tr></tfoot></table>`;
+  }
+  return h + repFoot;
+}
+
+// ---------- 4) الآجل والتحصيل ----------
+function repCredit() {
+  const brs = repBrs().filter(b => b.credit);
+  if (!brs.length) return repHead('الآجل والتحصيل', 'الفروع الآجلة') + '<p>لا توجد فروع آجلة.</p>';
+  const m = summary(brs), p = m.pay;
+  let h = repHead('الآجل والتحصيل', 'الفروع الآجلة') + repTot([['صافي المبيعات الآجلة', pdfMoney(m.netCredit) + ' ريال'], ['المحصّل', pdfMoney(m.collected), fmtPct(m.pct)], ['المتبقي', pdfMoney(m.rest)], ['المردود', m.returns ? negP(m.returns) : '0']]);
+  h += repTot([['نقدي', pdfMoney(p.cash)], ['تحويل بنكي', pdfMoney(p.bank)], ['شبكة', pdfMoney(p.card)]].concat(p.other > 0.004 ? [['بدون تفصيل', pdfMoney(p.other)]] : []));
+  h += `<table><thead><tr><th>الفرع</th><th class="n">المبيعات</th><th class="n">المردود</th><th class="n">الصافي</th><th class="n">نقدي</th><th class="n">تحويل</th><th class="n">شبكة</th><th class="n">المحصّل</th><th class="n">النسبة</th><th class="n">المتبقي</th></tr></thead><tbody>
+    ${brs.map(b => { const x = summary([b]); return `<tr><td><b>${esc(label(b))}</b></td><td class="n">${pdfMoney(x.credit)}</td><td class="n">${x.returns ? negP(x.returns) : '—'}</td><td class="n">${pdfMoney(x.netCredit)}</td>
+      <td class="n">${pdfMoney(x.pay.cash)}</td><td class="n">${pdfMoney(x.pay.bank)}</td><td class="n">${pdfMoney(x.pay.card)}</td><td class="n"><b>${pdfMoney(x.collected)}</b></td><td class="n">${fmtPct(x.pct)}</td><td class="n">${pdfMoney(x.rest)}</td></tr>`; }).join('')}
+    </tbody><tfoot><tr><td>الإجمالي</td><td class="n">${pdfMoney(m.credit)}</td><td class="n">${m.returns ? negP(m.returns) : '—'}</td><td class="n">${pdfMoney(m.netCredit)}</td><td class="n">${pdfMoney(p.cash)}</td><td class="n">${pdfMoney(p.bank)}</td><td class="n">${pdfMoney(p.card)}</td><td class="n">${pdfMoney(m.collected)}</td><td class="n">${fmtPct(m.pct)}</td><td class="n">${pdfMoney(m.rest)}</td></tr></tfoot></table>
+    <h2 class="pdf-block">المتبقي من الآجل لكل فرع</h2>${repBars(brs.map(b => { const x = summary([b]); return { l: label(b), s: `محصّل ${fmtPct(x.pct)}`, v: x.rest }; }))}`;
+  const mv = S.moves.filter(x => brs.some(b => b.id === x.branch_id)).sort((a, b) => a.move_date < b.move_date ? -1 : 1);
+  if (mv.length) h += `<h2 class="pdf-block">حركات التحصيل الإضافي والمردود</h2><table><thead><tr><th>التاريخ</th><th>الفرع</th><th>النوع</th><th>ملاحظة</th><th class="n">المبلغ</th></tr></thead><tbody>
+    ${mv.map(x => `<tr><td>${esc(fmtShort(x.move_date))}</td><td>${esc(S.byId[x.branch_id] ? label(S.byId[x.branch_id]) : '')}</td><td>${x.kind === 'return' ? 'مردود' : 'تحصيل'}</td><td>${esc(x.note || '')}</td><td class="n">${x.kind === 'return' ? negP(x.amount) : pdfMoney(x.amount)}</td></tr>`).join('')}</tbody></table>`;
+  return h + repFoot;
+}
+
+// ---------- 5) التوالف ----------
+function repWaste() {
+  const brs = wasteBranches(), w = S.waste, wt = wasteTotal(w), it = wByItem(w).sort((a, b) => b.cost - a.cost);
+  const sales = salesOf(brs);
+  let h = repHead('البضائع التالفة', 'جميع فروع التوالف') + repTot([['إجمالي التوالف', pdfMoney(wt) + ' ريال'], ['نسبة من مبيعات هذه الفروع', pctTxt(wt, sales)], ['عدد الأصناف', String(it.length)]]);
+  if (!w.length) return h + '<p>لا توجد توالف في هذه الفترة.</p>' + repFoot;
+  h += `<h2 class="pdf-block">التوالف حسب الفرع</h2>${repBars(brs.map(b => { const x = wasteTotal(w.filter(r => r.branch_id === b.id)); return { l: label(b), s: `${pctTxt(x, salesOf([b]))} من مبيعات الفرع`, v: x }; }).sort((a, b) => b.v - a.v))}
+    <h2 class="pdf-block">أكثر 10 أصناف تالفة</h2>${repBars(it.slice(0, 10).map(i => ({ l: i.item, s: fmtQty(i.unit, i.qty), v: i.cost })), { dark: true })}
+    <div class="pdf-divider pdf-block"><span>كل الأصناف</span></div>
+    <table><thead><tr><th class="n">#</th><th>الصنف</th><th>الكمية</th>${brs.map(b => `<th class="n">${esc(nameParts(b.name)[1] || nameParts(b.name)[0])}</th>`).join('')}<th class="n">التكلفة</th></tr></thead><tbody>
+    ${it.map((i, k) => `<tr><td class="n">${k + 1}</td><td>${esc(i.item)}</td><td>${esc(fmtQty(i.unit, i.qty))}</td>${brs.map(b => `<td class="n">${i.br[b.id] ? pdfMoney(i.br[b.id]) : '—'}</td>`).join('')}<td class="n"><b>${pdfMoney(i.cost)}</b></td></tr>`).join('')}
+    </tbody><tfoot><tr><td colspan="3">الإجمالي</td>${brs.map(b => `<td class="n">${pdfMoney(wasteTotal(w.filter(r => r.branch_id === b.id)))}</td>`).join('')}<td class="n">${pdfMoney(wt)}</td></tr></tfoot></table>`;
+  return h + repFoot;
+}
+
+// ---------- 6) الالتزامات ----------
+function repCommit() {
+  if (!(S.fin && S.fin.ok)) return repHead('الالتزامات المالية', '') + '<p>بيانات المالية غير متاحة.</p>';
+  const brs = repBrs(), f = periodFactor(), cats = S.fin.cats;
+  const tot = commitOf(brs), pr = profitOf(brs);
+  let h = repHead('الالتزامات المالية', f === 1 ? 'الالتزامات الشهرية' : 'محسوبة بالتناسب مع أيام الفترة') + repTot([['إجمالي الالتزامات', pdfMoney(tot) + ' ريال'], ['الربح التقريبي', pdfMoney(pr)], ['الصافي بعد الالتزامات', sgnP(pr - tot)]]);
+  const byCat = cats.map(c => ({ l: c.name, v: S.fin.commitments.filter(x => x.cat_id === c.id && brs.some(b => b.id === x.branch_id)).reduce((a, x) => a + Number(x.amount), 0) * f })).filter(x => x.v).sort((a, b) => b.v - a.v);
+  if (byCat.length) h += `<h2 class="pdf-block">الالتزامات حسب البند (كل الفروع)</h2>${repBars(byCat)}`;
+  for (const b of brs) {
+    const cs = S.fin.commitments.filter(x => x.branch_id === b.id); if (!cs.length) continue;
+    const ct = commitOf([b]), p = b.profit_margin != null ? profitOf([b]) : null;
+    h += `<h2 class="pdf-block">${esc(label(b))} — ${pdfMoney(ct)} ريال${p != null ? ` · الربح ${pdfMoney(p)} · ${p - ct >= 0 ? 'فائض' : 'عجز'} ${pdfMoney(Math.abs(p - ct))}` : ''}</h2>
+      <table><thead><tr><th>البند</th><th>التفصيل</th><th class="n">شهرياً</th><th class="n">للفترة</th></tr></thead><tbody>
+      ${cs.map(c => `<tr><td>${esc((cats.find(x => x.id === c.cat_id) || {}).name || '')}</td><td>${esc(c.name || '')}</td><td class="n">${pdfMoney(c.amount)}</td><td class="n">${pdfMoney(Number(c.amount) * f)}</td></tr>`).join('')}
+      </tbody></table>`;
+  }
+  return h + repFoot;
+}
+
+// ---------- 7) حساب التمويلات ----------
+function repFund() {
+  if (!(S.fin && S.fin.ok)) return repHead('حساب التمويلات', '') + '<p>بيانات المالية غير متاحة.</p>';
+  const m = monthStart(minISO(S.to, S.today)), st = fundStats(m);
+  let h = repHead('حساب التمويلات البنكية', `شهر ${fmtMonth(m)}`) + repTot([['رصيد الحساب', pdfMoney(st.balance) + ' ريال'], ['إيداعات الفروع (المسدد / المستحق)', `${pdfMoney(st.inPaid)} / ${pdfMoney(st.inDue)}`], ['التمويلات (المسدد / المستحق)', `${pdfMoney(st.outPaid)} / ${pdfMoney(st.outDue)}`]]);
+  h += `<h2 class="pdf-block">أقساط الفروع الأسبوعية</h2><table><thead><tr><th>الفرع</th><th>تاريخ الاستحقاق</th><th class="n">المستحق</th><th class="n">المسدد</th><th>الحالة</th></tr></thead><tbody>
+    ${st.srcs.map(s => dueDates(s, m).map(d => { const p = payOf(s.id, d), x = payState(p, s.weekly_amount);
+      return `<tr><td>${esc(s.label)}</td><td>${esc(fmtShort(d))}</td><td class="n">${pdfMoney(x.due)}</td><td class="n">${pdfMoney(x.paid)}</td><td>${x.full ? '<b style="color:#2e7d32">✓ تم السداد</b>' : x.paid ? `<span style="color:#9a5b00">جزئي، متبقي ${pdfMoney(x.due - x.paid)}</span>` : d < S.today ? '<span style="color:#b3261e">متأخر</span>' : 'لم يُسدد'}</td></tr>`; }).join('')).join('')}
+    </tbody></table>
+    <h2 class="pdf-block">التمويلات البنكية</h2><table><thead><tr><th>التمويل</th><th>موعد السداد</th><th class="n">القسط</th><th class="n">المسدد</th><th>الحالة</th></tr></thead><tbody>
+    ${st.loans.map(l => { const d = loanDue(l, m), x = payState(loanPayOf(l.id, m), l.amount);
+      return `<tr><td>${esc(l.name)}</td><td>${esc(fmtShort(d))}</td><td class="n">${pdfMoney(x.due)}</td><td class="n">${pdfMoney(x.paid)}</td><td>${x.full ? '<b style="color:#2e7d32">✓ تم السداد</b>' : x.paid ? `<span style="color:#9a5b00">جزئي، متبقي ${pdfMoney(x.due - x.paid)}</span>` : d < S.today ? '<span style="color:#b3261e">متأخر</span>' : 'لم يُسدد'}</td></tr>`; }).join('') || '<tr><td colspan="5">لا توجد تمويلات</td></tr>'}
+    </tbody></table>`;
+  return h + repFoot;
+}
+
+// ---------- 8) الالتزام بالإدخال ----------
+function repLate() {
+  const brs = repBrs(), days = elapsedDays();
+  let h = repHead('الالتزام بإدخال المبيعات', 'أيام الإدخال والتأخير');
+  h += `<table><thead><tr><th>الفرع</th><th class="n">أيام الإدخال</th><th class="n">النسبة</th><th class="n">مرات التأخير (تراكمي)</th><th>أيام لم تُدخل حالياً</th></tr></thead><tbody>
+    ${brs.map(b => { const n = days.filter(d => amt(b.id, d) != null).length, miss = lateMissing(b);
+      return `<tr><td><b>${esc(label(b))}</b>${b.late_exempt ? ' <small>(مستثنى)</small>' : ''}</td><td class="n">${n} من ${days.length}</td><td class="n">${pctTxt(n, days.length)}</td>
+        <td class="n">${lateOf(b.id).count ? `<b style="color:#b3261e">${lateOf(b.id).count}</b>` : '0'}</td><td>${miss.length ? esc(miss.map(fmtShort).join('، ')) : '—'}</td></tr>`; }).join('')}
+    </tbody></table>`;
+  return h + repFoot;
+}
+
+const REP_FN = { all: repAll, daily: repDaily, branch: repBranch, credit: repCredit, waste: repWaste, commit: repCommit, fund: repFund, late: repLate };
+function repTitle() {
+  const t = REP_TYPES.find(x => x.id === REP.type);
+  if (REP.type === 'branch') { const e = cmpEntities().find(x => x.key === REP.branch); return `تقرير ${e ? e.name : 'فرع'}`; }
+  return t.t;
+}
+// قروبات الإرسال المتاحة
+function repTargets() {
+  const out = [];
+  if (S.settings && S.settings.admin_wa_link) out.push({ v: S.settings.admin_wa_link, l: 'قروب الإدارة' });
+  for (const b of activeBranches()) {
+    if (b.sales_wa_link) out.push({ v: b.sales_wa_link, l: `قروب مبيعات ${label(b)}` });
+    if (b.waste && b.waste_wa_link) out.push({ v: b.waste_wa_link, l: `قروب توالف ${label(b)}` });
+  }
+  if (S.settings && S.settings.waste_whatsapp_link) out.push({ v: S.settings.waste_whatsapp_link, l: 'قروب التوالف العام' });
+  return out;
+}
+function openReports() { S.detail = null; S.wasteView = false; showView('reports'); renderReports(); }
+function renderReports() {
+  const el = $('reports'); if (!el || el.hidden) return;
+  const ents = cmpEntities();
+  if (!REP.branch || !ents.some(e => e.key === REP.branch)) REP.branch = ents[0] && ents[0].key;
+  const tg = VIEW ? [] : repTargets();
+  if (REP.target && !tg.some(t => t.v === REP.target)) REP.target = '';
+  if (!REP.target && tg[0]) REP.target = tg[0].v;
+  let html; try { html = REP_FN[REP.type](); } catch (e) { console.error(e); html = `<p class="err">تعذّر إنشاء التقرير: ${esc(e.message)}</p>`; }
+  REP.html = html;
+  el.innerHTML = `${backHead('التقارير الإدارية')}
+    <p class="muted rep-intro">اختر التقرير، والفترة من أعلى الصفحة (هذا الشهر، شهر محدد، أو من تاريخ إلى تاريخ)، ثم أرسله PDF على الواتساب.</p>
+    <div class="rep-types">${REP_TYPES.map(t => `<button class="rep-t${REP.type === t.id ? ' on' : ''}" data-rtype="${t.id}"><b>${t.t}</b><small>${t.d}</small></button>`).join('')}</div>
+    <div class="rep-bar">
+      ${REP.type === 'branch' ? `<label class="cmp-f"><span>الفرع</span><select class="in" id="repBranch">${ents.map(e => `<option value="${esc(e.key)}"${e.key === REP.branch ? ' selected' : ''}>${e.merge ? '⊕ ' : ''}${esc(e.name)}</option>`).join('')}</select></label>` : ''}
+      ${tg.length ? `<label class="cmp-f"><span>الإرسال إلى</span><select class="in" id="repTarget">${tg.map(t => `<option value="${esc(t.v)}"${t.v === REP.target ? ' selected' : ''}>${esc(t.l)}</option>`).join('')}<option value=""${REP.target ? '' : ' selected'}>بدون قروب (تنزيل فقط)</option></select></label>` : ''}
+      <button class="btn btn-wa" id="repSend">${navigator.canShare ? 'إرسال PDF على الواتساب' : 'تنزيل PDF وفتح القروب'}</button>
+      <button class="btn btn-ghost" id="repDl">تنزيل PDF</button>
+    </div>
+    ${!VIEW && !tg.length ? '<p class="muted set-hint">لإضافة قروبات الإرسال: الإعدادات ← الفروع والروابط والوصول (قسم "قروبات واتساب للتقارير").</p>' : ''}
+    <div class="rep-prev"><div class="pdf pv">${html}</div></div>`;
+  bindBack();
+}
+async function repBuild() {
+  for (const s of REP_LIBS) await repLoadScript(s);
+  const el = document.createElement('div'); el.className = 'pdf'; el.innerHTML = REP.html; document.body.appendChild(el);
+  try {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    await Promise.all([...el.querySelectorAll('img')].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+    const SCALE = 2, W_PX = 794, PAGE_PX = Math.round(W_PX * 297 / 210), TOP = 30, BOT = 34;
+    const canvas = await window.html2canvas(el, { scale: SCALE, backgroundColor: '#ffffff', useCORS: true, logging: false });
+    const top0 = el.getBoundingClientRect().top;
+    const cuts = [...el.querySelectorAll('tr, .pdf-block, p')].map(e => Math.round(e.getBoundingClientRect().bottom - top0)).sort((a, b) => a - b);
+    const H = el.offsetHeight, pages = []; let y = 0;
+    while (y < H - 2) {
+      const room = PAGE_PX - BOT - (pages.length ? TOP : 0), limit = y + room;
+      if (limit >= H) { pages.push([y, H]); break; }
+      let cut = 0; for (const c of cuts) if (c > y + 80 && c <= limit) cut = c;
+      if (!cut) cut = limit; pages.push([y, cut]); y = cut;
+    }
+    const { jsPDF } = window.jspdf, pdf = new jsPDF({ unit: 'mm', format: 'a4', compress: true }), mm = 210 / W_PX;
+    pages.forEach(([a, b], i) => {
+      if (i) pdf.addPage();
+      const part = document.createElement('canvas'); part.width = canvas.width; part.height = Math.ceil((b - a) * SCALE);
+      const ctx = part.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, part.width, part.height);
+      ctx.drawImage(canvas, 0, a * SCALE, canvas.width, part.height, 0, 0, part.width, part.height);
+      pdf.addImage(part.toDataURL('image/jpeg', 0.92), 'JPEG', 0, (i ? TOP : 0) * mm, 210, (b - a) * mm);
+      pdf.setFontSize(9); pdf.setTextColor(140); pdf.text(`${i + 1} / ${pages.length}`, 105, 290, { align: 'center' });
+    });
+    const name = `${repTitle()} ${S.from} - ${S.to}.pdf`.replace(/[\\/:*?"<>|]/g, '-');
+    return new File([pdf.output('blob')], name, { type: 'application/pdf' });
+  } finally { el.remove(); }
+}
+async function repAction(send) {
+  const btn = $(send ? 'repSend' : 'repDl'); if (btn.disabled) return;
+  const txt = btn.textContent; btn.disabled = true; btn.textContent = 'جارٍ تجهيز التقرير…';
+  let f; try { f = await repBuild(); } catch (e) { toast(errMsg(e), 'err'); }
+  btn.disabled = false; btn.textContent = txt; if (!f) return;
+  if (send && navigator.canShare && navigator.canShare({ files: [f] })) {
+    try { await navigator.share({ files: [f], title: repTitle(), text: `${repTitle()} — ${repPeriod()}` }); return; }
+    catch (e) { if (e.name === 'AbortError') return; }
+  }
+  const url = URL.createObjectURL(f), a = document.createElement('a');
+  a.href = url; a.download = f.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
+  if (send && REP.target) { toast('تم تنزيل التقرير. أرفقه في القروب'); setTimeout(() => window.open(REP.target, '_blank', 'noopener'), 700); }
+  else toast('تم تنزيل التقرير');
+}
+function bindReports() {
+  const el = $('reports');
+  el.addEventListener('click', e => {
+    const t = e.target.closest('[data-rtype]'); if (t) { REP.type = t.dataset.rtype; return renderReports(); }
+    if (e.target.closest('#repSend')) return repAction(true);
+    if (e.target.closest('#repDl')) return repAction(false);
+  });
+  el.addEventListener('change', e => {
+    if (e.target.id === 'repBranch') { REP.branch = e.target.value; renderReports(); }
+    if (e.target.id === 'repTarget') REP.target = e.target.value;
+  });
+}
+
 // ---------------- إدارة روابط الاطلاع (للإدارة) ----------------
 async function loadViewers() {
   const { data, error } = await sb.from('viewer_links').select('*').order('created_at');
@@ -1967,6 +2358,7 @@ function renderAll() {
   if (S.wasteView) renderWaste();
   if (S.view === 'fund') renderFund();
   if (S.view === 'settings') renderSettingsView();
+  if (S.view === 'reports') renderReports();
   if (S.view === 'compare' && !S.cmp.rendered) { S.cmp.rendered = true; renderCompare(); }
   if ($('itemsDlg').open) renderItemsList();
 }
@@ -2229,12 +2621,14 @@ function renderDetail() {
 // الصفحات: اللوحة، تفاصيل فرع، التوالف، حساب التمويلات، الإعدادات
 function showView(v) {
   S.view = v;
-  for (const [id, name] of [['overview', 'overview'], ['detail', 'detail'], ['waste', 'waste'], ['fund', 'fund'], ['settingsView', 'settings'], ['compare', 'compare']]) $(id).hidden = v !== name;
+  for (const [id, name] of [['overview', 'overview'], ['detail', 'detail'], ['waste', 'waste'], ['fund', 'fund'], ['settingsView', 'settings'], ['compare', 'compare'], ['reports', 'reports']]) $(id).hidden = v !== name;
+  $('repBtn').classList.toggle('on', v === 'reports');
   $('cmpBtn').classList.toggle('on', v === 'compare');
   $('settingsBtn').classList.toggle('on', v === 'settings');
   // الفترة وطلبات التعديل تخص اللوحة والتقارير فقط
   const side = v === 'fund' || v === 'settings' || v === 'compare';
   document.querySelector('.period').hidden = side; $('corrections').hidden = side;
+  $('resendBox').hidden = side || v === 'reports'; if (v === 'reports') $('corrections').hidden = true;
   scrollTo({ top: 0 });
 }
 function openDetail(key) { S.detail = key; S.wasteView = false; S.commitOpen = false; showView('detail'); renderDetail(); }
@@ -2844,6 +3238,18 @@ function renderSettings() {
         <label class="tgl"><input type="checkbox" id="newBrWaste">قسم التوالف</label>
         <button class="btn btn-primary btn-sm" id="addBr">إضافة فرع</button></div>
       <p class="muted" style="font-size:13px;margin-top:6px">كل فرع (ومنها فروع التوزيع للمناديب) له رابط إدخال خاص يظهر في "روابط الإدخال"، وبطاقة مستقلة في اللوحة. "آجل + تحصيل" يعني أن الموظف يدخل المبيعات الآجلة والتحصيل مثل البازل الذهبي. إيقاف الفرع يعطّل رابطه وتبقى مبيعاته السابقة في التقارير.</p></div>
+    <div class="set-sec wa-links"><h3>قروبات واتساب للتقارير</h3>
+      <div class="rep-row"><span class="nm" style="min-width:180px"><b>قروب الإدارة</b></span>
+        <input id="adminWa" dir="ltr" placeholder="https://chat.whatsapp.com/..." value="${esc(S.settings.admin_wa_link || '')}" autocomplete="off">
+        <button class="btn btn-primary btn-sm" id="adminWaSave">حفظ</button></div>
+      ${activeBranches().map(b => `<div class="rep-row">
+        <span class="nm" style="min-width:180px">${esc(label(b))}</span>
+        <input data-slink="${b.id}" dir="ltr" placeholder="قروب تقرير المبيعات (فارغ = بدون تقرير)" value="${esc(b.sales_wa_link || '')}" autocomplete="off">
+        ${b.waste ? `<input data-wlink="${b.id}" dir="ltr" placeholder="قروب التوالف الخاص (فارغ = الرابط العام)" value="${esc(b.waste_wa_link || '')}" autocomplete="off">` : ''}
+        <button class="btn btn-primary btn-sm" data-linksave="${b.id}">حفظ</button>
+        ${b.sales_wa_link ? '<span class="chip-on">تقرير المبيعات مفعّل</span>' : ''}
+      </div>`).join('')}
+      <p class="muted" style="font-size:13px;margin-top:6px">الفرع الذي له رابط قروب مبيعات يظهر له بعد إدخال المبيعات زر "إرسال تقرير المبيعات على قروب الواتساب"، ويقدر يرسل تقرير أي يوم سابق من قائمة إدخالاته. التقرير يحمل تاريخ يوم المبيعات نفسه. رابط التوالف الخاص يُستخدم بدل الرابط العام لهذا الفرع. قروب الإدارة يظهر في "تقارير إدارية" كوجهة للإرسال.</p></div>
     <div class="set-sec"><h3>أرقام واتساب الفروع والاستثناء من إشعار التأخير</h3>
       ${activeBranches().map(b => `<div class="rep-row">
         <span class="nm" style="min-width:180px">${esc(label(b))}</span>
@@ -2933,6 +3339,22 @@ async function viewerAction(id, del) {
 }
 $('settings').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'newViewer') { e.preventDefault(); addViewer(); } });
 
+const okLink = v => !v || /^https?:\/\//i.test(v);
+async function saveGroupLinks(id) {
+  const sl = document.querySelector(`[data-slink="${id}"]`), wl = document.querySelector(`[data-wlink="${id}"]`);
+  const patch = { sales_wa_link: sl.value.trim() || null };
+  if (wl) patch.waste_wa_link = wl.value.trim() || null;
+  if (!okLink(patch.sales_wa_link) || !okLink(patch.waste_wa_link)) return toast('الرابط يجب أن يبدأ بـ https://', 'err');
+  document.activeElement && document.activeElement.blur();
+  await saveBranch(id, patch, 'تم حفظ روابط القروبات');
+}
+async function saveAdminWa() {
+  const v = $('adminWa').value.trim();
+  if (!okLink(v)) return toast('الرابط يجب أن يبدأ بـ https://', 'err');
+  const { error } = await sb.from('app_settings').upsert({ key: 'admin_wa_link', value: v });
+  if (error) return toast(errMsg(error), 'err');
+  S.settings.admin_wa_link = v; $('adminWa').blur(); renderSettings(); toast('تم حفظ رابط قروب الإدارة');
+}
 async function saveWa(id) {
   const inp = document.querySelector(`[data-wanum="${id}"]`), raw = inp.value.trim();
   const num = raw ? normPhone(raw) : null;
@@ -2946,6 +3368,8 @@ $('settings').addEventListener('keydown', e => { if (e.key === 'Enter' && e.targ
 $('settings').addEventListener('click', async e => {
   if (e.target.closest('#qlMake')) return makeQuickLink();
   const ws = e.target.closest('[data-wasave]'); if (ws) return saveWa(Number(ws.dataset.wasave));
+  const ls = e.target.closest('[data-linksave]'); if (ls) return saveGroupLinks(Number(ls.dataset.linksave));
+  if (e.target.closest('#adminWaSave')) return saveAdminWa();
   if (e.target.closest('#addViewer')) return addViewer();
   const vt = e.target.closest('[data-vtoggle]'); if (vt) return viewerAction(Number(vt.dataset.vtoggle), false);
   const vd = e.target.closest('[data-vdel]'); if (vd) return viewerAction(Number(vd.dataset.vdel), true);
@@ -3033,6 +3457,8 @@ $('cmpBtn').onclick = () => S.view === 'compare' ? closeDetail() : openCompare()
 $('ddOk').onclick = confirmDel; $('ddCancel').onclick = () => $('delDlg').close();
 $('mgSave').onclick = saveMerge; $('mgCancel').onclick = () => $('mergeDlg').close();
 bindCompare();
+bindReports();
+$('repBtn').onclick = () => S.view === 'reports' ? closeDetail() : openReports();
 $('settingsBtn').onclick = () => S.view === 'settings' ? closeDetail() : openSettings();
 bindSettingsView();
 $('lateBtn').onclick = () => toggleLate();
