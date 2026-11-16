@@ -667,12 +667,15 @@ const CAT_COL = { 'البسبوسة': '#8f5d0a', 'الكيك والتشيز': '#
   'ورق العنب': '#3d7330', 'الشوكولاتة': '#4a2a1e', 'البيتفور والمعمول': '#23706b', 'البقلاوة والحلويات الشرقية': '#5b3ea0', 'أخرى': '#5b6270' };
 const CAT_EXTRA = ['#2e5f8a', '#8a2e5f', '#6a5a12', '#2e7a55', '#7a4a8a'];
 function catColor(c) { if (CAT_COL[c]) return CAT_COL[c]; let h = 0; for (const ch of c) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return CAT_EXTRA[h % CAT_EXTRA.length]; }
-const catRank = c => { const k = CATS.indexOf(c); return k < 0 ? CATS.length - 1.5 : k; };
+const catOrder = () => (info && info.cats && info.cats.length ? info.cats : CATS);
+const catRank = c => { const o = catOrder(), k = o.indexOf(c); return k < 0 ? (c === 'أخرى' ? 1e6 : o.length + 0.5) : k; };
+const ordRank = i => i.sort_order == null ? 1e9 : Number(i.sort_order);
 const SIZE_RE = /\s+(كبير|مستطيل|وسط|صغير|ربع)(\s.*)?$/;
 const sizeRank = n => /كبير/.test(n) ? 1 : /مستطيل/.test(n) ? 2 : /وسط/.test(n) ? 3 : /(صغير|ربع)/.test(n) ? 4 : 5;
 const baseName = n => n.replace(SIZE_RE, '');
 function sortItems(list) {
   return list.slice().sort((a, b) => catRank(catOf(a)) - catRank(catOf(b)) || catOf(a).localeCompare(catOf(b), 'ar')
+    || ordRank(a) - ordRank(b)
     || baseName(a.name).localeCompare(baseName(b.name), 'ar') || sizeRank(a.name) - sizeRank(b.name) || a.name.localeCompare(b.name, 'ar'));
 }
 const r2 = n => Math.round(n * 100) / 100;
@@ -792,7 +795,7 @@ function otherFormHtml() {
     <div class="field"><span>نوع الصنف</span><div class="unit-seg">
       <button type="button" data-ounit="piece" aria-pressed="${!w}">بالحبة</button>
       <button type="button" data-ounit="weight" aria-pressed="${w}">بالوزن</button></div></div>
-    <label class="field"><span>القسم</span><select id="oCat"><option value="">تلقائي حسب الاسم</option>${[...new Set([...CATS, ...(info.items || []).map(catOf)])].map(c => `<option${c === o.cat ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select></label>
+    <label class="field"><span>القسم</span><select id="oCat"><option value="">تلقائي حسب الاسم</option>${[...new Set([...catOrder(), ...(info.items || []).map(catOf)])].map(c => `<option${c === o.cat ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select></label>
     <label class="field"><span>${w ? 'سعر تكلفة 1 كيلو (ريال)' : 'سعر تكلفة الحبة (ريال)'}</span>
       <input id="oCost" inputmode="decimal" autocomplete="off" dir="ltr" value="${esc(o.cost)}" placeholder="0"></label>
     <p class="err" id="oErr" role="alert"></p>
@@ -1124,6 +1127,6 @@ else {
   }, 300000);
 }
 </script>
-<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-16 ز</p>
+<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-16 ح</p>
 </body>
 </html>

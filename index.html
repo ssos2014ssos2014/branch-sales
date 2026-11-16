@@ -160,7 +160,22 @@
   .chip-u { font-size: 11px; padding: 0 7px; border-radius: 99px; background: var(--bg); border: 1px solid var(--line); margin-inline-start: 6px; }
   .icat { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; margin: 16px 0 6px; padding: 9px 14px; border-radius: 12px; background: var(--cc, var(--ink)); color: #fff; position: sticky; top: 0; z-index: 1; }
   .icat::before { content: ''; width: 9px; height: 9px; border-radius: 2px; background: #fff; transform: rotate(45deg); opacity: .9; }
-  .icat span { margin-inline-start: auto; font-weight: 600; font-size: 12px; background: rgba(255,255,255,.2); border-radius: 99px; padding: 2px 9px; }
+  .icat .ic-n { font-weight: 600; font-size: 12px; background: rgba(255,255,255,.2); border-radius: 99px; padding: 2px 9px; }
+  .icat .ic-acts { margin-inline-start: auto; display: flex; gap: 4px; }
+  .icat .ic-acts button { border: none; background: rgba(255,255,255,.18); color: #fff; border-radius: 8px; padding: 4px 9px; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .icat .ic-acts button:hover:not(:disabled) { background: rgba(255,255,255,.32); }
+  .icat .ic-acts button:disabled { opacity: .35; cursor: default; }
+  .icat.edit::before { display: none; }
+  .icat.edit input { flex: 1; min-width: 0; border: none; border-radius: 8px; padding: 7px 10px; font: inherit; font-weight: 700; color: var(--ink); }
+  .icat.edit .btn { background: #fff; color: var(--cc); border: none; }
+  .icat.edit .btn.ghost-w { background: rgba(255,255,255,.18); color: #fff; }
+  .irow { grid-template-columns: auto 1fr auto !important; }
+  .iord { display: flex; flex-direction: column; gap: 2px; }
+  .iord button { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; width: 28px; height: 22px; font-size: 10px; line-height: 1; cursor: pointer; color: var(--ink); }
+  .iord button:disabled { opacity: .3; cursor: default; }
+  .iord button:hover:not(:disabled) { background: var(--ink); color: var(--on-ink); }
+  .imove { border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--bg); padding: 5px 6px; font: inherit; font-size: 12px; max-width: 150px; color: var(--ink); }
+  @media (max-width: 560px) { .irow .acts { grid-column: 1 / -1; justify-content: flex-start; } .icat { flex-wrap: wrap; } }
   .imp-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
   .imp { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px; margin-top: 10px; }
   .imp-head { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 14px; }
@@ -643,7 +658,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-16 ز</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-16 ح</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -1794,14 +1809,15 @@ const viewerUrl = v => location.origin + location.pathname + '?view=' + v.token;
 // التوالف والأصناف والإعدادات (لا توقف اللوحة لو حدث خطأ)
 async function loadWasteData() {
   try {
-    const [w, it, st] = await Promise.all([
+    const [w, it, st, wc] = await Promise.all([
       fetchAll(() => sb.from('waste_records').select('id,batch_id,branch_id,waste_date,item_name,unit,qty,unit_cost,cost,entered_by,created_at')
         .gte('waste_date', S.from).lte('waste_date', S.to).order('waste_date').order('id')),
       sb.from('waste_items').select('*').order('name'),
-      sb.from('app_settings').select('key,value')
+      sb.from('app_settings').select('key,value'),
+      sb.from('waste_cats').select('*').order('sort_order').order('id')
     ]);
     if (it.error) throw it.error;
-    S.waste = w; S.items = it.data || [];
+    S.waste = w; S.items = it.data || []; S.wcats = (wc && !wc.error ? wc.data || [] : []).slice().sort((x, y) => x.sort_order - y.sort_order || x.id - y.id);
     S.settings = Object.fromEntries((st.data || []).map(r => [r.key, r.value]));
   } catch (e) { console.warn('waste', e); S.waste = []; }
 }
@@ -2347,15 +2363,19 @@ const CAT_COL = { 'البسبوسة': '#8f5d0a', 'الكيك والتشيز': '#
 const CAT_EXTRA = ['#2e5f8a', '#8a2e5f', '#6a5a12', '#2e7a55', '#7a4a8a'];
 function catColor(c) { if (CAT_COL[c]) return CAT_COL[c]; let h = 0; for (const ch of c) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return CAT_EXTRA[h % CAT_EXTRA.length]; }
 
-const catRank = c => { const k = CATS.indexOf(c); return k < 0 ? CATS.length - 1.5 : k; };
+// ترتيب الأقسام من جدول waste_cats (إن وُجد) وإلا الترتيب الافتراضي
+const catOrder = () => (S.wcats && S.wcats.length ? S.wcats.map(c => c.name) : CATS);
+const catRank = c => { const o = catOrder(), k = o.indexOf(c); return k < 0 ? (c === 'أخرى' ? 1e6 : o.length + 0.5) : k; };
+const ordRank = i => i.sort_order == null ? 1e9 : Number(i.sort_order);
 const SIZE_RE = /\s+(كبير|مستطيل|وسط|صغير|ربع)(\s.*)?$/;
 const sizeRank = n => /كبير/.test(n) ? 1 : /مستطيل/.test(n) ? 2 : /وسط/.test(n) ? 3 : /(صغير|ربع)/.test(n) ? 4 : 5;
 const baseName = n => n.replace(SIZE_RE, '');
 function sortItems(list) {
   return list.slice().sort((a, b) => catRank(catOf(a)) - catRank(catOf(b)) || catOf(a).localeCompare(catOf(b), 'ar')
+    || ordRank(a) - ordRank(b)
     || baseName(a.name).localeCompare(baseName(b.name), 'ar') || sizeRank(a.name) - sizeRank(b.name) || a.name.localeCompare(b.name, 'ar'));
 }
-const allCats = () => [...new Set([...CATS, ...S.items.map(catOf)])];
+const allCats = () => [...new Set([...catOrder(), ...S.items.map(catOf)])];
 function guessCategory(n) {
   // نفس قواعد قاعدة البيانات (guess_category) — الترتيب مهم
   if (/(بيتفور|بيتي فور|بتي فور|معمول|كعك|غريبة|بسكويت|بسكوت)/.test(n)) return 'البيتفور والمعمول';
@@ -2557,16 +2577,25 @@ function renderItemsList() {
   const brs = wasteBranches();
   const brNames = it => !it.branch_ids || !it.branch_ids.length || brs.every(b => it.branch_ids.includes(b.id))
     ? 'كل فروع التوالف' : it.branch_ids.map(id => S.byId[id] ? label(S.byId[id]) : '').filter(Boolean).join('، ');
-  let lastCat = null;
-  $('itemsList').innerHTML = S.items.length ? sortItems(S.items).map(it => `${catOf(it) !== lastCat ? `<p class="icat" style="--cc:${catColor(catOf(it))}">${esc(lastCat = catOf(it))} <span>${S.items.filter(x => catOf(x) === lastCat).length} صنف</span></p>` : ''}<div class="irow${it.active ? '' : ' off'}">
+  const sorted = sortItems(S.items), cats = [...new Set(sorted.map(catOf))], cl = allCats();
+  const catHead = (c, ci) => S.catEdit === c
+    ? `<div class="icat edit" style="--cc:${catColor(c)}"><input id="catNew" value="${esc(c)}" maxlength="40" aria-label="اسم القسم الجديد">
+        <button class="btn btn-sm" data-catsave="${esc(c)}">حفظ</button><button class="btn btn-sm ghost-w" data-catcancel="1">إلغاء</button></div>`
+    : `<div class="icat" style="--cc:${catColor(c)}"><b>${esc(c)}</b><span class="ic-n">${sorted.filter(x => catOf(x) === c).length} صنف</span>
+        <span class="ic-acts"><button data-catup="${esc(c)}" ${ci ? '' : 'disabled'} title="تحريك القسم لأعلى" aria-label="تحريك القسم لأعلى">▲</button><button data-catdown="${esc(c)}" ${ci < cats.length - 1 ? '' : 'disabled'} title="تحريك القسم لأسفل" aria-label="تحريك القسم لأسفل">▼</button>
+        <button data-catren="${esc(c)}" title="تعديل اسم القسم">✎ تعديل الاسم</button></span></div>`;
+  $('itemsList').innerHTML = S.items.length ? cats.map((c, ci) => { const its = sorted.filter(x => catOf(x) === c); return catHead(c, ci) + its.map((it, k) => `<div class="irow${it.active ? '' : ' off'}">
+      <div class="iord"><button data-iup="${it.id}" ${k ? '' : 'disabled'} aria-label="تحريك لأعلى">▲</button><button data-idown="${it.id}" ${k < its.length - 1 ? '' : 'disabled'} aria-label="تحريك لأسفل">▼</button></div>
       <div><b>${esc(it.name)}</b><span class="chip-u">${it.unit === 'weight' ? 'وزن' : 'حبة'}</span>${it.code ? `<span class="chip-u">#${esc(it.code)}</span>` : ''}
         <small>${money(it.cost)} ريال / ${unitName(it.unit)} · ${esc(brNames(it))}${it.active ? '' : ' · موقوف'}${it.added_by_branch && S.byId[it.added_by_branch] ? ` · <span class="by-br">أضافه موظف ${esc(label(S.byId[it.added_by_branch]))}</span>` : ''}</small></div>
       <div class="acts">
+        <select class="imove" data-imove="${it.id}" aria-label="نقل ${esc(it.name)} إلى قسم">${cl.map(c => `<option${c === catOf(it) ? ' selected' : ''}>${esc(c)}</option>`).join('')}<option value="__new">+ قسم جديد…</option></select>
         <button class="btn btn-ghost btn-sm" data-iedit="${it.id}">تعديل</button>
         <button class="btn btn-ghost btn-sm" data-itoggle="${it.id}">${it.active ? 'إيقاف' : 'تفعيل'}</button>
         <button class="btn btn-ghost btn-sm btn-danger" data-idel="${it.id}">حذف</button>
-      </div></div>`).join('')
+      </div></div>`).join(''); }).join('')
     : '<p class="muted">لا توجد أصناف بعد. أضف أول صنف من النموذج أعلاه.</p>';
+  if (S.catEdit && $('catNew')) { $('catNew').focus(); $('catNew').select(); }
 }
 $('itemsClose').onclick = () => $('itemsDlg').close();
 $('iCancel').onclick = () => resetItemForm();
@@ -2588,8 +2617,62 @@ $('itemForm').onsubmit = async ev => {
   toast(editItem ? 'تم حفظ التعديل' : `تمت إضافة ${name}`);
   resetItemForm(); await loadWasteData(); renderAll(); $('iName').focus();
 };
+// ---------- أقسام التوالف: تعديل الاسم، ترتيب الأقسام، ترتيب الأصناف ونقلها ----------
+async function itemsRefresh() { await loadWasteData(); renderAll(); if ($('itemsDlg').open) renderItemsList(); }
+async function saveCatName(old) {
+  const nv = ($('catNew').value || '').trim();
+  if (!nv) return toast('اكتب اسم القسم', 'err');
+  if (nv === old) { S.catEdit = null; return renderItemsList(); }
+  const merge = allCats().includes(nv);
+  if (merge && !confirm(`القسم "${nv}" موجود. هل تريد دمج أصناف "${old}" فيه؟`)) return;
+  const { data, error } = await sb.rpc('admin_rename_cat', { p_old: old, p_new: nv });
+  if (error) return toast(errMsg(error), 'err');
+  S.catEdit = null; toast(merge ? `تم دمج القسم في "${nv}"` : `تم تغيير اسم القسم إلى "${nv}" (${data && data.items || 0} صنف)`);
+  await itemsRefresh();
+}
+async function moveCat(c, dir) {
+  const order = [...new Set(sortItems(S.items).map(catOf))];
+  const all = [...new Set([...order, ...catOrder()])];   // الأقسام الفارغة تبقى بعد المعروضة
+  const i = all.indexOf(c), j = i + dir; if (i < 0 || j < 0 || j >= order.length) return;
+  [all[i], all[j]] = [all[j], all[i]];
+  const rows = all.map((name, k) => ({ name, sort_order: name === 'أخرى' ? 1000 : (k + 1) * 10 }));
+  const { error } = await sb.from('waste_cats').upsert(rows, { onConflict: 'name' });
+  if (error) return toast(errMsg(error), 'err');
+  await itemsRefresh();
+}
+async function moveItem(id, dir) {
+  const it = S.items.find(x => x.id === id); if (!it) return;
+  const list = sortItems(S.items.filter(x => catOf(x) === catOf(it)));
+  const i = list.findIndex(x => x.id === id), j = i + dir; if (j < 0 || j >= list.length) return;
+  [list[i], list[j]] = [list[j], list[i]];
+  const ch = list.map((x, k) => ({ x, o: (k + 1) * 10 })).filter(r => r.x.sort_order !== r.o);
+  const res = await Promise.all(ch.map(r => sb.from('waste_items').update({ sort_order: r.o }).eq('id', r.x.id)));
+  const bad = res.find(r => r.error); if (bad) return toast(errMsg(bad.error), 'err');
+  ch.forEach(r => r.x.sort_order = r.o); renderItemsList(); renderAll();
+}
+async function moveItemCat(sel) {
+  const id = Number(sel.dataset.imove), it = S.items.find(x => x.id === id); if (!it) return;
+  let c = sel.value;
+  if (c === '__new') { c = (prompt('اسم القسم الجديد:') || '').trim(); if (!c) { sel.value = catOf(it); return; } }
+  if (c === catOf(it)) return;
+  const last = Math.max(0, ...S.items.filter(x => catOf(x) === c).map(x => Number(x.sort_order) || 0));
+  const { error } = await sb.from('waste_items').update({ category: c, sort_order: last ? last + 10 : null }).eq('id', id);
+  if (error) { sel.value = catOf(it); return toast(errMsg(error), 'err'); }
+  toast(`تم نقل "${it.name}" إلى قسم ${c}`); await itemsRefresh();
+}
+$('itemsList').addEventListener('change', e => { if (e.target.dataset.imove) moveItemCat(e.target); });
+$('itemsList').addEventListener('keydown', e => {
+  if (e.target.id !== 'catNew') return;
+  if (e.key === 'Enter') { e.preventDefault(); saveCatName(S.catEdit); }
+  if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); S.catEdit = null; renderItemsList(); }
+});
 $('itemsList').addEventListener('click', async e => {
   const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.catren) { S.catEdit = b.dataset.catren; return renderItemsList(); }
+  if (b.dataset.catcancel) { S.catEdit = null; return renderItemsList(); }
+  if (b.dataset.catsave) return saveCatName(b.dataset.catsave);
+  if (b.dataset.catup || b.dataset.catdown) return moveCat(b.dataset.catup || b.dataset.catdown, b.dataset.catup ? -1 : 1);
+  if (b.dataset.iup || b.dataset.idown) return moveItem(Number(b.dataset.iup || b.dataset.idown), b.dataset.iup ? -1 : 1);
   const id = Number(b.dataset.iedit || b.dataset.itoggle || b.dataset.idel), it = S.items.find(x => x.id === id);
   if (!it) return;
   if (b.dataset.iedit) { resetItemForm(it); $('iName').focus(); return; }
