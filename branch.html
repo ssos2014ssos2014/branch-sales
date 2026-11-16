@@ -117,6 +117,15 @@
   .chip.on { background: var(--rose-soft); border-color: var(--rose); color: var(--rose); }
   .chip.on small { color: inherit; }
   .wline { border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px; margin-top: 10px; background: var(--bg); }
+  .chip-row .wline, #chips > .wline { flex: 1 1 100%; margin-top: 0; background: var(--surface); border: 2px solid var(--cc, var(--rose)); box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  .chip-row .wline .wline-top b { color: var(--cc, var(--ink)); }
+  #chips > .wline { margin: 6px 0; }
+  .w-sum { margin-top: 14px; border: 1px dashed var(--line); border-radius: var(--r-md); padding: 10px 12px; }
+  .w-sum p { font-size: 13px; color: var(--muted); font-weight: 700; margin-bottom: 4px; }
+  .w-sum-i { display: flex; justify-content: space-between; gap: 10px; width: 100%; border: none; background: transparent; padding: 6px 0; font: inherit; font-size: 14px; color: var(--ink); text-align: start; border-top: 1px solid var(--line); cursor: pointer; }
+  .w-sum-i:first-of-type { border-top: none; }
+  .w-sum-i b { white-space: nowrap; }
+  .w-sum-i .no { color: var(--rose); font-style: normal; font-size: 12px; }
   .wline-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
   .wline-top b { font-size: 16px; }
   .wline-top small { color: var(--muted); font-size: 12px; display: block; }
@@ -838,7 +847,9 @@ function renderChips() {
   const box = document.getElementById('chips'); if (!box) return;
   const q = W.search.trim();
   const list = sortItems((info.items || []).filter(i => !q || i.name.includes(q)));
-  const chip = i => `<button type="button" class="chip${W.basket.some(l => l.id === i.id) ? ' on' : ''}" data-item="${i.id}">${esc(i.name)}<small>${i.unit === 'weight' ? 'وزن' : 'حبة'}</small></button>`;
+  // الصنف المختار يتحول في مكانه إلى خانة الكمية (بدون النزول لأسفل الصفحة)
+  const chip = i => { const l = W.basket.find(x => x.id === i.id); return l ? lineHtml(l)
+    : `<button type="button" class="chip" data-item="${i.id}">${esc(i.name)}<small>${i.unit === 'weight' ? 'وزن' : 'حبة'}</small></button>`; };
   // بدون بحث: الأصناف في مجموعات حسب التصنيف | مع البحث: قائمة واحدة
   let html = '';
   if (q) html = list.map(chip).join('') || '<p class="muted" style="font-size:14px">لا يوجد صنف بهذا الاسم</p>';
@@ -862,49 +873,70 @@ function renderChips() {
     + (W.other.open ? otherFormHtml() : '');
   bindOther(box);
   box.querySelectorAll('[data-gcat]').forEach(b => b.onclick = () => { const c = b.dataset.gcat; W.closed.has(c) ? W.closed.delete(c) : W.closed.add(c); renderChips(); });
+  box.querySelectorAll('.wline').forEach(bindLine);
   box.querySelectorAll('[data-item]').forEach(b => b.onclick = () => {
     const id = Number(b.dataset.item);
-    let l = W.basket.find(x => x.id === id);
-    if (!l) { l = { id, n: '1', kg: '0' }; W.basket.push(l); renderChips(); renderLines(); }
-    const inp = document.querySelector(`.wline[data-id="${id}"] input`);
-    if (inp) { inp.scrollIntoView({ block: 'center', behavior: 'smooth' }); inp.focus({ preventScroll: true }); inp.select(); }
+    if (!W.basket.some(x => x.id === id)) W.basket.push({ id, n: '1', kg: '0' });
+    const top = b.getBoundingClientRect().top;
+    renderChips(); renderLines(); updTotal();
+    const row = document.querySelector(`#chips .wline[data-id="${id}"]`);
+    if (row) {
+      window.scrollBy(0, row.getBoundingClientRect().top - top);   // يبقى الصنف في نفس مكانه على الشاشة
+      const inp = row.querySelector('input'); inp.focus({ preventScroll: true }); inp.select();
+    }
   });
 }
 
+function lineHtml(l) {
+  const it = itemOf(l.id); if (!it) return '';
+  const qty = it.unit === 'piece'
+    ? `<div class="qty-box"><span>العدد</span><div class="stepper">
+         <button type="button" data-step="n" data-d="1" aria-label="زيادة">+</button>
+         <input data-f="n" inputmode="numeric" autocomplete="off" value="${esc(l.n)}" placeholder="0" aria-label="العدد">
+         <button type="button" data-step="n" data-d="-1" aria-label="إنقاص">−</button></div></div>`
+    : `<div class="qty-box"><span>الوزن بالكيلو</span><div class="stepper kg">
+         <button type="button" data-step="kg" data-d="1" aria-label="زيادة كيلو">+</button>
+         <input data-f="kg" inputmode="decimal" autocomplete="off" value="${esc(l.kg)}" placeholder="0" aria-label="الوزن بالكيلو">
+         <button type="button" data-step="kg" data-d="-1" aria-label="إنقاص كيلو">−</button></div>
+         <small class="kg-hint">مثال: 1.5 = كيلو ونص، 0.25 = ربع كيلو</small></div>`;
+  return `<div class="wline" data-id="${l.id}">
+    <div class="wline-top"><div><b>${esc(it.name)}</b><small>${money(it.cost)} ريال / ${unitName(it.unit)}</small></div>
+      <button type="button" class="x" data-rm="${l.id}" aria-label="إلغاء اختيار ${esc(it.name)}">×</button></div>
+    <div class="qty-row">${qty}<div class="line-cost"><span>التكلفة</span><b class="lc">${money(lineCost(l))}</b></div></div>
+  </div>`;
+}
+function updTotal() { const t = document.getElementById('wTotal'); if (t) t.textContent = money(basketTotal()); const e = document.getElementById('wErr'); if (e) e.textContent = ''; }
+function bindLine(row) {
+  const l = W.basket.find(x => x.id === Number(row.dataset.id)); if (!l) return;
+  const upd = () => { row.querySelector('.lc').textContent = money(lineCost(l)); updTotal(); renderLines(); };
+  row.querySelectorAll('input[data-f]').forEach(inp => {
+    inp.oninput = () => { l[inp.dataset.f] = inp.value; upd(); };
+    inp.onfocus = () => { if (inp.value === '0') inp.select(); };
+    inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } };
+  });
+  row.querySelectorAll('[data-step]').forEach(btn => btn.onclick = () => {
+    const f = btn.dataset.step, cur = f === 'kg' ? parseKg(l[f]) : toInt(l[f], 0);
+    const v = Math.max(0, (isNaN(cur) ? 0 : cur) + Number(btn.dataset.d));
+    l[f] = f === 'kg' ? fmtKgNum(v) : String(v); row.querySelector(`input[data-f="${f}"]`).value = l[f]; upd();
+  });
+  row.querySelector('[data-rm]').onclick = () => {
+    const top = row.getBoundingClientRect().top;
+    W.basket = W.basket.filter(x => x !== l); renderChips(); renderLines(); updTotal();
+    const chip = document.querySelector(`#chips [data-item="${l.id}"]`);
+    if (chip) window.scrollBy(0, chip.getBoundingClientRect().top - top);
+  };
+}
+// ملخص صغير فوق زر الإرسال بالأصناف المختارة (الإدخال نفسه يتم داخل القسم)
 function renderLines() {
   const box = document.getElementById('wlines'); if (!box) return;
-  box.innerHTML = W.basket.map(l => {
-    const it = itemOf(l.id); if (!it) return '';
-    const qty = it.unit === 'piece'
-      ? `<div class="qty-box"><span>العدد</span><div class="stepper">
-           <button type="button" data-step="n" data-d="1" aria-label="زيادة">+</button>
-           <input data-f="n" inputmode="numeric" autocomplete="off" value="${esc(l.n)}" placeholder="0" aria-label="العدد">
-           <button type="button" data-step="n" data-d="-1" aria-label="إنقاص">−</button></div></div>`
-      : `<div class="qty-box"><span>الوزن بالكيلو</span><div class="stepper kg">
-           <button type="button" data-step="kg" data-d="1" aria-label="زيادة كيلو">+</button>
-           <input data-f="kg" inputmode="decimal" autocomplete="off" value="${esc(l.kg)}" placeholder="0" aria-label="الوزن بالكيلو">
-           <button type="button" data-step="kg" data-d="-1" aria-label="إنقاص كيلو">−</button></div>
-           <small class="kg-hint">مثال: 1.5 = كيلو ونص، 0.25 = ربع كيلو</small></div>`;
-    return `<div class="wline" data-id="${l.id}">
-      <div class="wline-top"><div><b>${esc(it.name)}</b><small>${money(it.cost)} ريال / ${unitName(it.unit)}</small></div>
-        <button type="button" class="x" data-rm="${l.id}" aria-label="حذف ${esc(it.name)}">×</button></div>
-      <div class="qty-row">${qty}<div class="line-cost"><span>التكلفة</span><b class="lc">${money(lineCost(l))}</b></div></div>
-    </div>`;
-  }).join('');
-
-  box.querySelectorAll('.wline').forEach(row => {
-    const l = W.basket.find(x => x.id === Number(row.dataset.id));
-    const upd = () => { row.querySelector('.lc').textContent = money(lineCost(l)); document.getElementById('wTotal').textContent = money(basketTotal()); document.getElementById('wErr').textContent = ''; };
-    row.querySelectorAll('input[data-f]').forEach(inp => {
-      inp.oninput = () => { l[inp.dataset.f] = inp.value; upd(); };
-      inp.onfocus = () => { if (inp.value === '0') inp.select(); };
-    });
-    row.querySelectorAll('[data-step]').forEach(btn => btn.onclick = () => {
-      const f = btn.dataset.step, cur = f === 'kg' ? parseKg(l[f]) : toInt(l[f], 0);
-      const v = Math.max(0, (isNaN(cur) ? 0 : cur) + Number(btn.dataset.d));
-      l[f] = f === 'kg' ? fmtKgNum(v) : String(v); row.querySelector(`input[data-f="${f}"]`).value = l[f]; upd();
-    });
-    row.querySelector('[data-rm]').onclick = () => { W.basket = W.basket.filter(x => x !== l); renderChips(); renderLines(); document.getElementById('wTotal').textContent = money(basketTotal()); };
+  if (!W.basket.length) { box.innerHTML = ''; return; }
+  box.innerHTML = `<div class="w-sum"><p>الأصناف المختارة (${W.basket.length})</p>${W.basket.map(l => { const it = itemOf(l.id); if (!it) return '';
+      const q = lineQty(l); return `<button type="button" class="w-sum-i" data-goto="${l.id}"><span>${esc(it.name)}</span><b>${isNaN(q) || q <= 0 ? '<i class="no">حدد الكمية</i>' : esc(fmtQty(it.unit, q))}</b></button>`; }).join('')}</div>`;
+  box.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => {
+    const id = Number(b.dataset.goto), it = itemOf(id);
+    let row = document.querySelector(`#chips .wline[data-id="${id}"]`);
+    if (!row) { W.search = ''; const s = document.getElementById('wSearch'); if (s) s.value = ''; if (W.closed && it) W.closed.delete(catOf(it)); renderChips(); row = document.querySelector(`#chips .wline[data-id="${id}"]`); }
+    if (row) { row.scrollIntoView({ block: 'center', behavior: 'smooth' }); row.querySelector('input').focus({ preventScroll: true }); }
   });
 }
 
@@ -1127,6 +1159,6 @@ else {
   }, 300000);
 }
 </script>
-<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-16 ح</p>
+<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-16 ط</p>
 </body>
 </html>
