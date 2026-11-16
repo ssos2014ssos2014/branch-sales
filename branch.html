@@ -54,6 +54,20 @@
   .amt-lbl { display: block; font-weight: 600; margin-top: 14px; }
   .amt-lbl small { font-weight: 400; color: var(--muted); margin-inline-start: 6px; }
   .amt-lbl + .amount-wrap { margin-top: 6px; margin-bottom: 4px; }
+  .pay-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px; }
+  .pay-f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); font-weight: 600; }
+  .pay-f input { width: 100%; min-width: 0; border: 1.5px solid var(--line); border-radius: var(--r-md); background: var(--bg); padding: 12px 10px; font-size: 20px; font-weight: 700; font-family: var(--font-head, inherit); text-align: center; color: var(--ink); }
+  .pay-f input:focus { outline: none; border-color: var(--ink); background: var(--surface); }
+  .pay-tot { display: flex; align-items: baseline; gap: 8px; justify-content: space-between; margin-top: 8px; padding: 10px 14px; border-radius: var(--r-md); background: var(--ink); color: var(--on-ink, #fff); }
+  .pay-tot span:first-child { font-size: 14px; font-weight: 600; flex: 1; }
+  .pay-tot b { font-size: 22px; }
+  .pay-tot .cur { font-size: 13px; opacity: .8; }
+  .pay-sum { display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; margin-top: 8px; font-size: 13px; color: var(--muted); }
+  .pay-sum b { color: var(--ink); }
+  .pay-mini { font-size: 11px !important; color: var(--muted); }
+  .entry .btn { white-space: nowrap; flex: none; }
+  .entry .d b { white-space: nowrap; }
+  #corrPay .pay-f input { font-size: 17px; padding: 9px 6px; }
   .confirm .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
   .confirm .pair div { background: var(--bg); border-radius: var(--r-md); padding: 10px; }
   .confirm .pair span { display: block; font-size: 13px; color: var(--muted); }
@@ -231,7 +245,7 @@
     <h2 style="font-size:20px">طلب تعديل المبلغ</h2>
     <div class="muted" id="corrInfo" style="margin-top:6px"></div>
     <label class="field"><span id="corrAmountLbl">المبلغ الصحيح</span><input id="corrAmount" inputmode="decimal" autocomplete="off" required dir="ltr"></label>
-    <label class="field" id="corrColWrap" hidden><span>التحصيل الصحيح</span><input id="corrCollected" inputmode="decimal" autocomplete="off" dir="ltr"></label>
+    <div class="field" id="corrColWrap" hidden><span>التحصيل الصحيح</span><div id="corrPay"></div></div>
     <label class="field"><span>ملاحظة للإدارة (اختياري)</span><textarea id="corrNote" rows="2"></textarea></label>
     <p class="err" id="corrErr" role="alert"></p>
     <div class="row2" style="margin-top:6px">
@@ -247,7 +261,7 @@
 <script>
 const token = new URLSearchParams(location.search).get('t');
 const root = document.getElementById('root');
-let info = null, map = {}, viewMonth = null, selected = null, amountStr = '', colStr = '', step = 'form', firstLoad = true, busy = false, lastDone = null;
+let info = null, map = {}, viewMonth = null, selected = null, amountStr = '', colStr = '', PAY = { cash: '', bank: '', card: '' }, step = 'form', firstLoad = true, busy = false, lastDone = null;
 const DOW = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
 
 function fatal(title, msg) {
@@ -473,7 +487,7 @@ function renderForm() {
     el.innerHTML = `<div class="done-box"><div class="tick">✓</div>
       <h2 style="font-size:20px">تم إرسال المبيعات</h2>
       <p class="muted" style="margin:4px 0 16px">${esc(fmtLong(lastDone.date))}: ${info.credit
-        ? `المبيعات ${money(lastDone.amount)} ريال، التحصيل ${money(lastDone.collected)} ريال`
+        ? `المبيعات ${money(lastDone.amount)} ريال، التحصيل ${money(lastDone.collected)} ريال${lastDone.collected ? ` (${PAY_KEYS.filter(k => lastDone.pay[k]).map(k => PAY_TTL[k] + ' ' + money(lastDone.pay[k])).join('، ')})` : ''}`
         : `${money(lastDone.amount)} ريال`}</p>
       <button class="btn btn-ghost btn-block" id="again">إدخال يوم آخر</button></div>`;
     el.querySelector('#again').onclick = () => { step = 'form'; renderForm(); };
@@ -485,7 +499,8 @@ function renderForm() {
       <p class="muted">راجع قبل الإرسال</p>
       <p style="font-weight:600;margin-top:6px">${esc(fmtLong(selected))}</p>
       ${info.credit
-        ? `<div class="pair"><div><span>المبيعات (آجل)</span><b class="num">${money(amt)}</b></div><div><span>التحصيل</span><b class="num">${money(col)}</b></div></div>`
+        ? `<div class="pair"><div><span>المبيعات (آجل)</span><b class="num">${money(amt)}</b></div><div><span>مجموع التحصيل</span><b class="num">${money(col)}</b></div></div>
+           ${col ? `<div class="pay-sum">${payLine(payVals())}</div>` : ''}`
         : `<p class="big num">${money(amt)} <span class="cur">ريال</span></p>`}
       <p class="warn">بعد الإرسال لا يمكن إدخال هذا التاريخ مرة أخرى، والتصحيح يكون بطلب تعديل للإدارة.</p>
       <div class="row2">
@@ -504,41 +519,61 @@ function renderForm() {
     <label class="amount-wrap"><span class="sr">${info.credit ? 'المبيعات الآجلة' : 'إجمالي المبيعات'}</span>
       <input id="amount" inputmode="decimal" autocomplete="off" placeholder="0" value="${esc(amountStr)}">
       <span class="cur">ريال</span></label>
-    ${info.credit ? `<label class="amt-lbl" for="collected">التحصيل <small>(المبالغ المستلمة اليوم)</small></label>
-    <label class="amount-wrap"><span class="sr">التحصيل</span>
-      <input id="collected" inputmode="decimal" autocomplete="off" placeholder="0" value="${esc(colStr)}">
-      <span class="cur">ريال</span></label>` : ''}
+    ${info.credit ? `<div class="amt-lbl">التحصيل <small>(المبالغ المستلمة اليوم، اترك الفارغ إذا لا يوجد)</small></div>
+    ${payFields('p', PAY)}` : ''}
     <p class="err" id="formErr" role="alert"></p>
     <button class="btn btn-primary btn-block btn-lg" id="nextBtn" style="margin-top:12px">إرسال المبيعات</button>`;
-  const inp = el.querySelector('#amount'), cinp = el.querySelector('#collected');
+  const inp = el.querySelector('#amount'), cinp = el.querySelector('#p-cash');
   inp.oninput = () => { amountStr = inp.value; el.querySelector('#formErr').textContent = ''; };
   inp.onkeydown = e => { if (e.key === 'Enter') (cinp ? cinp.focus() : el.querySelector('#nextBtn').click()); };
-  if (cinp) {
-    cinp.oninput = () => { colStr = cinp.value; el.querySelector('#formErr').textContent = ''; };
-    cinp.onkeydown = e => { if (e.key === 'Enter') el.querySelector('#nextBtn').click(); };
-  }
+  if (cinp) bindPay(el, 'p', PAY, () => { el.querySelector('#formErr').textContent = ''; }, () => el.querySelector('#nextBtn').click());
   el.querySelector('#nextBtn').onclick = () => {
     const errEl = el.querySelector('#formErr');
     if (!selected) { errEl.textContent = 'اختر التاريخ من التقويم أولاً'; return; }
     const amt = parseAmount(amountStr);
     if (isNaN(amt)) { errEl.textContent = info.credit ? 'اكتب المبيعات رقماً فقط، مثل 12500 (اكتب 0 إذا لا توجد مبيعات)' : 'اكتب إجمالي المبيعات رقماً فقط، مثل 12500'; inp.focus(); return; }
-    if (info.credit && isNaN(colValue())) { errEl.textContent = 'اكتب التحصيل رقماً فقط، أو اتركه فارغاً إذا لا يوجد تحصيل'; cinp.focus(); return; }
+    if (info.credit) { const bad = PAY_KEYS.find(k => isNaN(payNum(PAY[k]))); if (bad) { errEl.textContent = `اكتب مبلغ ${PAY_LBL[bad]} رقماً فقط، أو اتركه فارغاً`; el.querySelector('#p-' + bad).focus(); return; } }
     step = 'confirm'; renderForm();
   };
 }
 
-// التحصيل الفارغ = صفر
-function colValue() { return colStr.trim() === '' ? 0 : parseAmount(colStr); }
+// ---------- التحصيل: نقدي + تحويل بنكي + شبكة ----------
+const PAY_KEYS = ['cash', 'bank', 'card'], PAY_LBL = { cash: 'النقدي', bank: 'التحويل البنكي', card: 'الشبكة' };
+const PAY_TTL = { cash: 'نقدي', bank: 'تحويل بنكي', card: 'شبكة' };
+const payNum = v => String(v ?? '').trim() === '' ? 0 : parseAmount(v);
+function payVals(o = PAY) { const r = {}; for (const k of PAY_KEYS) r[k] = payNum(o[k]); return r; }
+const paySum = v => PAY_KEYS.reduce((a, k) => a + (isNaN(v[k]) ? 0 : v[k]), 0);
+function colValue() { return paySum(payVals()); }
+function payFields(pre, o) {
+  return `<div class="pay-grid">${PAY_KEYS.map(k => `<label class="pay-f"><span>${PAY_TTL[k]}</span>
+      <input id="${pre}-${k}" inputmode="decimal" autocomplete="off" placeholder="0" dir="ltr" value="${esc(o[k])}"></label>`).join('')}</div>
+    <div class="pay-tot"><span>مجموع التحصيل</span><b class="num" id="${pre}-tot">${money(paySum(payVals(o)))}</b><span class="cur">ريال</span></div>`;
+}
+function bindPay(root, pre, o, onChange, onEnter) {
+  PAY_KEYS.forEach((k, i) => {
+    const f = root.querySelector(`#${pre}-${k}`);
+    f.oninput = () => { o[k] = f.value; root.querySelector(`#${pre}-tot`).textContent = money(paySum(payVals(o))); onChange && onChange(); };
+    f.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); const nx = PAY_KEYS[i + 1]; nx ? root.querySelector(`#${pre}-${nx}`).focus() : onEnter && onEnter(); } };
+  });
+}
+function payLine(v) { return PAY_KEYS.filter(k => v[k]).map(k => `<span>${PAY_TTL[k]} <b class="num">${money(v[k])}</b></span>`).join('') || '<span class="muted">—</span>'; }
+function entryPay(e) {
+  const v = { cash: Number(e.cash) || 0, bank: Number(e.bank) || 0, card: Number(e.card) || 0 };
+  const other = Math.round((Number(e.collected) - paySum(v)) * 100) / 100;
+  return PAY_KEYS.filter(k => v[k]).map(k => `${PAY_TTL[k]} ${money(v[k])}`).concat(other > 0 ? [`بدون تفصيل ${money(other)}`] : []).join(' · ');
+}
 
 async function submit() {
   if (busy) return; busy = true;
   const btn = document.getElementById('sendBtn'); btn.disabled = true; btn.textContent = 'جارٍ الإرسال…';
-  const amt = parseAmount(amountStr), col = info.credit ? colValue() : 0;
-  const { error } = await sb.rpc('submit_sale', { p_token: token, p_date: selected, p_amount: amt, p_collected: col });
+  const amt = parseAmount(amountStr), col = info.credit ? colValue() : 0, pv = payVals();
+  const args = { p_token: token, p_date: selected, p_amount: amt, p_collected: col };
+  if (info.credit) { args.p_cash = pv.cash; args.p_bank = pv.bank; args.p_card = pv.card; }
+  const { error } = await sb.rpc('submit_sale', args);
   busy = false;
   if (error) { toast(errMsg(error), 'err'); step = 'form'; await load(); return; }
-  lastDone = { date: selected, amount: amt, collected: col };
-  selected = null; amountStr = ''; colStr = ''; step = 'done';
+  lastDone = { date: selected, amount: amt, collected: col, pay: pv };
+  selected = null; amountStr = ''; colStr = ''; PAY = { cash: '', bank: '', card: '' }; step = 'done';
   await load();
 }
 
@@ -549,7 +584,7 @@ function renderList() {
   el.innerHTML = `<h2>إدخالاتك السابقة</h2>` + items.map(e => `
     <div class="entry">
       <div class="d"><b>${esc(fmtShort(e.date))}</b><small>${esc(fmtDayName(e.date))}</small>${e.by === 'admin' ? '<span class="by-adm">أدخلته الإدارة</span>' : ''}</div>
-      <div class="a num">${money(e.amount)}${info.credit ? `<small>تحصيل ${money(e.collected)}</small>` : ''}</div>
+      <div class="a num">${money(e.amount)}${info.credit ? `<small>تحصيل ${money(e.collected)}</small>${Number(e.collected) ? `<small class="pay-mini">${esc(entryPay(e))}</small>` : ''}` : ''}</div>
       ${e.pending ? `<span class="tag">التعديل قيد المراجعة</span>` : `<button class="btn btn-ghost btn-sm" data-c="${e.date}">طلب تعديل</button>`}
     </div>`).join('');
   el.querySelectorAll('[data-c]').forEach(b => b.onclick = () => openCorr(b.dataset.c));
@@ -557,21 +592,27 @@ function renderList() {
 
 // ---------- طلب التعديل ----------
 const dlg = document.getElementById('corrDlg');
-let corrDate = null;
+let corrDate = null, CORR = {};
 function openCorr(d) {
   const e = map[d]; if (!e) return;
   corrDate = d;
   document.getElementById('corrErr').textContent = '';
   // في الفروع الآجلة: الخانتان معبأتان بالمسجل، يغيّر الموظف ما يحتاج تعديله فقط
   document.getElementById('corrAmount').value = info.credit ? String(Number(e.amount)) : '';
-  document.getElementById('corrCollected').value = info.credit ? String(Number(e.collected)) : '';
+  if (info.credit) {
+    const v = { cash: Number(e.cash) || 0, bank: Number(e.bank) || 0, card: Number(e.card) || 0 };
+    const other = Number(e.collected) - paySum(v);
+    if (other > 0.004) v.cash += other;   // التحصيل القديم بدون تفصيل يُعرض في النقدي ليعدّله الموظف
+    CORR = {}; for (const k of PAY_KEYS) CORR[k] = v[k] ? String(Math.round(v[k] * 100) / 100) : '';
+    const box = document.getElementById('corrPay'); box.innerHTML = payFields('c', CORR); bindPay(box, 'c', CORR);
+  }
   document.getElementById('corrColWrap').hidden = !info.credit;
   document.getElementById('corrAmountLbl').textContent = info.credit ? 'المبيعات الصحيحة (آجل)' : 'المبلغ الصحيح';
   document.getElementById('corrNote').value = '';
   const send = document.getElementById('corrSend');
   const admNote = e.by === 'admin' ? '<p class="adm-note">تم إدخال مبيعات هذا اليوم من قبل الإدارة.</p>' : '';
   const recorded = info.credit
-    ? `المبيعات المسجلة: <b class="num">${money(e.amount)}</b> ريال<br>التحصيل المسجل: <b class="num">${money(e.collected)}</b> ريال`
+    ? `المبيعات المسجلة: <b class="num">${money(e.amount)}</b> ريال<br>التحصيل المسجل: <b class="num">${money(e.collected)}</b> ريال${Number(e.collected) ? `<br><small>${esc(entryPay(e))}</small>` : ''}`
     : `المبلغ المسجل: <b class="num">${money(e.amount)}</b> ريال`;
   if (e.pending) {
     document.getElementById('corrInfo').innerHTML = `${esc(fmtLong(d))}<br>يوجد طلب تعديل لهذا اليوم بانتظار الإدارة.${admNote}`;
@@ -591,10 +632,9 @@ document.getElementById('corrForm').onsubmit = async ev => {
   if (isNaN(amt)) { errEl.textContent = 'اكتب المبلغ الصحيح رقماً فقط'; return; }
   const args = { p_token: token, p_date: corrDate, p_new_amount: amt, p_note: document.getElementById('corrNote').value };
   if (info.credit) {
-    const cs = document.getElementById('corrCollected').value;
-    const col = cs.trim() === '' ? 0 : parseAmount(cs);
-    if (isNaN(col)) { errEl.textContent = 'اكتب التحصيل الصحيح رقماً فقط'; return; }
-    args.p_new_collected = col;
+    const v = payVals(CORR), bad = PAY_KEYS.find(k => isNaN(v[k]));
+    if (bad) { errEl.textContent = `اكتب مبلغ ${PAY_LBL[bad]} رقماً فقط`; return; }
+    args.p_new_collected = paySum(v); args.p_new_cash = v.cash; args.p_new_bank = v.bank; args.p_new_card = v.card;
   }
   const send = document.getElementById('corrSend'); send.disabled = true; send.textContent = 'جارٍ الإرسال…';
   const { error } = await sb.rpc('request_correction', args);
@@ -1057,6 +1097,6 @@ else {
   }, 300000);
 }
 </script>
-<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-16 هـ</p>
+<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-16 و</p>
 </body>
 </html>

@@ -435,6 +435,35 @@
   .mv-i { flex: 1; min-width: 0; font-size: 14px; }
   .mv-i small { display: block; font-size: 12px; color: var(--muted); }
   .mv-item > b { font-family: var(--font-head); font-size: 16px; white-space: nowrap; }
+  /* ---- تفصيل التحصيل ---- */
+  .pay-line { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; font-size: 12px; color: var(--muted); }
+  .pay-line span { display: inline-flex; align-items: center; gap: 4px; }
+  .pay-line b { color: var(--ink); font-weight: 700; }
+  .pay-line i, .pay-chip::before { width: 8px; height: 8px; border-radius: 2px; background: var(--viz-1); display: inline-block; }
+  .pay-line .bank i, .pay-chip.bank::before { background: var(--viz-2); }
+  .pay-line .card i, .pay-chip.card::before { background: #7b5cc4; }
+  .pay-line .other i, .pay-chip.other::before { background: var(--muted); }
+  .crd .pay-line { margin: 0 0 6px; }
+  .kpi .pay-line { margin-top: 10px; }
+  .kpi .pay-line b, .crd .pay-line b { font-size: 13px; font-family: inherit; line-height: 1.3; }
+  .pay-box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 12px 14px; margin-bottom: 14px; }
+  .pay-h { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+  .pay-h h3 { font-size: 15px; }
+  .pay-h b { color: var(--ink); }
+  .pay-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+  .pay-chip { position: relative; background: var(--bg); border-radius: var(--r-md); padding: 10px 12px 10px 12px; }
+  .pay-chip::before { content: ''; position: absolute; top: 14px; inset-inline-end: 12px; }
+  .pay-chip span { display: block; font-size: 12px; color: var(--muted); }
+  .pay-chip b { font-family: var(--font-head); font-size: 19px; }
+  .pay-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .pay-f { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--muted); }
+  .pay-f .in { min-width: 0; width: 100%; text-align: center; }
+  .pay-f.tot { background: var(--ink); color: var(--on-ink); border-radius: var(--r-sm); padding: 4px 8px; justify-content: center; }
+  .pay-f.tot span { opacity: .8; }
+  .pay-f.tot b { font-family: var(--font-head); font-size: 17px; }
+  #ePay .pay-f .in { padding: 10px 6px; }
+  .mv-form .pay-grid { margin-bottom: 8px; }
+  @media (max-width: 480px) { .pay-grid { grid-template-columns: repeat(3, 1fr); } .pay-f.tot { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: baseline; } }
   /* ---- الدمج والمقارنة ---- */
   .groups-h { margin-top: 26px; }
   .gh-acts { display: flex; gap: 6px; }
@@ -613,7 +642,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-16 هـ</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-16 و</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -638,7 +667,7 @@
     <label class="field"><span>الفرع</span><select id="eBranch" required></select></label>
     <label class="field"><span>التاريخ</span><input type="date" id="eDate" required></label>
     <label class="field"><span id="eAmountLbl">إجمالي المبيعات (ريال)</span><input id="eAmount" inputmode="decimal" autocomplete="off" dir="ltr" required></label>
-    <label class="field" id="eColWrap" hidden><span>التحصيل (ريال)</span><input id="eCollected" inputmode="decimal" autocomplete="off" dir="ltr" placeholder="0"></label>
+    <div class="field" id="eColWrap" hidden><span>التحصيل (ريال)</span><div id="ePay"></div></div>
     <p class="entry-status" id="eStatus" role="status"></p>
     <div class="dlg-actions">
       <button class="btn btn-primary" type="submit" id="eSave">حفظ المبيعات</button>
@@ -785,7 +814,7 @@ async function reload() {
     S.cmp.cache = {};
     if (VIEW) { await reloadViewer(); return; }
     const [sales, pend, rec] = await Promise.all([
-      fetchAll(() => sb.from('sales').select('id,branch_id,sale_date,amount,collected,entered_by').gte('sale_date', S.from).lte('sale_date', S.to).order('sale_date').order('id')),
+      fetchAll(() => sb.from('sales').select('id,branch_id,sale_date,amount,collected,col_cash,col_bank,col_card,entered_by').gte('sale_date', S.from).lte('sale_date', S.to).order('sale_date').order('id')),
       sb.from('correction_requests').select('*').eq('status', 'pending').order('created_at'),
       sb.from('correction_requests').select('*').neq('status', 'pending').order('decided_at', { ascending: false }).limit(12)
     ]);
@@ -806,10 +835,10 @@ async function reload() {
   }
 }
 function setSales(sales) {
-  S.sales = sales; S.idx = {}; S.by = {}; S.cidx = {};
+  S.sales = sales; S.idx = {}; S.by = {}; S.cidx = {}; S.srow = {};
   for (const s of sales) {
     const k = s.branch_id + '|' + s.sale_date;
-    S.idx[k] = Number(s.amount); S.by[k] = s.entered_by; S.cidx[k] = Number(s.collected) || 0;
+    S.idx[k] = Number(s.amount); S.by[k] = s.entered_by; S.cidx[k] = Number(s.collected) || 0; S.srow[k] = s;
   }
 }
 
@@ -1558,8 +1587,9 @@ function movesPanel(brs) {
       <h4>${title}</h4>
       <div class="mv-row">${brSel('mvB-' + kind)}
         <input class="in" type="date" id="mvD-${kind}" max="${S.today}" value="${minISO(S.today, S.to)}" aria-label="التاريخ">
-        <input class="in mv-amt" id="mvA-${kind}" inputmode="decimal" dir="ltr" placeholder="المبلغ" aria-label="المبلغ">
+        ${kind === 'return' ? `<input class="in mv-amt" id="mvA-${kind}" inputmode="decimal" dir="ltr" placeholder="المبلغ" aria-label="المبلغ">` : ''}
         <input class="in" id="mvN-${kind}" placeholder="ملاحظة (اختياري)" maxlength="120"></div>
+      ${kind === 'collect' ? payFields('mvp') : ''}
       <button class="btn btn-sm ${kind === 'return' ? 'btn-ret' : 'btn-primary'}" data-mvadd="${kind}">${btn}</button></div>`;
   return `<section class="moves">
     <div class="sec-h"><h2>التحصيل ومردود المبيعات</h2><span class="muted">${list.length} حركة في الفترة</span></div>
@@ -1568,6 +1598,7 @@ function movesPanel(brs) {
     ${list.length ? `<div class="mv-list">${list.map(m => { const b = S.byId[m.branch_id]; const ret = m.kind === 'return'; return `<div class="mv-item">
         <span class="mv-k ${ret ? 'r' : 'c'}">${ret ? 'مردود' : 'تحصيل'}</span>
         <div class="mv-i"><b>${esc(fmtShort(m.move_date))}</b>${multi && b ? ` <span class="muted">· ${esc(b.name)}</span>` : ''}
+          ${!ret && PAY_KEYS.some(k => Number(m['col_' + k])) ? `<small>${PAY_KEYS.filter(k => Number(m['col_' + k])).map(k => `${PAY_TTL[k]} ${money(m['col_' + k])}`).join(' · ')}</small>` : ''}
           ${m.note ? `<small>${esc(m.note)}</small>` : ''}<small>${m.entered_by === 'admin' ? 'أدخلته الإدارة' : 'أدخله الفرع'}</small></div>
         <b class="num ${ret ? 'ret-neg' : 'ok'}">\u2066${ret ? '−' : '+'}${money(m.amount)}\u2069</b>
         ${VIEW ? '' : `<button class="icon-x sm" data-mvdel="${m.id}" aria-label="حذف">×</button>`}</div>`; }).join('')}</div>`
@@ -1584,13 +1615,17 @@ async function moveAction(t) {
     toast('تم الحذف'); await loadMoves(); return renderAll();
   }
   const kind = t.dataset.mvadd;
-  const bSel = $('mvB-' + kind), d = $('mvD-' + kind).value, a = parseAmount($('mvA-' + kind).value), n = $('mvN-' + kind).value.trim();
+  const bSel = $('mvB-' + kind), d = $('mvD-' + kind).value, n = $('mvN-' + kind).value.trim();
+  const pr = kind === 'collect' ? payRead('mvp') : null, a = pr ? pr.sum : parseAmount($('mvA-' + kind).value);
   const g = S.gmap[S.detail] || (S.mmap || {})[S.detail], brs = (S.detail === '__all' ? S.branches : g.branches).filter(b => b.credit);
   const bid = bSel ? Number(bSel.value) : brs[0].id;
   if (!d || d > S.today) return toast('اختر تاريخاً صحيحاً (ليس في المستقبل)', 'err');
-  if (isNaN(a) || a <= 0) { toast('اكتب المبلغ رقماً أكبر من صفر', 'err'); $('mvA-' + kind).focus(); return; }
+  if (pr && pr.bad) { toast(`اكتب مبلغ ${PAY_TTL[pr.bad]} رقماً فقط`, 'err'); $('mvp-' + pr.bad).focus(); return; }
+  if (isNaN(a) || a <= 0) { toast(pr ? 'اكتب مبلغ التحصيل في خانة واحدة على الأقل' : 'اكتب المبلغ رقماً أكبر من صفر', 'err'); (pr ? $('mvp-cash') : $('mvA-' + kind)).focus(); return; }
   t.disabled = true;
-  const { error } = await sb.from('credit_moves').insert({ branch_id: bid, move_date: d, kind, amount: a, note: n || null, entered_by: 'admin' });
+  const row = { branch_id: bid, move_date: d, kind, amount: a, note: n || null, entered_by: 'admin' };
+  if (pr) { row.col_cash = pr.v.cash; row.col_bank = pr.v.bank; row.col_card = pr.v.card; }
+  const { error } = await sb.from('credit_moves').insert(row);
   t.disabled = false;
   if (error) return toast(errMsg(error), 'err');
   toast(kind === 'return' ? `تم تسجيل مردود بمبلغ ${money(a)} ريال` : `تمت إضافة تحصيل ${money(a)} ريال`);
@@ -1781,6 +1816,13 @@ const col = (bid, d) => S.cidx[bid + '|' + d];
 // التحصيل = المُدخل مع المبيعات + التحصيل الذي تضيفه الإدارة
 const moveSum = (bid, kind, d) => S.moves.reduce((a, m) => a + (m.branch_id === bid && m.kind === kind && (!d || m.move_date === d) ? Number(m.amount) : 0), 0);
 function branchCol(bid) { let t = 0; for (const s of S.sales) if (s.branch_id === bid) t += Number(s.collected) || 0; return t + moveSum(bid, 'collect'); }
+function dayPayTip(bid, d) {
+  const r = (S.srow || {})[bid + '|' + d]; if (!r || !Number(r.collected)) return '';
+  const parts = PAY_KEYS.filter(k => Number(r['col_' + k])).map(k => `${PAY_TTL[k]} ${money(r['col_' + k])}`);
+  const other = Number(r.collected) - PAY_KEYS.reduce((a, k) => a + (Number(r['col_' + k]) || 0), 0);
+  if (other > 0.004) parts.push(`بدون تفصيل ${money(other)}`);
+  return ` title="${esc(parts.join(' · '))}"`;
+}
 function dayCol(d, brs) { let t = 0; for (const b of brs) if (b.credit) t += (col(b.id, d) || 0) + moveSum(b.id, 'collect', d); return t; }
 // مردود المبيعات (يُخصم من الإجمالي، والمبيعات المسجلة لا تتغير)
 const retOf = bid => moveSum(bid, 'return');
@@ -1798,9 +1840,41 @@ function summary(brs = S.branches) {
   }
   const cash = sales - credit, netCredit = credit - returns;
   // المتبقي ونسبة التحصيل محسوبة من صافي الآجل (بعد خصم المردود)
-  return { sales, credit, returns, netCredit, net: sales - returns, collected, cash,
+  return { sales, credit, returns, netCredit, net: sales - returns, collected, cash, pay: colPayOf(brs),
            rest: netCredit - collected, real: cash + collected, pct: pctOf(collected, netCredit) };
 }
+// تفصيل التحصيل: نقدي + تحويل بنكي + شبكة (+ القديم بدون تفصيل)
+const PAY_KEYS = ['cash', 'bank', 'card'], PAY_TTL = { cash: 'نقدي', bank: 'تحويل بنكي', card: 'شبكة', other: 'بدون تفصيل' };
+function colPayOf(brs) {
+  const ids = new Set(brs.filter(b => b.credit).map(b => b.id)), r = { cash: 0, bank: 0, card: 0, other: 0 };
+  const add = (x, tot) => { const c = Number(x.col_cash) || 0, k = Number(x.col_bank) || 0, d = Number(x.col_card) || 0;
+    r.cash += c; r.bank += k; r.card += d; r.other += Math.max(0, (Number(tot) || 0) - c - k - d); };
+  for (const s of S.sales) if (ids.has(s.branch_id)) add(s, s.collected);
+  for (const m of S.moves) if (ids.has(m.branch_id) && m.kind === 'collect') add(m, m.amount);
+  for (const k in r) r[k] = Math.round(r[k] * 100) / 100;
+  return r;
+}
+// سطر صغير بالتفصيل، أو بطاقات صغيرة (big)
+function payBreak(p, big) {
+  const keys = PAY_KEYS.concat(p.other > 0.004 ? ['other'] : []);
+  if (big) return `<div class="pay-strip">${keys.map(k => `<div class="pay-chip ${k}"><span>${PAY_TTL[k]}</span><b class="num">${money(p[k])}</b></div>`).join('')}</div>`;
+  return `<div class="pay-line">${keys.map(k => `<span class="${k}"><i></i>${PAY_TTL[k]} <b class="num">${money(p[k])}</b></span>`).join('')}</div>`;
+}
+// خانات إدخال التحصيل الثلاث مع المجموع
+const payNum = v => String(v ?? '').trim() === '' ? 0 : parseAmount(v);
+function payFields(pre) {
+  return `<div class="pay-grid">${PAY_KEYS.map(k => `<label class="pay-f"><span>${PAY_TTL[k]}</span><input class="in" id="${pre}-${k}" inputmode="decimal" autocomplete="off" dir="ltr" placeholder="0"></label>`).join('')}
+    <div class="pay-f tot"><span>المجموع</span><b class="num" id="${pre}-tot">0</b></div></div>`;
+}
+function payRead(pre) {
+  const v = {}; for (const k of PAY_KEYS) v[k] = payNum($(pre + '-' + k).value);
+  const bad = PAY_KEYS.find(k => isNaN(v[k]));
+  return { v, bad, sum: bad ? NaN : v.cash + v.bank + v.card };
+}
+document.addEventListener('input', e => {
+  const m = e.target.id && e.target.id.match(/^(.+)-(cash|bank|card)$/); if (!m || !$(m[1] + '-tot')) return;
+  const r = payRead(m[1]); $(m[1] + '-tot').textContent = isNaN(r.sum) ? '—' : money(r.sum);
+});
 const ICON_WALLET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H18a1 1 0 0 1 1 1v2"/><path d="M3 7.5v10A2.5 2.5 0 0 0 5.5 20H20a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1H5.5A2.5 2.5 0 0 1 3 7.5Z"/><circle cx="16.5" cy="14.5" r="1.3" fill="currentColor"/></svg>';
 const ICON_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4"/><path d="M14 3l5 5h-5z"/><circle cx="17" cy="17" r="4.2"/><path d="M17 15.2V17l1.3 1"/></svg>';
 
@@ -1896,7 +1970,7 @@ function renderKpis() {
     <div class="kpi ret-k"><span>مردود المبيعات</span><b class="num ret-neg">${negMoney(m.returns)}</b><small>من مبيعات الفروع الآجلة</small></div>
     <div class="kpi net-k"><span>صافي المبيعات</span><b class="num">${money(m.net)}</b><small>المبيعات الكاملة − المردود</small></div>
     <div class="kpi"><span>إجمالي الفواتير الآجلة</span><b class="num">${money(m.netCredit)}</b><small>${m.returns ? `${money(m.credit)} − مردود ${money(m.returns)}` : esc(names)}</small></div>
-    <div class="kpi"><span>المبالغ المحصّلة من الآجل</span><b class="num">${money(m.collected)}</b><small>من ${money(m.netCredit)} ريال</small></div>
+    <div class="kpi"><span>المبالغ المحصّلة من الآجل</span><b class="num">${money(m.collected)}</b><small>من ${money(m.netCredit)} ريال</small>${m.collected ? payBreak(m.pay) : ''}</div>
     <div class="kpi"><span>نسبة تحصيل الآجل</span><b class="num">${fmtPct(m.pct)}</b><div class="meter"><i style="width:${Math.min(100, m.pct)}%"></i></div></div>
     </div><div class="kpi-g2">
     <div class="kpi wide real"><div class="ic">${ICON_WALLET}</div><div>
@@ -1941,6 +2015,7 @@ function renderGroups() {
         ${m.returns ? `<div class="sub"><span>مردود المبيعات</span><b class="ret-neg">${negMoney(m.returns)}</b></div>
         <div class="sub net-line"><span>صافي المبيعات</span><b>${money(m.netCredit)}</b></div>` : ''}
         <div class="sub"><span>التحصيل</span><b class="ok">${money(m.collected)}</b></div>
+        ${m.collected ? payBreak(m.pay) : ''}
         <div class="sub"><span>المبلغ الباقي</span><b>${money(m.rest)}</b></div>
         <div class="meter"><i style="width:${Math.min(100, m.pct)}%"></i></div>
         <p class="pct">المحصّل ${fmtPct(m.pct)} من ${m.returns ? 'صافي' : 'إجمالي'} المبيعات</p></div>` : '';
@@ -1984,9 +2059,10 @@ function renderCorrections() {
     ${S.pending.map(r => {
       const b = S.byId[r.branch_id];
       const hasCol = r.new_collected != null;
+      const split = (c, k, b) => c == null ? '' : ` <small class="muted">(نقدي ${money(c)} · تحويل ${money(k)} · شبكة ${money(b)})</small>`;
       const body = hasCol
-        ? `كانت المبيعات <b class="num">${money(r.old_amount)}</b> والتحصيل <b class="num">${money(r.old_collected)}</b> ريال،
-           والتعديل: المبيعات <b class="num">${money(r.new_amount)}</b> والتحصيل <b class="num">${money(r.new_collected)}</b> ريال.`
+        ? `كانت المبيعات <b class="num">${money(r.old_amount)}</b> والتحصيل <b class="num">${money(r.old_collected)}</b> ريال${r.new_cash != null ? split(r.old_cash, r.old_bank, r.old_card) : ''}،
+           والتعديل: المبيعات <b class="num">${money(r.new_amount)}</b> والتحصيل <b class="num">${money(r.new_collected)}</b> ريال${split(r.new_cash, r.new_bank, r.new_card)}.`
         : `كان المبلغ المرسل <b class="num">${money(r.old_amount)}</b> ريال، ومبلغ التعديل <b class="num">${money(r.new_amount)}</b> ريال.`;
       return `<div class="corr">
         <p>تم طلب تعديل من فرع <b>${esc(b ? label(b) : '')}</b> للمبلغ المرسل سابقاً بتاريخ <b>${esc(fmtLong(r.sale_date))}</b>.
@@ -2049,7 +2125,7 @@ function renderDetail() {
     const cells = brs.map(b => {
       const v = amt(b.id, d);
       if (v == null) return `<td class="n">${VIEW ? `<span class="miss-txt">${d === S.today ? 'لم يُدخل بعد' : 'لم يُدخل'}</span>` : `<button class="cell-add" data-add="${b.id}|${d}">${d === S.today ? 'لم يُدخل بعد' : 'لم يُدخل'}، إضافة</button>`}</td>${b.credit ? '<td class="n muted">—</td>' : ''}`;
-      return `<td class="n">${S.by[b.id + '|' + d] === 'admin' ? '<span class="by-adm" title="أدخلته الإدارة">إدارة</span>' : ''}${money(v)}</td>${b.credit ? `<td class="n col">${money(col(b.id, d))}</td>` : ''}`;
+      return `<td class="n">${S.by[b.id + '|' + d] === 'admin' ? '<span class="by-adm" title="أدخلته الإدارة">إدارة</span>' : ''}${money(v)}</td>${b.credit ? `<td class="n col"${dayPayTip(b.id, d)}>${money(col(b.id, d))}</td>` : ''}`;
     }).join('');
     return `<tr class="${d === S.today ? 'is-today' : ''}"><td>${esc(fmtShort(d))}</td><td>${esc(fmtDayName(d))}</td>${cells}
       ${multi ? `<td class="n tot">${money(dt)}</td>` : ''}${multi && anyCredit ? `<td class="n tot col">${money(dc)}</td>` : ''}${anyCredit ? `<td class="n ret-neg">${dr ? negMoney(dr) : '<span class="muted">—</span>'}</td>` : ''}<td class="n cum">${money(cum)}</td>${anyCredit ? `<td class="n cum">${money(cumCred - cumRet - cumCol)}</td>` : ''}</tr>`;
@@ -2078,6 +2154,7 @@ function renderDetail() {
       <div class="pill"><span>أيام فيها إدخال</span><b>${entered} من ${days.length}</b></div>
       <div class="pill"><span>مرات التأخير (تراكمي)</span><b class="${brs.some(b => lateOf(b.id).count) ? 'no' : ''}">${brs.reduce((a, b) => a + lateOf(b.id).count, 0)}</b></div>
     </div>
+    ${anyCredit && m.collected ? `<section class="pay-box"><div class="pay-h"><h3>تفصيل التحصيل</h3><span class="muted">المجموع <b class="num">${money(m.collected)}</b> ريال</span></div>${payBreak(m.pay, true)}</section>` : ''}
     ${days.length ? `<div class="tbl-wrap"><table>
       <thead><tr><th>التاريخ</th><th>اليوم</th>${brs.map(colHead).join('')}${multi ? '<th class="n">إجمالي المبيعات</th>' : ''}${multi && anyCredit ? '<th class="n">إجمالي التحصيل</th>' : ''}${anyCredit ? '<th class="n">المردود</th>' : ''}<th class="n">المبيعات التراكمية</th>${anyCredit ? '<th class="n">الآجل المتبقي التراكمي</th>' : ''}</tr></thead>
       <tbody>${rows}</tbody>
@@ -2787,7 +2864,7 @@ function openEntry(bid, d) {
   $('eBranch').value = bid ? String(bid) : '';
   $('eDate').max = todayISO();
   $('eDate').value = d || todayISO();
-  $('eAmount').value = ''; $('eCollected').value = '';
+  $('eAmount').value = ''; $('ePay').innerHTML = payFields('ep');
   syncEntryCredit();
   $('eSave').disabled = false; $('eSave').textContent = 'حفظ المبيعات';
   eDlg.showModal();
@@ -2821,12 +2898,14 @@ $('entryForm').onsubmit = async ev => {
   if (!bid) { st.className = 'entry-status bad'; st.textContent = 'اختر الفرع'; return; }
   if (!d) { st.className = 'entry-status bad'; st.textContent = 'اختر التاريخ'; return; }
   if (isNaN(a)) { st.className = 'entry-status bad'; st.textContent = 'اكتب المبلغ رقماً فقط، مثل 12500'; $('eAmount').focus(); return; }
-  const isCr = !!S.byId[bid].credit, cs = $('eCollected').value;
-  const c = !isCr || cs.trim() === '' ? 0 : parseAmount(cs);
-  if (isNaN(c)) { st.className = 'entry-status bad'; st.textContent = 'اكتب التحصيل رقماً فقط، أو اتركه فارغاً'; $('eCollected').focus(); return; }
+  const isCr = !!S.byId[bid].credit, pr = isCr ? payRead('ep') : { v: {}, sum: 0 };
+  if (isCr && pr.bad) { st.className = 'entry-status bad'; st.textContent = `اكتب مبلغ ${PAY_TTL[pr.bad]} رقماً فقط، أو اتركه فارغاً`; $('ep-' + pr.bad).focus(); return; }
+  const c = pr.sum;
   if (eTaken) return;
   $('eSave').disabled = true; $('eSave').textContent = 'جارٍ الحفظ…';
-  const { error } = await sb.rpc('admin_submit_sale', { p_branch_id: bid, p_date: d, p_amount: a, p_collected: c });
+  const args = { p_branch_id: bid, p_date: d, p_amount: a, p_collected: c };
+  if (isCr) { args.p_cash = pr.v.cash; args.p_bank = pr.v.bank; args.p_card = pr.v.card; }
+  const { error } = await sb.rpc('admin_submit_sale', args);
   $('eSave').disabled = false; $('eSave').textContent = 'حفظ المبيعات';
   if (error) { st.className = 'entry-status bad'; st.textContent = errMsg(error); return; }
   eDlg.close();
