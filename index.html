@@ -762,7 +762,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-16 ك</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-17 ب</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -3249,7 +3249,7 @@ function renderSettings() {
         <button class="btn btn-primary btn-sm" data-linksave="${b.id}">حفظ</button>
         ${b.sales_wa_link ? '<span class="chip-on">تقرير المبيعات مفعّل</span>' : ''}
       </div>`).join('')}
-      <p class="muted" style="font-size:13px;margin-top:6px">الفرع الذي له رابط قروب مبيعات يظهر له بعد إدخال المبيعات زر "إرسال تقرير المبيعات على قروب الواتساب"، ويقدر يرسل تقرير أي يوم سابق من قائمة إدخالاته. التقرير يحمل تاريخ يوم المبيعات نفسه. رابط التوالف الخاص يُستخدم بدل الرابط العام لهذا الفرع. قروب الإدارة يظهر في "تقارير إدارية" كوجهة للإرسال.</p></div>
+      <p class="muted" style="font-size:13px;margin-top:6px">الفرع الذي له رابط قروب مبيعات يظهر له بعد إدخال المبيعات زر "إرسال تقرير المبيعات على قروب الواتساب" (رسالة نصية مختصرة)، ويقدر يرسل تقرير أي يوم سابق من قائمة إدخالاته. التقرير يحمل تاريخ يوم المبيعات نفسه. رابط التوالف الخاص يُستخدم بدل الرابط العام لهذا الفرع. قروب الإدارة يظهر في "تقارير إدارية" كوجهة للإرسال.</p></div>
     <div class="set-sec"><h3>أرقام واتساب الفروع والاستثناء من إشعار التأخير</h3>
       ${activeBranches().map(b => `<div class="rep-row">
         <span class="nm" style="min-width:180px">${esc(label(b))}</span>
