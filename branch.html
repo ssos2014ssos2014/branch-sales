@@ -199,6 +199,23 @@
   .unit-seg button[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); }
   .other-form .row2 { margin-top: 10px; }
 
+  /* ---- المردود ---- */
+  .tabs.three { grid-template-columns: repeat(3, 1fr); }
+  .tabs.three button { font-size: 14px; gap: 5px; padding: 10px 4px; }
+  .ret-neg { color: #C62828; }
+  @media (prefers-color-scheme: dark) { .ret-neg { color: #EF9A9A; } }
+  .amount-wrap.ret .sign { font-family: var(--font-head); font-size: 30px; font-weight: 700; color: #C62828; }
+  .net-box { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .net-box div { background: var(--bg); border-radius: var(--r-md); padding: 10px; text-align: center; }
+  .net-box span { display: block; font-size: 12px; color: var(--muted); }
+  .net-box b { font-family: var(--font-head); font-size: 20px; }
+  .net-box .n { background: var(--ink); color: var(--on-ink); }
+  .net-box .n span { color: inherit; opacity: .8; }
+  .ret-h { font-size: 15px; margin: 16px 0 6px; }
+  .ret-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); }
+  .ret-row small { display: block; font-size: 12px; color: var(--muted); }
+  .ret-row small.adm { color: var(--caramel); }
+  .ret-row > b { font-size: 17px; white-space: nowrap; }
   .fatal { text-align: center; padding: 40px 16px; }
   .fatal h1 { font-size: 22px; margin-bottom: 8px; }
   .skeleton { height: 340px; border-radius: var(--r-lg); background: var(--surface); margin-top: 16px; opacity: .6; }
@@ -252,7 +269,8 @@ async function load() {
 
 const ICON_SALES = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>';
 const ICON_WASTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/><path d="M10 11v6M14 11v6"/></svg>';
-let tab = location.hash === '#waste' ? 'waste' : 'sales';
+let tab = location.hash === '#waste' ? 'waste' : location.hash === '#returns' ? 'returns' : 'sales';
+const ICON_RET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>';
 
 // إشعار التأخير: يظهر من الساعة 9 صباحاً لأي يوم سابق لم تُدخل مبيعاته
 function lateBanner() {
@@ -287,7 +305,7 @@ function nameHtml(n) {
 }
 function render() {
   const showGroup = info.group_name !== info.name;
-  if (!info.waste) tab = 'sales';
+  if ((tab === 'waste' && !info.waste) || (tab === 'returns' && !info.credit)) tab = 'sales';
   root.innerHTML = `
     <header class="head brand-row">
       ${info.logo ? `<img class="logo" src="${esc(info.logo)}" alt="">` : ''}
@@ -298,14 +316,17 @@ function render() {
       </div>
     </header>
     ${lateBanner()}
-    ${info.waste ? `<nav class="tabs" role="tablist">
+    ${info.waste || info.credit ? `<nav class="tabs${info.waste && info.credit ? ' three' : ''}" role="tablist">
       <button role="tab" data-tab="sales" aria-selected="${tab === 'sales'}">${ICON_SALES}المبيعات</button>
-      <button role="tab" data-tab="waste" aria-selected="${tab === 'waste'}">${ICON_WASTE}البضائع التالفة</button>
+      ${info.credit ? `<button role="tab" data-tab="returns" aria-selected="${tab === 'returns'}">${ICON_RET}المردود</button>` : ''}
+      ${info.waste ? `<button role="tab" data-tab="waste" aria-selected="${tab === 'waste'}">${ICON_WASTE}البضائع التالفة</button>` : ''}
     </nav>` : ''}
     ${tab === 'sales' ? `
     <section class="panel" id="cal"></section>
     <section class="panel" id="form"></section>
-    <section class="panel list" id="list"></section>` : `
+    <section class="panel list" id="list"></section>` : tab === 'returns' ? `
+    <section class="panel" id="rform"></section>
+    <section class="panel rep" id="rrep"></section>` : `
     <section class="panel" id="wform"></section>
     <section class="panel rep" id="wrep"></section>`}`;
   const lg = root.querySelector('#lateGo');
@@ -315,11 +336,97 @@ function render() {
     const f = document.getElementById('form'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
   root.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
-    tab = b.dataset.tab; history.replaceState(null, '', tab === 'waste' ? '#waste' : location.pathname + location.search);
+    tab = b.dataset.tab; history.replaceState(null, '', tab === 'sales' ? location.pathname + location.search : '#' + tab);
     render(); scrollTo({ top: 0 });
   });
   if (tab === 'sales') { renderCal(); renderForm(); renderList(); }
+  else if (tab === 'returns') { renderRForm(); renderRRep(); if (!RT.loaded && !RT.loading) loadReturns(); }
   else { renderWForm(); renderWRep(); if (!W.loaded && !W.loading) loadWaste(); }
+}
+
+// =====================================================================
+//  مردود المبيعات (الفروع الآجلة) — المبلغ يُخصم من الإجمالي ولا يغيّر المبيعات المسجلة
+// =====================================================================
+const RT = { date: null, amt: '', note: '', step: 'form', month: null, list: [], loaded: false, loading: false };
+const neg = n => '\u2066−' + money(n) + '\u2069';
+function renderRForm() {
+  const el = document.getElementById('rform'); if (!el) return;
+  if (!RT.date) RT.date = info.today;
+  if (RT.step === 'confirm') {
+    const a = parseAmount(RT.amt);
+    el.innerHTML = `<div class="confirm">
+      <p class="muted">راجع قبل التسجيل</p>
+      <p style="font-weight:600;margin-top:6px">${esc(fmtLong(RT.date))}</p>
+      <p class="big num ret-neg">${neg(a)} <span class="cur">ريال</span></p>
+      ${RT.note.trim() ? `<p class="muted">${esc(RT.note.trim())}</p>` : ''}
+      <p class="warn">يُخصم المردود من إجمالي المبيعات ولا يغيّر المبيعات المسجلة. لا يمكن تعديله بعد التسجيل، وللتصحيح تواصل مع الإدارة.</p>
+      <div class="row2"><button class="btn btn-accent btn-lg" id="rSend">تأكيد التسجيل</button><button class="btn btn-ghost btn-lg" id="rBack">رجوع</button></div></div>`;
+    el.querySelector('#rBack').onclick = () => { RT.step = 'form'; renderRForm(); };
+    el.querySelector('#rSend').onclick = submitReturn;
+    return;
+  }
+  el.innerHTML = `<div class="w-head"><h2>إضافة مردود مبيعات</h2>
+      <label class="muted" style="font-size:14px">التاريخ <input type="date" id="rDate" max="${info.today}" value="${RT.date}"></label></div>
+    <label class="amt-lbl" for="rAmt">مبلغ المردود <small>(يُخصم من المبيعات)</small></label>
+    <label class="amount-wrap ret"><span class="sign">−</span><input id="rAmt" inputmode="decimal" autocomplete="off" placeholder="0" value="${esc(RT.amt)}"><span class="cur">ريال</span></label>
+    <label class="field" style="margin-top:10px"><span>ملاحظة (اختياري)</span><input id="rNote" maxlength="120" autocomplete="off" value="${esc(RT.note)}" placeholder="مثال: بضاعة مرتجعة من العميل"></label>
+    <p class="err" id="rErr" role="alert"></p>
+    <button class="btn btn-primary btn-block btn-lg" id="rNext" style="margin-top:10px">تسجيل المردود</button>`;
+  el.querySelector('#rDate').onchange = e => { RT.date = e.target.value; };
+  const a = el.querySelector('#rAmt'), n = el.querySelector('#rNote');
+  a.oninput = () => { RT.amt = a.value; el.querySelector('#rErr').textContent = ''; };
+  n.oninput = () => { RT.note = n.value; };
+  a.onkeydown = e => { if (e.key === 'Enter') el.querySelector('#rNext').click(); };
+  el.querySelector('#rNext').onclick = () => {
+    const err = el.querySelector('#rErr'), v = parseAmount(RT.amt);
+    RT.date = el.querySelector('#rDate').value;
+    if (!RT.date) { err.textContent = 'اختر التاريخ'; return; }
+    if (RT.date > info.today) { err.textContent = 'لا يمكن الإدخال لتاريخ لم يأتِ بعد'; return; }
+    if (isNaN(v) || v <= 0) { err.textContent = 'اكتب مبلغ المردود رقماً أكبر من صفر'; a.focus(); return; }
+    RT.step = 'confirm'; renderRForm();
+  };
+}
+async function submitReturn() {
+  if (busy) return; busy = true;
+  const b = document.getElementById('rSend'); b.disabled = true; b.textContent = 'جارٍ التسجيل…';
+  const { error } = await sb.rpc('submit_return', { p_token: token, p_date: RT.date, p_amount: parseAmount(RT.amt), p_note: RT.note });
+  busy = false;
+  if (error) { toast(errMsg(error), 'err'); RT.step = 'form'; renderRForm(); return; }
+  toast(`تم تسجيل مردود بمبلغ ${money(parseAmount(RT.amt))} ريال`);
+  RT.month = monthStart(RT.date); RT.amt = ''; RT.note = ''; RT.step = 'form'; RT.date = info.today;
+  renderRForm(); await loadReturns();
+}
+async function loadReturns() {
+  if (!RT.month) RT.month = monthStart(info.today);
+  RT.loading = true; const m = RT.month;
+  const { data, error } = await sb.rpc('branch_returns', { p_token: token, p_from: m, p_to: monthEnd(m) });
+  RT.loading = false;
+  if (m !== RT.month) return;
+  if (error) { toast(errMsg(error), 'err'); return; }
+  RT.list = data || []; RT.loaded = true; renderRRep();
+}
+function renderRRep() {
+  const el = document.getElementById('rrep'); if (!el) return;
+  if (!RT.month) RT.month = monthStart(info.today);
+  const m = RT.month, atCur = m >= monthStart(info.today);
+  const sales = (info.entries || []).filter(e => e.date >= m && e.date <= monthEnd(m)).reduce((a, e) => a + Number(e.amount), 0);
+  const ret = RT.list.reduce((a, r) => a + Number(r.amount), 0);
+  el.innerHTML = `<div class="cal-head"><button class="nav" id="rPrev" aria-label="الشهر السابق">›</button>
+      <h2>المبيعات والمردود: ${esc(fmtMonth(m))}</h2>
+      <button class="nav" id="rNextM" aria-label="الشهر التالي" ${atCur ? 'disabled' : ''}>‹</button></div>
+    ${!RT.loaded ? '<p class="muted" style="margin-top:12px">جارٍ التحميل…</p>' : `
+    <div class="net-box">
+      <div><span>إجمالي المبيعات</span><b class="num">${money(sales)}</b></div>
+      <div class="r"><span>مردود المبيعات</span><b class="num ret-neg">${ret ? neg(ret) : '0'}</b></div>
+      <div class="n"><span>صافي المبيعات</span><b class="num">${money(sales - ret)}</b></div>
+    </div>
+    <h3 class="ret-h">مردود المبيعات (${RT.list.length})</h3>
+    ${RT.list.length ? RT.list.map(r => `<div class="ret-row"><div><b>${esc(fmtShort(r.date))}</b> <span class="muted">${esc(fmtDayName(r.date))}</span>
+        ${r.note ? `<small>${esc(r.note)}</small>` : ''}${r.by === 'admin' ? '<small class="adm">أدخلته الإدارة</small>' : ''}</div>
+        <b class="num ret-neg">${neg(r.amount)}</b></div>`).join('')
+      : '<p class="muted" style="font-size:14px">لا يوجد مردود في هذا الشهر.</p>'}`}`;
+  el.querySelector('#rPrev').onclick = () => { RT.month = addMonths(RT.month, -1); RT.loaded = false; renderRRep(); loadReturns(); };
+  el.querySelector('#rNextM').onclick = () => { RT.month = addMonths(RT.month, 1); RT.loaded = false; renderRRep(); loadReturns(); };
 }
 
 function renderCal() {
@@ -950,6 +1057,6 @@ else {
   }, 300000);
 }
 </script>
-<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-16 د</p>
+<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-16 هـ</p>
 </body>
 </html>

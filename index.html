@@ -410,6 +410,50 @@
     .month-nav { margin-inline-start: 0; }
     .back-btn { padding: 9px 14px; }
   }
+  /* ---- المردود والصافي ---- */
+  .ret-neg { color: var(--no-c) !important; }
+  #kpis.kpis { display: block; }
+  .kpi-g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .kpi-g2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+  .kpi-g2 .kpi.wide { grid-column: auto; }
+  .kpi.net-k { background: color-mix(in srgb, var(--viz-1) 9%, var(--surface)); border-color: transparent; }
+  .sub.net-line b { font-weight: 800; }
+  .pill.net-pill { background: color-mix(in srgb, var(--viz-1) 10%, var(--surface)); }
+  @media (max-width: 720px) { .kpi-g3 { grid-template-columns: repeat(2, 1fr); } .kpi-g2 { grid-template-columns: 1fr; } }
+  .moves { margin-top: 10px; }
+  .mv-forms { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
+  .mv-form { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 12px 14px; border-top: 4px solid var(--ok-c); }
+  .mv-form.return { border-top-color: var(--no-c); }
+  .mv-form h4 { font-size: 14px; margin-bottom: 8px; }
+  .mv-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 6px; margin-bottom: 8px; }
+  .btn-ret { background: var(--no-c); color: #fff; border-color: var(--no-c); }
+  .mv-list { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 4px 14px; margin-top: 10px; }
+  .mv-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); }
+  .mv-item:first-child { border-top: none; }
+  .mv-k { font-size: 11px; font-weight: 700; border-radius: 99px; padding: 2px 9px; color: #fff; background: var(--ok-c); flex: none; }
+  .mv-k.r { background: var(--no-c); }
+  .mv-i { flex: 1; min-width: 0; font-size: 14px; }
+  .mv-i small { display: block; font-size: 12px; color: var(--muted); }
+  .mv-item > b { font-family: var(--font-head); font-size: 16px; white-space: nowrap; }
+  /* ---- الدمج والمقارنة ---- */
+  .groups-h { margin-top: 26px; }
+  .gh-acts { display: flex; gap: 6px; }
+  .merge-h { font-size: 16px; margin: 20px 0 10px; }
+  .gcard.merged { border: 1.5px dashed var(--viz-1); background: color-mix(in srgb, var(--viz-1) 5%, var(--surface)); }
+  .merge-tag { font-size: 11px; font-weight: 700; color: #fff; background: var(--viz-1); border-radius: 99px; padding: 1px 8px; margin-inline-end: 6px; }
+  .mg-list { display: grid; gap: 6px; margin-top: 10px; max-height: 46vh; overflow: auto; }
+  .mg-opt { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r-sm); cursor: pointer; }
+  .mg-opt input { width: 18px; height: 18px; }
+  #cmpBtn.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+  .cmp-seg { margin-top: 14px; }
+  .cmp-ctl { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin: 12px 0; }
+  .cmp-f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+  .cmp-f .in { min-width: 160px; }
+  .cmp-chips { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+  .cmp-chips .chip { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 7px 12px; font-family: inherit; font-size: 13px; cursor: pointer; color: var(--ink); }
+  .cmp-chips .chip small { color: var(--muted); font-size: 11px; }
+  .cmp-chips .chip.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+  .cmp-chips .chip.on small { color: inherit; opacity: .75; }
   /* ---- وضع الاطلاع فقط ---- */
   .view-only { display: none !important; }
   .viewer .view-only { display: revert !important; }
@@ -529,6 +573,7 @@
     </div>
     <div class="top-actions">
       <button id="addBtn" class="btn btn-primary btn-sm edit-only">إدخال مبيعات</button>
+      <button id="cmpBtn" class="btn btn-ghost btn-sm">المقارنة</button>
       <button id="wasteBtn" class="btn btn-ghost btn-sm">التوالف</button>
       <button id="lateBtn" class="bell-btn" aria-expanded="false" aria-haspopup="true" aria-label="تنبيهات التأخير" title="تنبيهات التأخير"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span id="lateDot" class="bell-dot" hidden></span></button>
       <button id="bellBtn" class="btn btn-ghost btn-sm">طلبات التعديل <span id="bellCount" class="badge zero">0</span></button>
@@ -561,16 +606,20 @@
       <section id="kpis" class="kpis"></section>
       <section id="finSum"></section>
       <section id="wasteSum"></section>
-      <h2 class="sec-title">الفروع</h2>
+      <div class="sec-h groups-h"><h2>الفروع</h2>
+        <div class="gh-acts"><button class="btn btn-ghost btn-sm" data-open-compare type="button">مقارنة</button>
+          <button class="btn btn-ghost btn-sm edit-only" data-open-merge type="button">⊕ دمج فروع</button></div></div>
       <section id="groups" class="groups"></section>
+      <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-16 د</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-16 هـ</p>
     </div>
 
     <section id="detail" hidden></section>
     <section id="waste" hidden></section>
     <section id="fund" hidden></section>
+    <section id="compare" hidden></section>
     <section id="settingsView" hidden>
       <div class="page-head"><button class="back-btn" id="setBack" type="button"><span aria-hidden="true">→</span> رجوع للوحة</button><h2>الإعدادات</h2></div>
       <nav class="set-tabs" id="setTabs" role="tablist"></nav>
@@ -599,6 +648,14 @@
   </form>
 </dialog>
 
+<dialog id="mergeDlg" class="items-dlg">
+  <h2>دمج إحصائيات فروع</h2>
+  <p class="muted" style="font-size:13px;margin-top:4px">اختر فرعين أو أكثر لعرض إجمالي مبيعاتهم معاً في بطاقة واحدة (مثل: مصنع أفق النكهات + فرع التوزيع). الفروع تبقى مستقلة كما هي.</p>
+  <label class="field" style="margin-top:10px"><span>اسم البطاقة (اختياري)</span><input id="mgName" placeholder="مثال: أفق النكهات (المصنع + التوزيع)" autocomplete="off"></label>
+  <div class="mg-list" id="mgList"></div>
+  <p class="err" id="mgErr" role="alert"></p>
+  <div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-primary" id="mgSave" type="button">إنشاء البطاقة المدمجة</button><button class="btn btn-ghost" id="mgCancel" type="button">إلغاء</button></div>
+</dialog>
 <dialog id="itemsDlg" class="items-dlg">
   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
     <h2>أصناف البضائع التالفة</h2>
@@ -725,6 +782,7 @@ async function reload() {
   reloading = true;
   try {
     computePeriod();
+    S.cmp.cache = {};
     if (VIEW) { await reloadViewer(); return; }
     const [sales, pend, rec] = await Promise.all([
       fetchAll(() => sb.from('sales').select('id,branch_id,sale_date,amount,collected,entered_by').gte('sale_date', S.from).lte('sale_date', S.to).order('sale_date').order('id')),
@@ -738,6 +796,7 @@ async function reload() {
     await loadViewers();
     await loadLate();
     await loadFin();
+    await loadMoves();
     buildGroups();
     renderAll();
   } catch (e) { toast(errMsg(e), 'err'); }
@@ -768,6 +827,7 @@ async function reloadViewer() {
   S.pending = data.pending || []; S.recent = data.recent || [];
   setLate(data.late);
   setFin(data.fin);
+  S.moves = data.moves || []; S.merges = data.merges || [];
   buildGroups();
   renderAll();
 }
@@ -787,6 +847,18 @@ async function startViewer() {
   $('viewTag').textContent = 'اطلاع فقط' + (S.viewLabel ? ` · ${S.viewLabel}` : '');
   $('live').textContent = 'يتحدث كل دقيقة'; $('live').classList.add('on');
   setInterval(() => { if (!document.hidden) reload(); }, 60000);
+}
+
+// ---------------- المردود والتحصيل الإداري والإحصائيات المدمجة ----------------
+S.moves = []; S.merges = [];
+async function loadMoves() {
+  try {
+    const [mv, mg] = await Promise.all([
+      fetchAll(() => sb.from('credit_moves').select('*').gte('move_date', S.from).lte('move_date', S.to).order('move_date').order('id')),
+      sb.from('merged_views').select('*').order('id')
+    ]);
+    S.moves = mv; S.merges = mg.error ? [] : (mg.data || []);
+  } catch (e) { console.warn('moves', e); S.moves = []; }
 }
 
 // ---------------- التأخير في الإدخال ----------------
@@ -901,7 +973,7 @@ const targetSales = brs => salesOf(brs.filter(b => Number(b.monthly_target) > 0)
 const commitMonthly = bid => S.fin.commitments.filter(c => c.branch_id === bid).reduce((a, c) => a + Number(c.amount), 0);
 const commitOf = brs => brs.reduce((a, b) => a + commitMonthly(b.id), 0) * periodFactor();
 const hasMargin = brs => brs.some(b => b.profit_margin != null && b.profit_margin !== '');
-const profitOf = brs => brs.reduce((a, b) => a + (b.profit_margin != null ? branchTotal(b.id) * Number(b.profit_margin) / 100 : 0), 0);
+const profitOf = brs => brs.reduce((a, b) => a + (b.profit_margin != null ? netOf(b.id) * Number(b.profit_margin) / 100 : 0), 0);
 function marginLabel(brs) {
   const ms = [...new Set(brs.filter(b => b.profit_margin != null).map(b => Number(b.profit_margin)))];
   return ms.length === 1 ? `${ms[0]}%` : ms.length ? 'متعدد' : '—';
@@ -1475,6 +1547,207 @@ function bindSettingsView() {
   $('setBack').onclick = closeDetail;
 }
 
+// =====================================================================
+//  حركات الفروع الآجلة في صفحة الفرع: تحصيل تضيفه الإدارة + مردود المبيعات
+// =====================================================================
+function movesPanel(brs) {
+  const list = S.moves.filter(m => brs.some(b => b.id === m.branch_id)).slice().sort((a, b) => (b.move_date + b.id) > (a.move_date + a.id) ? 1 : -1);
+  const multi = brs.length > 1;
+  const brSel = id => multi ? `<select class="in" id="${id}">${brs.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select>` : '';
+  const form = (kind, title, btn) => `<div class="mv-form ${kind}">
+      <h4>${title}</h4>
+      <div class="mv-row">${brSel('mvB-' + kind)}
+        <input class="in" type="date" id="mvD-${kind}" max="${S.today}" value="${minISO(S.today, S.to)}" aria-label="التاريخ">
+        <input class="in mv-amt" id="mvA-${kind}" inputmode="decimal" dir="ltr" placeholder="المبلغ" aria-label="المبلغ">
+        <input class="in" id="mvN-${kind}" placeholder="ملاحظة (اختياري)" maxlength="120"></div>
+      <button class="btn btn-sm ${kind === 'return' ? 'btn-ret' : 'btn-primary'}" data-mvadd="${kind}">${btn}</button></div>`;
+  return `<section class="moves">
+    <div class="sec-h"><h2>التحصيل ومردود المبيعات</h2><span class="muted">${list.length} حركة في الفترة</span></div>
+    ${VIEW ? '' : `<div class="mv-forms">${form('collect', 'إضافة تحصيل (من الإدارة)', 'إضافة التحصيل')}${form('return', 'إضافة مردود مبيعات', 'تسجيل المردود')}</div>
+      <p class="muted set-hint">التحصيل يُضاف لإجمالي المحصّل، والمردود يُخصم من إجمالي المبيعات ويظهر بالسالب. المبيعات المسجلة سابقاً لا تتغير.</p>`}
+    ${list.length ? `<div class="mv-list">${list.map(m => { const b = S.byId[m.branch_id]; const ret = m.kind === 'return'; return `<div class="mv-item">
+        <span class="mv-k ${ret ? 'r' : 'c'}">${ret ? 'مردود' : 'تحصيل'}</span>
+        <div class="mv-i"><b>${esc(fmtShort(m.move_date))}</b>${multi && b ? ` <span class="muted">· ${esc(b.name)}</span>` : ''}
+          ${m.note ? `<small>${esc(m.note)}</small>` : ''}<small>${m.entered_by === 'admin' ? 'أدخلته الإدارة' : 'أدخله الفرع'}</small></div>
+        <b class="num ${ret ? 'ret-neg' : 'ok'}">\u2066${ret ? '−' : '+'}${money(m.amount)}\u2069</b>
+        ${VIEW ? '' : `<button class="icon-x sm" data-mvdel="${m.id}" aria-label="حذف">×</button>`}</div>`; }).join('')}</div>`
+      : '<p class="muted" style="font-size:14px">لا توجد حركات تحصيل إضافي أو مردود في هذه الفترة.</p>'}
+  </section>`;
+}
+async function moveAction(t) {
+  if (VIEW) return;
+  if (t.dataset.mvdel) {
+    const m = S.moves.find(x => x.id === Number(t.dataset.mvdel));
+    if (!m || !confirm(`حذف ${m.kind === 'return' ? 'المردود' : 'التحصيل'} ${money(m.amount)} ريال بتاريخ ${fmtShort(m.move_date)}؟`)) return;
+    const { error } = await sb.from('credit_moves').delete().eq('id', m.id);
+    if (error) return toast(errMsg(error), 'err');
+    toast('تم الحذف'); await loadMoves(); return renderAll();
+  }
+  const kind = t.dataset.mvadd;
+  const bSel = $('mvB-' + kind), d = $('mvD-' + kind).value, a = parseAmount($('mvA-' + kind).value), n = $('mvN-' + kind).value.trim();
+  const g = S.gmap[S.detail] || (S.mmap || {})[S.detail], brs = (S.detail === '__all' ? S.branches : g.branches).filter(b => b.credit);
+  const bid = bSel ? Number(bSel.value) : brs[0].id;
+  if (!d || d > S.today) return toast('اختر تاريخاً صحيحاً (ليس في المستقبل)', 'err');
+  if (isNaN(a) || a <= 0) { toast('اكتب المبلغ رقماً أكبر من صفر', 'err'); $('mvA-' + kind).focus(); return; }
+  t.disabled = true;
+  const { error } = await sb.from('credit_moves').insert({ branch_id: bid, move_date: d, kind, amount: a, note: n || null, entered_by: 'admin' });
+  t.disabled = false;
+  if (error) return toast(errMsg(error), 'err');
+  toast(kind === 'return' ? `تم تسجيل مردود بمبلغ ${money(a)} ريال` : `تمت إضافة تحصيل ${money(a)} ريال`);
+  await loadMoves(); renderAll();
+}
+
+// =====================================================================
+//  دمج إحصائيات فرعين أو أكثر في بطاقة واحدة
+// =====================================================================
+function openMergeDlg() {
+  const brs = activeBranches();
+  $('mgName').value = '';
+  $('mgList').innerHTML = brs.map(b => `<label class="mg-opt"><input type="checkbox" value="${b.id}"> ${nameHtml(b.name)}</label>`).join('');
+  $('mgErr').textContent = '';
+  $('mergeDlg').showModal();
+}
+async function saveMerge() {
+  const ids = [...$('mgList').querySelectorAll('input:checked')].map(c => Number(c.value));
+  if (ids.length < 2) { $('mgErr').textContent = 'اختر فرعين على الأقل'; return; }
+  const name = $('mgName').value.trim() || ids.map(id => nameParts(S.byId[id].name)[0]).join(' + ');
+  const { error } = await sb.from('merged_views').insert({ name, branch_ids: ids });
+  if (error) { $('mgErr').textContent = errMsg(error); return; }
+  $('mergeDlg').close(); toast(`تم إنشاء "${name}"`); await loadMoves(); renderAll();
+}
+async function deleteMerge(id) {
+  const m = S.merges.find(x => x.id === id);
+  if (!m || !confirm(`حذف بطاقة "${m.name}" المدمجة؟ (لا يحذف أي مبيعات)`)) return;
+  const { error } = await sb.from('merged_views').delete().eq('id', id);
+  if (error) return toast(errMsg(error), 'err');
+  toast('تم حذف الدمج'); await loadMoves(); renderAll();
+}
+
+// =====================================================================
+//  المقارنة: بين الفروع، أو بين الشهور لنفس الفرع
+// =====================================================================
+S.cmp = { mode: 'branches', month: null, sel: null, ent: null, count: 6, end: null, cache: {} };
+// الفروع والإحصائيات المدمجة كخيارات للمقارنة
+function cmpEntities() {
+  const list = S.groups.filter(g => g.branches.some(b => b.active)).map(g => ({ key: g.name, name: g.name, brs: g.branches }));
+  for (const m of S.merges || []) {
+    const brs = (m.branch_ids || []).map(id => S.byId[id]).filter(Boolean);
+    if (brs.length) list.push({ key: 'm:' + m.id, name: m.name, brs, merge: true });
+  }
+  return list;
+}
+async function cmpFetch(from, to) {
+  const k = from + '|' + to;
+  if (S.cmp.cache[k]) return S.cmp.cache[k];
+  let sales, moves;
+  if (VIEW) {
+    const { data, error } = await sb.rpc('viewer_data', { p_token: VIEW, p_from: from, p_to: to });
+    if (error) throw error;
+    sales = data.sales || []; moves = data.moves || [];
+  } else {
+    [sales, moves] = await Promise.all([
+      fetchAll(() => sb.from('sales').select('id,branch_id,sale_date,amount,collected').gte('sale_date', from).lte('sale_date', to).order('id')),
+      fetchAll(() => sb.from('credit_moves').select('id,branch_id,move_date,kind,amount').gte('move_date', from).lte('move_date', to).order('id'))
+    ]);
+  }
+  return (S.cmp.cache[k] = { sales, moves });
+}
+function cmpStats(data, brs, from, to) {
+  const ids = new Set(brs.map(b => b.id)), credit = new Set(brs.filter(b => b.credit).map(b => b.id));
+  let sales = 0, col = 0, ret = 0; const days = new Set();
+  for (const s of data.sales) if (ids.has(s.branch_id) && s.sale_date >= from && s.sale_date <= to) { sales += Number(s.amount); col += Number(s.collected) || 0; days.add(s.sale_date); }
+  for (const m of data.moves) if (credit.has(m.branch_id) && m.move_date >= from && m.move_date <= to) { if (m.kind === 'return') ret += Number(m.amount); else col += Number(m.amount); }
+  const end = minISO(to, S.today), n = end < from ? 0 : dayDiff(from, end) + 1;
+  return { sales, ret, net: sales - ret, col, days: days.size, n, avg: n ? (sales - ret) / n : 0, credit: credit.size > 0 };
+}
+function openCompare() { S.detail = null; S.wasteView = false; showView('compare'); S.cmp.rendered = true; renderCompare(); }
+async function renderCompare() {
+  const el = $('compare'); if (!el || el.hidden) return;
+  const C = S.cmp, ents = cmpEntities();
+  if (!C.month) C.month = monthStart(S.today);
+  if (!C.end) C.end = monthStart(S.today);
+  if (!C.sel) C.sel = new Set(ents.filter(e => !e.merge).map(e => e.key));
+  if (!C.ent || !ents.some(e => e.key === C.ent)) C.ent = ents[0] && ents[0].key;
+  const mode = C.mode;
+  el.innerHTML = `${backHead('المقارنة')}
+    <div class="seg cmp-seg" role="group" aria-label="نوع المقارنة">
+      <button data-cmode="branches" aria-pressed="${mode === 'branches'}">بين الفروع</button>
+      <button data-cmode="months" aria-pressed="${mode === 'months'}">بين الشهور لنفس الفرع</button></div>
+    <div class="cmp-ctl">${mode === 'branches' ? `
+      <label class="cmp-f"><span>الشهر</span><input class="in" type="month" id="cmpMonth" max="${S.today.slice(0, 7)}" value="${C.month.slice(0, 7)}"></label>
+      <div class="cmp-chips">${ents.map(e => `<button class="chip${C.sel.has(e.key) ? ' on' : ''}" data-csel="${esc(e.key)}">${e.merge ? '⊕ ' : ''}${esc(nameParts(e.name)[0])}${nameParts(e.name)[1] ? ` <small>${esc(nameParts(e.name)[1])}</small>` : ''}</button>`).join('')}</div>` : `
+      <label class="cmp-f"><span>الفرع</span><select class="in" id="cmpEnt">${ents.map(e => `<option value="${esc(e.key)}"${e.key === C.ent ? ' selected' : ''}>${e.merge ? '⊕ ' : ''}${esc(e.name)}</option>`).join('')}</select></label>
+      <label class="cmp-f"><span>عدد الشهور</span><select class="in" id="cmpCount">${[3, 6, 12].map(n => `<option${n === C.count ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+      <label class="cmp-f"><span>حتى شهر</span><input class="in" type="month" id="cmpEnd" max="${S.today.slice(0, 7)}" value="${C.end.slice(0, 7)}"></label>`}
+    </div>
+    <div id="cmpOut"><p class="muted">جارٍ التحميل…</p></div>`;
+  bindBack();
+  try {
+    if (mode === 'branches') {
+      const from = C.month, to = monthEnd(C.month), data = await cmpFetch(from, to);
+      if (S.view !== 'compare' || C.mode !== 'branches') return;
+      const rows = ents.filter(e => C.sel.has(e.key)).map(e => ({ e, st: cmpStats(data, e.brs, from, to) })).sort((a, b) => b.st.net - a.st.net);
+      const tot = rows.filter(r => !r.e.merge).reduce((a, r) => a + r.st.net, 0);
+      $('cmpOut').innerHTML = !rows.length ? '<p class="muted">اختر فرعاً واحداً على الأقل.</p>' : `
+        <section class="viz-card"><div class="viz-h"><h3>صافي المبيعات لشهر ${esc(fmtMonth(from))}</h3><span class="muted" style="font-size:12px">الصافي = المبيعات − المردود</span></div>
+          ${hBars(rows.map(r => ({ label: r.e.name, v: r.st.net, tip: `${r.e.name}: صافي ${money(r.st.net)} ريال · متوسط اليوم ${money(Math.round(r.st.avg))}` })), { aria: 'مقارنة صافي المبيعات بين الفروع' })}</section>
+        <div class="tbl-wrap" style="margin-top:12px"><table>
+          <thead><tr><th>#</th><th>الفرع</th><th class="n">إجمالي المبيعات</th><th class="n">المردود</th><th class="n">صافي المبيعات</th><th class="n">متوسط اليوم</th><th class="n">أيام الإدخال</th><th class="n">التحصيل</th><th class="n">النسبة من الإجمالي</th></tr></thead>
+          <tbody>${rows.map((r, i) => `<tr><td class="n">${i + 1}</td><td><b>${nameHtml(r.e.name)}</b>${r.e.merge ? ' <span class="merge-tag">مدمج</span>' : ''}</td>
+            <td class="n">${money(r.st.sales)}</td><td class="n ret-neg">${r.st.ret ? negMoney(r.st.ret) : '<span class="muted">—</span>'}</td><td class="n tot">${money(r.st.net)}</td>
+            <td class="n">${money(Math.round(r.st.avg))}</td><td class="n">${r.st.days} من ${r.st.n}</td><td class="n">${r.st.credit ? money(r.st.col) : '<span class="muted">—</span>'}</td>
+            <td class="n">${r.e.merge ? '<span class="muted">—</span>' : fmtPct(pctOf(r.st.net, tot))}</td></tr>`).join('')}</tbody>
+        </table></div>
+        <p class="muted set-hint">${from === monthStart(S.today) ? 'الشهر الحالي حتى اليوم. ' : ''}البطاقات المدمجة لا تدخل في نسبة الإجمالي حتى لا تُحسب مبيعاتها مرتين.</p>`;
+    } else {
+      const e = ents.find(x => x.key === C.ent); if (!e) { $('cmpOut').innerHTML = '<p class="muted">لا توجد فروع.</p>'; return; }
+      const months = []; for (let i = C.count - 1; i >= 0; i--) months.push(addMonths(C.end, -i));
+      const data = await cmpFetch(months[0], monthEnd(months[months.length - 1]));
+      if (S.view !== 'compare' || C.mode !== 'months') return;
+      const rows = months.map(m => ({ m, st: cmpStats(data, e.brs, m, monthEnd(m)) }));
+      $('cmpOut').innerHTML = `
+        <section class="viz-card"><div class="viz-h"><h3>صافي مبيعات ${esc(e.name)} شهرياً</h3>
+          <div class="legend"><span><i class="lg s1"></i>صافي المبيعات</span></div></div>${vBars(rows)}</section>
+        <div class="tbl-wrap" style="margin-top:12px"><table>
+          <thead><tr><th>الشهر</th><th class="n">إجمالي المبيعات</th><th class="n">المردود</th><th class="n">صافي المبيعات</th><th class="n">متوسط اليوم</th><th class="n">أيام الإدخال</th><th class="n">التغيّر عن الشهر السابق</th></tr></thead>
+          <tbody>${rows.map((r, i) => { const prev = i ? rows[i - 1].st.net : null, ch = prev ? (r.st.net - prev) / prev * 100 : null;
+            return `<tr${r.m === monthStart(S.today) ? ' class="is-today"' : ''}><td><b>${esc(fmtMonth(r.m))}</b>${r.m === monthStart(S.today) ? ' <small class="muted">(حتى اليوم)</small>' : ''}</td>
+              <td class="n">${money(r.st.sales)}</td><td class="n ret-neg">${r.st.ret ? negMoney(r.st.ret) : '<span class="muted">—</span>'}</td><td class="n tot">${money(r.st.net)}</td>
+              <td class="n">${money(Math.round(r.st.avg))}</td><td class="n">${r.st.days} من ${r.st.n}</td>
+              <td class="n">${ch == null || !isFinite(ch) ? '<span class="muted">—</span>' : `<span class="${ch >= 0 ? 'ok' : 'no'}" style="font-weight:700">${ch >= 0 ? '▲' : '▼'} ${fmtPct(Math.abs(ch))}</span>`}</td></tr>`; }).join('')}</tbody>
+        </table></div>
+        <p class="muted set-hint">للمقارنة العادلة بين شهر جارٍ وشهر كامل انظر إلى "متوسط اليوم".</p>`;
+    }
+  } catch (err) { $('cmpOut').innerHTML = `<p class="err">تعذّر تحميل البيانات: ${esc(errMsg(err))}</p>`; }
+}
+// أعمدة رأسية للشهور (الزمن من اليسار إلى اليمين)
+function vBars(rows) {
+  const W = 640, H = 240, L = 46, Rr = 10, T = 22, B = 30, max = niceMax(Math.max(1, ...rows.map(r => r.st.net)) * 1.08);
+  const n = rows.length, slot = (W - L - Rr) / n, bw = Math.min(46, slot * 0.6), y = v => T + (H - T - B) * (1 - Math.max(0, v) / max);
+  return `<svg class="viz" viewBox="0 0 ${W} ${H}" role="img" aria-label="صافي المبيعات الشهري">
+    ${[0, max / 2, max].map(t => `<line class="grid" x1="${L}" x2="${W - Rr}" y1="${y(t)}" y2="${y(t)}"/><text class="ax" x="${L - 6}" y="${y(t) + 4}" text-anchor="end">${NUMK(t)}</text>`).join('')}
+    ${rows.map((r, i) => { const cx = L + slot * i + slot / 2, top = y(r.st.net);
+      return `<rect class="bar s1" x="${cx - bw / 2}" y="${top}" width="${bw}" height="${Math.max(2, H - B - top)}" rx="4" data-tip="${esc(fmtMonth(r.m))}: صافي ${money(r.st.net)} ريال · متوسط اليوم ${money(Math.round(r.st.avg))}"/>
+        <text class="lbl" x="${cx}" y="${top - 6}" text-anchor="middle">${NUMK(r.st.net)}</text>
+        <text class="ax" x="${cx}" y="${H - 10}" text-anchor="middle">${esc(fmtMonth(r.m).split(' ')[0])}</text>`; }).join('')}
+  </svg>`;
+}
+function bindCompare() {
+  const el = $('compare');
+  el.addEventListener('click', e => {
+    const m = e.target.closest('[data-cmode]'); if (m) { S.cmp.mode = m.dataset.cmode; return renderCompare(); }
+    const c = e.target.closest('[data-csel]');
+    if (c) { const k = c.dataset.csel; S.cmp.sel.has(k) ? S.cmp.sel.delete(k) : S.cmp.sel.add(k); return renderCompare(); }
+  });
+  el.addEventListener('change', e => {
+    const t = e.target;
+    if (t.id === 'cmpMonth' && t.value) { S.cmp.month = t.value + '-01'; renderCompare(); }
+    if (t.id === 'cmpEnd' && t.value) { S.cmp.end = t.value + '-01'; renderCompare(); }
+    if (t.id === 'cmpEnt') { S.cmp.ent = t.value; renderCompare(); }
+    if (t.id === 'cmpCount') { S.cmp.count = Number(t.value); renderCompare(); }
+  });
+}
+
 // ---------------- إدارة روابط الاطلاع (للإدارة) ----------------
 async function loadViewers() {
   const { data, error } = await sb.from('viewer_links').select('*').order('created_at');
@@ -1505,19 +1778,28 @@ function grandTotal() { return S.sales.reduce((a, s) => a + Number(s.amount), 0)
 function elapsedDays() { const end = minISO(S.to, S.today); return end < S.from ? [] : daysRange(S.from, end); }
 // الآجل والتحصيل
 const col = (bid, d) => S.cidx[bid + '|' + d];
-function branchCol(bid) { let t = 0; for (const s of S.sales) if (s.branch_id === bid) t += Number(s.collected) || 0; return t; }
-function dayCol(d, brs) { let t = 0; for (const b of brs) if (b.credit) t += col(b.id, d) || 0; return t; }
+// التحصيل = المُدخل مع المبيعات + التحصيل الذي تضيفه الإدارة
+const moveSum = (bid, kind, d) => S.moves.reduce((a, m) => a + (m.branch_id === bid && m.kind === kind && (!d || m.move_date === d) ? Number(m.amount) : 0), 0);
+function branchCol(bid) { let t = 0; for (const s of S.sales) if (s.branch_id === bid) t += Number(s.collected) || 0; return t + moveSum(bid, 'collect'); }
+function dayCol(d, brs) { let t = 0; for (const b of brs) if (b.credit) t += (col(b.id, d) || 0) + moveSum(b.id, 'collect', d); return t; }
+// مردود المبيعات (يُخصم من الإجمالي، والمبيعات المسجلة لا تتغير)
+const retOf = bid => moveSum(bid, 'return');
+const dayRet = (d, brs) => brs.reduce((a, b) => a + (b.credit ? moveSum(b.id, 'return', d) : 0), 0);
+const netOf = bid => branchTotal(bid) - retOf(bid);
+const negMoney = n => n ? '\u2066−' + money(n) + '\u2069' : '0';
 const pctOf = (a, b) => b > 0 ? a / b * 100 : 0;
 const fmtPct = p => (Math.round(p * 10) / 10).toLocaleString('en-US') + '%';
 // ملخص مجموعة فروع: المبيعات كلها، الآجل، المحصل، النقدي، المتبقي، الدخل الحقيقي
 function summary(brs = S.branches) {
-  let sales = 0, credit = 0, collected = 0;
+  let sales = 0, credit = 0, collected = 0, returns = 0;
   for (const b of brs) {
     const t = branchTotal(b.id); sales += t;
-    if (b.credit) { credit += t; collected += branchCol(b.id); }
+    if (b.credit) { credit += t; collected += branchCol(b.id); returns += retOf(b.id); }
   }
-  const cash = sales - credit;
-  return { sales, credit, collected, cash, rest: credit - collected, real: cash + collected, pct: pctOf(collected, credit) };
+  const cash = sales - credit, netCredit = credit - returns;
+  // المتبقي ونسبة التحصيل محسوبة من صافي الآجل (بعد خصم المردود)
+  return { sales, credit, returns, netCredit, net: sales - returns, collected, cash,
+           rest: netCredit - collected, real: cash + collected, pct: pctOf(collected, netCredit) };
 }
 const ICON_WALLET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H18a1 1 0 0 1 1 1v2"/><path d="M3 7.5v10A2.5 2.5 0 0 0 5.5 20H20a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1H5.5A2.5 2.5 0 0 1 3 7.5Z"/><circle cx="16.5" cy="14.5" r="1.3" fill="currentColor"/></svg>';
 const ICON_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4"/><path d="M14 3l5 5h-5z"/><circle cx="17" cy="17" r="4.2"/><path d="M17 15.2V17l1.3 1"/></svg>';
@@ -1553,6 +1835,7 @@ function renderAll() {
   if (S.wasteView) renderWaste();
   if (S.view === 'fund') renderFund();
   if (S.view === 'settings') renderSettingsView();
+  if (S.view === 'compare' && !S.cmp.rendered) { S.cmp.rendered = true; renderCompare(); }
   if ($('itemsDlg').open) renderItemsList();
 }
 
@@ -1608,17 +1891,20 @@ function renderKpis() {
   const m = summary();
   const names = [...new Set(cb.map(b => b.group_name))].join(' و');
   const restLabel = S.mode === 'current' ? 'إجمالي الآجل المتبقي من مبيعات الشهر الحالي' : 'إجمالي الآجل المتبقي من مبيعات الفترة';
-  $('kpis').innerHTML = `
+  $('kpis').innerHTML = `<div class="kpi-g3">
     <div class="kpi"><span>المبيعات الكاملة</span><b class="num">${money(m.sales)}</b><small>نقدي ${money(m.cash)} + آجل ${money(m.credit)}</small></div>
-    <div class="kpi"><span>إجمالي الفواتير الآجلة</span><b class="num">${money(m.credit)}</b><small>${esc(names)}</small></div>
-    <div class="kpi"><span>المبالغ المحصّلة من الآجل</span><b class="num">${money(m.collected)}</b><small>من ${money(m.credit)} ريال</small></div>
+    <div class="kpi ret-k"><span>مردود المبيعات</span><b class="num ret-neg">${negMoney(m.returns)}</b><small>من مبيعات الفروع الآجلة</small></div>
+    <div class="kpi net-k"><span>صافي المبيعات</span><b class="num">${money(m.net)}</b><small>المبيعات الكاملة − المردود</small></div>
+    <div class="kpi"><span>إجمالي الفواتير الآجلة</span><b class="num">${money(m.netCredit)}</b><small>${m.returns ? `${money(m.credit)} − مردود ${money(m.returns)}` : esc(names)}</small></div>
+    <div class="kpi"><span>المبالغ المحصّلة من الآجل</span><b class="num">${money(m.collected)}</b><small>من ${money(m.netCredit)} ريال</small></div>
     <div class="kpi"><span>نسبة تحصيل الآجل</span><b class="num">${fmtPct(m.pct)}</b><div class="meter"><i style="width:${Math.min(100, m.pct)}%"></i></div></div>
+    </div><div class="kpi-g2">
     <div class="kpi wide real"><div class="ic">${ICON_WALLET}</div><div>
       <span>إجمالي الدخل الحقيقي</span><b class="num">${money(m.real)}<span class="cur">ريال</span></b>
       <small>مبيعات الفروع النقدية ${money(m.cash)} + المحصّل من الآجل ${money(m.collected)}</small></div></div>
     <div class="kpi wide rest"><div class="ic">${ICON_CLOCK}</div><div>
       <span>${restLabel}</span><b class="num">${money(m.rest)}<span class="cur">ريال</span></b>
-      <small>${m.rest < 0 ? 'التحصيل أعلى من آجل الفترة (تحصيل من فواتير سابقة)' : m.credit ? `غير محصّل: ${fmtPct(100 - m.pct)} من الآجل` : 'لا توجد مبيعات آجلة في هذه الفترة'}</small></div></div>`;
+      <small>${m.rest < 0 ? 'التحصيل أعلى من آجل الفترة (تحصيل من فواتير سابقة)' : m.credit ? `غير محصّل: ${fmtPct(100 - m.pct)} من صافي الآجل` : 'لا توجد مبيعات آجلة في هذه الفترة'}</small></div></div></div>`;
 }
 
 function dotsFor(b, strip) {
@@ -1636,7 +1922,8 @@ function renderGroups() {
   const showDots = strip.length <= 62;
   const past = elapsedDays().filter(d => d < S.today);
 
-  $('groups').innerHTML = S.groups.map(g => {
+  const card = g => {
+    const key = g.key || g.name;
     const gt = g.branches.reduce((a, b) => a + branchTotal(b.id), 0);
     const share = total ? gt / total * 100 : 0;
     const multi = g.branches.length > 1;
@@ -1651,20 +1938,23 @@ function renderGroups() {
     const m = isCredit ? summary(g.branches) : null;
     const creditBox = isCredit ? `<div class="crd">
         <div class="sub"><span>إجمالي المبيعات (آجل)</span><b>${money(m.credit)}</b></div>
+        ${m.returns ? `<div class="sub"><span>مردود المبيعات</span><b class="ret-neg">${negMoney(m.returns)}</b></div>
+        <div class="sub net-line"><span>صافي المبيعات</span><b>${money(m.netCredit)}</b></div>` : ''}
         <div class="sub"><span>التحصيل</span><b class="ok">${money(m.collected)}</b></div>
         <div class="sub"><span>المبلغ الباقي</span><b>${money(m.rest)}</b></div>
         <div class="meter"><i style="width:${Math.min(100, m.pct)}%"></i></div>
-        <p class="pct">المحصّل ${fmtPct(m.pct)} من إجمالي المبيعات</p></div>` : '';
+        <p class="pct">المحصّل ${fmtPct(m.pct)} من ${m.returns ? 'صافي' : 'إجمالي'} المبيعات</p></div>` : '';
 
     const logo = (g.branches.find(b => b.logo) || {}).logo;
     const isWaste = g.branches.some(b => b.waste);
     const wasteLine = isWaste ? `<div class="sub"><span>البضائع التالفة</span><b class="no">${money(wasteTotal(S.waste.filter(r => g.branches.some(b => b.id === r.branch_id))))}</b></div>` : '';
 
-    return `<div class="gcard" role="button" tabindex="0" data-detail="${esc(g.name)}">
-      <div class="g-top"><h3>${logo ? `<img class="g-logo" src="${esc(logo)}" alt="">` : ''}${nameHtml(g.name)}${isCredit ? '<span class="credit-tag">آجل</span>' : ''}</h3><span class="share">${share.toFixed(1)}%</span></div>
+    return `<div class="gcard${g.merge ? ' merged' : ''}" role="button" tabindex="0" data-detail="${esc(key)}">
+      <div class="g-top"><h3>${logo && !g.merge ? `<img class="g-logo" src="${esc(logo)}" alt="">` : ''}${g.merge ? '<span class="merge-tag">مدمج</span>' : ''}${nameHtml(g.name)}${isCredit ? '<span class="credit-tag">آجل</span>' : ''}</h3>
+        ${g.merge && !VIEW ? `<button class="icon-x sm" data-unmerge="${g.id}" title="حذف الدمج" aria-label="حذف الدمج">×</button>` : `<span class="share">${share.toFixed(1)}%</span>`}</div>
       <div class="g-total-row"><p class="g-total num">${money(gt)}<span class="cur">ريال</span></p>
-        ${hasMargin(g.branches) ? `<button class="pf-btn${S.showProfit.has(g.name) ? ' on' : ''}" data-profit="${esc(g.name)}" type="button" title="الربح التقريبي" aria-label="عرض الربح التقريبي" aria-expanded="${S.showProfit.has(g.name)}">%</button>` : ''}</div>
-      ${S.showProfit.has(g.name) ? `<div class="pf-line"><span>الربح التقريبي <small>(هامش ${marginLabel(g.branches)})</small></span><b class="num">${money(Math.round(profitOf(g.branches)))}${R}</b></div>` : ''}
+        ${hasMargin(g.branches) ? `<button class="pf-btn${S.showProfit.has(key) ? ' on' : ''}" data-profit="${esc(key)}" type="button" title="الربح التقريبي" aria-label="عرض الربح التقريبي" aria-expanded="${S.showProfit.has(key)}">%</button>` : ''}</div>
+      ${S.showProfit.has(key) ? `<div class="pf-line"><span>الربح التقريبي <small>(هامش ${marginLabel(g.branches)})</small></span><b class="num">${money(Math.round(profitOf(g.branches)))}${R}</b></div>` : ''}
       ${(() => { const t = targetOf(g.branches); if (!t) return ''; const p = pctOf(targetSales(g.branches), t); return `<div class="g-target${p >= 100 ? ' done' : ''}"><div class="fc-row"><span>${p >= 100 ? '✓ تم تحقيق الهدف' : 'الهدف'}</span><b>${fmtPct(p)}</b></div><div class="mini"><i style="width:${Math.min(100, p)}%"></i></div></div>`; })()}
       <div class="share-bar"><i style="width:${share}%"></i></div>
       ${creditBox}
@@ -1674,7 +1964,16 @@ function renderGroups() {
       ${showDots ? g.branches.filter(b => b.active).map(b => `<div class="dots-row">${multi ? `<small>${esc(b.name)}</small>` : ''}${dotsFor(b, strip)}</div>`).join('') : ''}
       ${foot}
     </div>`;
-  }).join('');
+  };
+  $('groups').innerHTML = S.groups.map(card).join('');
+  // الإحصائيات المدمجة
+  S.mmap = {};
+  const merged = (S.merges || []).map(m => {
+    const brs = (m.branch_ids || []).map(id => S.byId[id]).filter(Boolean);
+    const g = { key: 'm:' + m.id, id: m.id, name: m.name, branches: brs, merge: true };
+    S.mmap[g.key] = g; return g;
+  }).filter(g => g.branches.length);
+  $('merges').innerHTML = merged.length ? `<h3 class="merge-h">الإحصائيات المدمجة</h3><div class="groups">${merged.map(card).join('')}</div>` : '';
 }
 
 function renderCorrections() {
@@ -1730,7 +2029,7 @@ function renderLinks() {
 
 function renderDetail() {
   const all = S.detail === '__all';
-  const g = all ? null : S.gmap[S.detail];
+  const g = all ? null : (S.gmap[S.detail] || (S.mmap || {})[S.detail]);
   if (!all && !g) { closeDetail(); return; }
   const brs = all ? S.branches : g.branches;
   const multi = brs.length > 1;
@@ -1743,9 +2042,9 @@ function renderDetail() {
   const m = summary(brs);
 
   const creditBrs = brs.filter(b => b.credit);
-  let cum = 0, cumCol = 0, cumCred = 0;
+  let cum = 0, cumCol = 0, cumCred = 0, cumRet = 0;
   const rows = days.map(d => {
-    const dt = dayTotal(d, brs) || 0, dc = dayCol(d, brs); cum += dt; cumCol += dc;
+    const dt = dayTotal(d, brs) || 0, dc = dayCol(d, brs), dr = dayRet(d, brs); cum += dt; cumCol += dc; cumRet += dr;
     cumCred += dayTotal(d, creditBrs) || 0;
     const cells = brs.map(b => {
       const v = amt(b.id, d);
@@ -1753,15 +2052,17 @@ function renderDetail() {
       return `<td class="n">${S.by[b.id + '|' + d] === 'admin' ? '<span class="by-adm" title="أدخلته الإدارة">إدارة</span>' : ''}${money(v)}</td>${b.credit ? `<td class="n col">${money(col(b.id, d))}</td>` : ''}`;
     }).join('');
     return `<tr class="${d === S.today ? 'is-today' : ''}"><td>${esc(fmtShort(d))}</td><td>${esc(fmtDayName(d))}</td>${cells}
-      ${multi ? `<td class="n tot">${money(dt)}</td>` : ''}${multi && anyCredit ? `<td class="n tot col">${money(dc)}</td>` : ''}<td class="n cum">${money(cum)}</td>${anyCredit ? `<td class="n cum">${money(cumCred - cumCol)}</td>` : ''}</tr>`;
+      ${multi ? `<td class="n tot">${money(dt)}</td>` : ''}${multi && anyCredit ? `<td class="n tot col">${money(dc)}</td>` : ''}${anyCredit ? `<td class="n ret-neg">${dr ? negMoney(dr) : '<span class="muted">—</span>'}</td>` : ''}<td class="n cum">${money(cum)}</td>${anyCredit ? `<td class="n cum">${money(cumCred - cumRet - cumCol)}</td>` : ''}</tr>`;
   }).join('');
 
   const pills = anyCredit ? `
       ${!allCredit ? `<div class="pill"><span>مبيعات نقدية</span><b>${money(m.cash)}</b></div>` : ''}
       <div class="pill"><span>إجمالي المبيعات الآجلة</span><b>${money(m.credit)}</b></div>
+      <div class="pill"><span>مردود المبيعات</span><b class="ret-neg">${negMoney(m.returns)}</b></div>
+      <div class="pill net-pill"><span>صافي المبيعات</span><b>${money(m.netCredit)}</b></div>
       <div class="pill"><span>التحصيل</span><b class="ok">${money(m.collected)}</b></div>
       <div class="pill"><span>المبلغ الباقي</span><b>${money(m.rest)}</b></div>
-      <div class="pill"><span>نسبة المحصّل من المبيعات</span><b>${fmtPct(m.pct)}</b></div>
+      <div class="pill"><span>نسبة المحصّل من صافي المبيعات</span><b>${fmtPct(m.pct)}</b></div>
       ${!allCredit ? `<div class="pill"><span>الدخل الحقيقي</span><b class="ok">${money(m.real)}</b></div>` : ''}` : '';
   const colHead = b => b.credit ? `<th class="n">${esc(head(b))}${multi ? ' مبيعات' : ' (المبيعات)'}</th><th class="n">${multi ? esc(head(b)) + ' تحصيل' : 'التحصيل'}</th>` : `<th class="n">${esc(head(b))}</th>`;
   const colFoot = b => `<td class="n">${money(branchTotal(b.id))}</td>${b.credit ? `<td class="n col">${money(branchCol(b.id))}</td>` : ''}`;
@@ -1778,10 +2079,11 @@ function renderDetail() {
       <div class="pill"><span>مرات التأخير (تراكمي)</span><b class="${brs.some(b => lateOf(b.id).count) ? 'no' : ''}">${brs.reduce((a, b) => a + lateOf(b.id).count, 0)}</b></div>
     </div>
     ${days.length ? `<div class="tbl-wrap"><table>
-      <thead><tr><th>التاريخ</th><th>اليوم</th>${brs.map(colHead).join('')}${multi ? '<th class="n">إجمالي المبيعات</th>' : ''}${multi && anyCredit ? '<th class="n">إجمالي التحصيل</th>' : ''}<th class="n">المبيعات التراكمية</th>${anyCredit ? '<th class="n">الآجل المتبقي التراكمي</th>' : ''}</tr></thead>
+      <thead><tr><th>التاريخ</th><th>اليوم</th>${brs.map(colHead).join('')}${multi ? '<th class="n">إجمالي المبيعات</th>' : ''}${multi && anyCredit ? '<th class="n">إجمالي التحصيل</th>' : ''}${anyCredit ? '<th class="n">المردود</th>' : ''}<th class="n">المبيعات التراكمية</th>${anyCredit ? '<th class="n">الآجل المتبقي التراكمي</th>' : ''}</tr></thead>
       <tbody>${rows}</tbody>
-      <tfoot><tr><td colspan="2">المجموع</td>${brs.map(colFoot).join('')}${multi ? `<td class="n">${money(total)}</td>` : ''}${multi && anyCredit ? `<td class="n col">${money(m.collected)}</td>` : ''}<td class="n">${money(total)}</td>${anyCredit ? `<td class="n">${money(m.rest)}</td>` : ''}</tr></tfoot>
-    </table></div>` : `<p class="muted">لا توجد أيام في هذه الفترة بعد.</p>`}`;
+      <tfoot><tr><td colspan="2">المجموع</td>${brs.map(colFoot).join('')}${multi ? `<td class="n">${money(total)}</td>` : ''}${multi && anyCredit ? `<td class="n col">${money(m.collected)}</td>` : ''}${anyCredit ? `<td class="n ret-neg">${negMoney(m.returns)}</td>` : ''}<td class="n">${money(total)}</td>${anyCredit ? `<td class="n">${money(m.rest)}</td>` : ''}</tr></tfoot>
+    </table></div>` : `<p class="muted">لا توجد أيام في هذه الفترة بعد.</p>`}
+    ${anyCredit ? movesPanel(creditBrs) : ''}`;
   $('backBtn').onclick = closeDetail;
   $('commitToggle').onclick = () => {
     S.commitOpen = !S.commitOpen; $('commitPanel').hidden = !S.commitOpen;
@@ -1792,10 +2094,11 @@ function renderDetail() {
 // الصفحات: اللوحة، تفاصيل فرع، التوالف، حساب التمويلات، الإعدادات
 function showView(v) {
   S.view = v;
-  for (const [id, name] of [['overview', 'overview'], ['detail', 'detail'], ['waste', 'waste'], ['fund', 'fund'], ['settingsView', 'settings']]) $(id).hidden = v !== name;
+  for (const [id, name] of [['overview', 'overview'], ['detail', 'detail'], ['waste', 'waste'], ['fund', 'fund'], ['settingsView', 'settings'], ['compare', 'compare']]) $(id).hidden = v !== name;
+  $('cmpBtn').classList.toggle('on', v === 'compare');
   $('settingsBtn').classList.toggle('on', v === 'settings');
   // الفترة وطلبات التعديل تخص اللوحة والتقارير فقط
-  const side = v === 'fund' || v === 'settings';
+  const side = v === 'fund' || v === 'settings' || v === 'compare';
   document.querySelector('.period').hidden = side; $('corrections').hidden = side;
   scrollTo({ top: 0 });
 }
@@ -2413,8 +2716,12 @@ $('logoFile').onchange = async () => {
 
 // ---------------- الأحداث ----------------
 document.addEventListener('click', async e => {
-  const t = e.target.closest('[data-profit],[data-open-fund],[data-open-settings],[data-pay],[data-unpay],[data-lpay],[data-unlpay],[data-partopen],[data-partsave],[data-partcancel],[data-detail],[data-approve],[data-reject],[data-copy],[data-add],[data-waste-open],[data-delbatch]');
+  const t = e.target.closest('[data-mvadd],[data-mvdel],[data-unmerge],[data-open-merge],[data-open-compare],[data-profit],[data-open-fund],[data-open-settings],[data-pay],[data-unpay],[data-lpay],[data-unlpay],[data-partopen],[data-partsave],[data-partcancel],[data-detail],[data-approve],[data-reject],[data-copy],[data-add],[data-waste-open],[data-delbatch]');
   if (!t) return;
+  if (t.dataset.mvadd || t.dataset.mvdel) return moveAction(t);
+  if (t.dataset.unmerge) return deleteMerge(Number(t.dataset.unmerge));
+  if ('openMerge' in t.dataset) return openMergeDlg();
+  if ('openCompare' in t.dataset) return openCompare();
   if (t.dataset.profit) { const k = t.dataset.profit; S.showProfit.has(k) ? S.showProfit.delete(k) : S.showProfit.add(k); return renderGroups(); }
   if ('openFund' in t.dataset) return openFund();
   if (t.dataset.openSettings) return openSettings(t.dataset.openSettings);
@@ -2441,6 +2748,9 @@ document.addEventListener('keydown', e => {
   if (t && e.target === t && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); t.dataset.detail ? openDetail(t.dataset.detail) : openWaste('all'); }
 });
 $('wasteBtn').onclick = () => openWaste();
+$('cmpBtn').onclick = () => S.view === 'compare' ? closeDetail() : openCompare();
+$('mgSave').onclick = saveMerge; $('mgCancel').onclick = () => $('mergeDlg').close();
+bindCompare();
 $('settingsBtn').onclick = () => S.view === 'settings' ? closeDetail() : openSettings();
 bindSettingsView();
 $('lateBtn').onclick = () => toggleLate();
@@ -2549,6 +2859,8 @@ function subscribe() {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'fund_payments' }, () => scheduleReload())
     .on('postgres_changes', { event: '*', schema: 'public', table: 'loan_payments' }, () => scheduleReload())
     .on('postgres_changes', { event: '*', schema: 'public', table: 'commitments' }, () => scheduleReload())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'credit_moves' }, () => scheduleReload())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'merged_views' }, () => scheduleReload())
     .on('postgres_changes', { event: '*', schema: 'public', table: 'correction_requests' }, p => {
       if (p.eventType === 'INSERT' && p.new) {
         const b = S.byId[p.new.branch_id];
