@@ -200,9 +200,20 @@
   /* ---- صنف آخر ---- */
   .chip-other { border-style: dashed; font-weight: 600; }
   #chips { display: block; }
-  .chip-group { margin-bottom: 10px; }
-  .chip-cat { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 6px; padding-bottom: 3px; border-bottom: 1px dashed var(--line); }
-  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip-group { margin-bottom: 12px; border-radius: 16px; background: color-mix(in srgb, var(--cc) 7%, var(--surface)); border: 1.5px solid color-mix(in srgb, var(--cc) 30%, transparent); overflow: hidden; }
+  .chip-cat { display: flex; align-items: center; gap: 8px; width: 100%; border: none; cursor: pointer; text-align: start;
+    background: var(--cc); color: #fff; font-family: inherit; font-size: 16px; font-weight: 800; padding: 11px 14px; }
+  .chip-cat .cc-name { flex: 1; display: flex; align-items: center; gap: 9px; }
+  .chip-cat .cc-name::before { content: ''; width: 10px; height: 10px; border-radius: 3px; background: #fff; opacity: .9; transform: rotate(45deg); flex: none; }
+  .chip-cat .cc-n { font-size: 12px; font-weight: 600; background: rgba(255,255,255,.2); border-radius: 99px; padding: 2px 9px; white-space: nowrap; }
+  .chip-cat .cc-sel { font-size: 12px; font-weight: 700; background: #fff; color: var(--cc); border-radius: 99px; padding: 2px 9px; white-space: nowrap; }
+  .chip-cat .cc-arr { font-size: 14px; transition: transform .15s; }
+  .chip-group.shut .cc-arr { transform: rotate(90deg); }
+  .chip-cat:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; }
+  .chip-group .chip { background: var(--surface); border-color: color-mix(in srgb, var(--cc) 28%, var(--line)); }
+  .chip-group .chip.on { background: var(--cc); border-color: var(--cc); color: #fff; }
+  .chip-group .chip.on small { color: rgba(255,255,255,.85); }
   #chips > .chip { margin: 4px 0 0 6px; }
   .other-form select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); font: inherit; }
   .other-form { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px; margin-top: 4px; }
@@ -651,6 +662,11 @@ const itemOf = id => (info.items || []).find(i => i.id === id);
 // ترتيب الأصناف: حسب التصنيف، ثم نوع الصنف، ثم الحجم (كبير ← مستطيل ← وسط ← صغير)
 const CATS = ['البسبوسة', 'الكيك والتشيز', 'المعجنات', 'الخلايا والكرواسون', 'التمور', 'ورق العنب', 'الشوكولاتة', 'البيتفور والمعمول', 'البقلاوة والحلويات الشرقية', 'أخرى'];
 const catOf = i => (i.category || 'أخرى').trim() || 'أخرى';
+// لون مميز لكل قسم من أقسام التوالف (الأقسام الجديدة تأخذ لوناً ثابتاً من القائمة)
+const CAT_COL = { 'البسبوسة': '#8f5d0a', 'الكيك والتشيز': '#a83a64', 'المعجنات': '#8a5524', 'الخلايا والكرواسون': '#5e7020', 'التمور': '#7a3a1f',
+  'ورق العنب': '#3d7330', 'الشوكولاتة': '#4a2a1e', 'البيتفور والمعمول': '#23706b', 'البقلاوة والحلويات الشرقية': '#5b3ea0', 'أخرى': '#5b6270' };
+const CAT_EXTRA = ['#2e5f8a', '#8a2e5f', '#6a5a12', '#2e7a55', '#7a4a8a'];
+function catColor(c) { if (CAT_COL[c]) return CAT_COL[c]; let h = 0; for (const ch of c) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return CAT_EXTRA[h % CAT_EXTRA.length]; }
 const catRank = c => { const k = CATS.indexOf(c); return k < 0 ? CATS.length - 1.5 : k; };
 const SIZE_RE = /\s+(كبير|مستطيل|وسط|صغير|ربع)(\s.*)?$/;
 const sizeRank = n => /كبير/.test(n) ? 1 : /مستطيل/.test(n) ? 2 : /وسط/.test(n) ? 3 : /(صغير|ربع)/.test(n) ? 4 : 5;
@@ -826,12 +842,23 @@ function renderChips() {
   else {
     const groups = [];
     for (const i of list) { const c = catOf(i); let g = groups.find(x => x.c === c); if (!g) groups.push(g = { c, items: [] }); g.items.push(i); }
-    html = groups.map(g => `<div class="chip-group"><p class="chip-cat">${esc(g.c)}</p><div class="chip-row">${g.items.map(chip).join('')}</div></div>`).join('');
+    W.closed = W.closed || new Set();
+    html = groups.map(g => {
+      const sel = g.items.filter(i => W.basket.some(l => l.id === i.id)).length, shut = W.closed.has(g.c);
+      return `<section class="chip-group${shut ? ' shut' : ''}" style="--cc:${catColor(g.c)}">
+        <button type="button" class="chip-cat" data-gcat="${esc(g.c)}" aria-expanded="${!shut}">
+          <span class="cc-name">${esc(g.c)}</span>
+          ${sel ? `<span class="cc-sel">${sel} مختار</span>` : ''}
+          <span class="cc-n">${g.items.length} صنف</span>
+          <span class="cc-arr" aria-hidden="true">▾</span></button>
+        ${shut ? '' : `<div class="chip-row">${g.items.map(chip).join('')}</div>`}</section>`;
+    }).join('');
   }
   box.innerHTML = html
     + `<button type="button" class="chip chip-other${W.other.open ? ' on' : ''}" id="otherChip">+ صنف آخر</button>`
     + (W.other.open ? otherFormHtml() : '');
   bindOther(box);
+  box.querySelectorAll('[data-gcat]').forEach(b => b.onclick = () => { const c = b.dataset.gcat; W.closed.has(c) ? W.closed.delete(c) : W.closed.add(c); renderChips(); });
   box.querySelectorAll('[data-item]').forEach(b => b.onclick = () => {
     const id = Number(b.dataset.item);
     let l = W.basket.find(x => x.id === id);
@@ -1097,6 +1124,6 @@ else {
   }, 300000);
 }
 </script>
-<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-16 و</p>
+<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-16 ز</p>
 </body>
 </html>

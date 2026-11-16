@@ -158,8 +158,9 @@
   .irow .acts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
   .items-list { margin-top: 14px; }
   .chip-u { font-size: 11px; padding: 0 7px; border-radius: 99px; background: var(--bg); border: 1px solid var(--line); margin-inline-start: 6px; }
-  .icat { font-weight: 700; font-size: 14px; margin: 14px 0 2px; padding-bottom: 4px; border-bottom: 2px solid var(--line); }
-  .icat span { color: var(--muted); font-weight: 400; font-size: 12px; }
+  .icat { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; margin: 16px 0 6px; padding: 9px 14px; border-radius: 12px; background: var(--cc, var(--ink)); color: #fff; position: sticky; top: 0; z-index: 1; }
+  .icat::before { content: ''; width: 9px; height: 9px; border-radius: 2px; background: #fff; transform: rotate(45deg); opacity: .9; }
+  .icat span { margin-inline-start: auto; font-weight: 600; font-size: 12px; background: rgba(255,255,255,.2); border-radius: 99px; padding: 2px 9px; }
   .imp-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
   .imp { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px; margin-top: 10px; }
   .imp-head { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 14px; }
@@ -642,7 +643,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-16 و</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-16 ز</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -2340,6 +2341,12 @@ function resetItemForm(it) {
 // ---------------- ترتيب الأصناف حسب التصنيف ----------------
 const CATS = ['البسبوسة', 'الكيك والتشيز', 'المعجنات', 'الخلايا والكرواسون', 'التمور', 'ورق العنب', 'الشوكولاتة', 'البيتفور والمعمول', 'البقلاوة والحلويات الشرقية', 'أخرى'];
 const catOf = i => (i.category || 'أخرى').trim() || 'أخرى';
+// لون مميز لكل قسم من أقسام التوالف (الأقسام الجديدة تأخذ لوناً ثابتاً من القائمة)
+const CAT_COL = { 'البسبوسة': '#8f5d0a', 'الكيك والتشيز': '#a83a64', 'المعجنات': '#8a5524', 'الخلايا والكرواسون': '#5e7020', 'التمور': '#7a3a1f',
+  'ورق العنب': '#3d7330', 'الشوكولاتة': '#4a2a1e', 'البيتفور والمعمول': '#23706b', 'البقلاوة والحلويات الشرقية': '#5b3ea0', 'أخرى': '#5b6270' };
+const CAT_EXTRA = ['#2e5f8a', '#8a2e5f', '#6a5a12', '#2e7a55', '#7a4a8a'];
+function catColor(c) { if (CAT_COL[c]) return CAT_COL[c]; let h = 0; for (const ch of c) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return CAT_EXTRA[h % CAT_EXTRA.length]; }
+
 const catRank = c => { const k = CATS.indexOf(c); return k < 0 ? CATS.length - 1.5 : k; };
 const SIZE_RE = /\s+(كبير|مستطيل|وسط|صغير|ربع)(\s.*)?$/;
 const sizeRank = n => /كبير/.test(n) ? 1 : /مستطيل/.test(n) ? 2 : /وسط/.test(n) ? 3 : /(صغير|ربع)/.test(n) ? 4 : 5;
@@ -2551,7 +2558,7 @@ function renderItemsList() {
   const brNames = it => !it.branch_ids || !it.branch_ids.length || brs.every(b => it.branch_ids.includes(b.id))
     ? 'كل فروع التوالف' : it.branch_ids.map(id => S.byId[id] ? label(S.byId[id]) : '').filter(Boolean).join('، ');
   let lastCat = null;
-  $('itemsList').innerHTML = S.items.length ? sortItems(S.items).map(it => `${catOf(it) !== lastCat ? `<p class="icat">${esc(lastCat = catOf(it))} <span>(${S.items.filter(x => catOf(x) === lastCat).length})</span></p>` : ''}<div class="irow${it.active ? '' : ' off'}">
+  $('itemsList').innerHTML = S.items.length ? sortItems(S.items).map(it => `${catOf(it) !== lastCat ? `<p class="icat" style="--cc:${catColor(catOf(it))}">${esc(lastCat = catOf(it))} <span>${S.items.filter(x => catOf(x) === lastCat).length} صنف</span></p>` : ''}<div class="irow${it.active ? '' : ' off'}">
       <div><b>${esc(it.name)}</b><span class="chip-u">${it.unit === 'weight' ? 'وزن' : 'حبة'}</span>${it.code ? `<span class="chip-u">#${esc(it.code)}</span>` : ''}
         <small>${money(it.cost)} ريال / ${unitName(it.unit)} · ${esc(brNames(it))}${it.active ? '' : ' · موقوف'}${it.added_by_branch && S.byId[it.added_by_branch] ? ` · <span class="by-br">أضافه موظف ${esc(label(S.byId[it.added_by_branch]))}</span>` : ''}</small></div>
       <div class="acts">
