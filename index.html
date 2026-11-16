@@ -21,6 +21,21 @@
   .top-in { max-width: 1180px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .brand { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .brand h1 { font-size: 20px; }
+  .brand-box { display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #2B1E18, #5C3D2A); color: #fff; padding: 7px 16px 7px 10px; border-radius: 16px; box-shadow: 0 6px 16px rgba(43,30,24,.22); }
+  .brand-ic { width: 36px; height: 36px; border-radius: 11px; background: rgba(255,255,255,.14); display: grid; place-items: center; flex: none; }
+  .brand-ic svg { width: 20px; height: 20px; }
+  .brand-t h1 { font-size: 18px; color: #fff; line-height: 1.25; margin: 0; }
+  .brand-t small { display: flex; align-items: center; gap: 8px; font-size: 11px; color: rgba(255,255,255,.75); }
+  .brand-t .live { color: #CFE8BE; font-size: 11px; }
+  .brand-t .live::before { background: #8FCB6B; }
+  .brand-t .live.on { color: #CFE8BE; }
+  .brand-t .live.on::before { background: #8FCB6B; }
+  .brand-logos { display: flex; align-items: center; padding-inline-start: 6px; }
+  .brand-logos img { width: 40px; height: 40px; border-radius: 50%; object-fit: contain; background: #fff; border: 2px solid var(--surface); box-shadow: 0 2px 8px rgba(0,0,0,.14); margin-inline-start: -10px; transition: transform .15s; }
+  .brand-logos img:first-child { margin-inline-start: 0; }
+  .brand-logos img:hover { transform: translateY(-3px) scale(1.08); position: relative; z-index: 2; }
+  .br-row input[data-brname] { flex: 1; min-width: 200px; }
+  .br-type { max-width: 150px; }
   .live { font-size: 13px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
   .live::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
   .live.on { color: var(--accent); }
@@ -457,6 +472,8 @@
     .hero { grid-template-columns: 1fr; gap: 18px; padding: 18px; }
     .chart { height: 110px; gap: 2px; }
     .brand h1 { font-size: 18px; }
+    .brand-t h1 { font-size: 16px; }
+    .brand-logos img { width: 32px; height: 32px; margin-inline-start: -8px; }
   }
 </style>
 </head>
@@ -475,7 +492,14 @@
 
 <div id="app" hidden>
   <header class="top"><div class="top-in">
-    <div class="brand"><h1>مبيعات الفروع</h1><span id="viewTag" class="view-tag view-only"></span><span id="live" class="live">جارٍ الاتصال</span></div>
+    <div class="brand">
+      <div class="brand-box">
+        <span class="brand-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V11M10 20V5M16 20v-6M22 20H2"/></svg></span>
+        <div class="brand-t"><h1>مبيعات الفروع</h1><small>لوحة متابعة المبيعات والأهداف <span id="live" class="live">جارٍ الاتصال</span></small></div>
+      </div>
+      <div class="brand-logos" id="brandLogos" aria-label="شعارات الفروع"></div>
+      <span id="viewTag" class="view-tag view-only"></span>
+    </div>
     <div class="top-actions">
       <button id="addBtn" class="btn btn-primary btn-sm edit-only">إدخال مبيعات</button>
       <button id="wasteBtn" class="btn btn-ghost btn-sm">التوالف</button>
@@ -514,7 +538,7 @@
       <section id="groups" class="groups"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-16 أ</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-16 ب</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -1173,7 +1197,7 @@ function bindBack() { document.querySelectorAll('[data-back]').forEach(b => b.on
 // =====================================================================
 //  صفحة الإعدادات (تبويبات)
 // =====================================================================
-const SET_TABS = [['targets', 'الأهداف وهامش الربح'], ['commit', 'الالتزامات'], ['fund', 'التمويلات'], ['general', 'الفروع والمناديب والروابط'], ['links', 'روابط الإدخال']];
+const SET_TABS = [['targets', 'الأهداف وهامش الربح'], ['commit', 'الالتزامات'], ['fund', 'التمويلات'], ['general', 'الفروع والروابط والوصول'], ['links', 'روابط الإدخال']];
 function renderSettingsView() {
   const el = $('settingsView'); if (!el || el.hidden) return;
   const ae = document.activeElement;
@@ -1430,7 +1454,15 @@ const ICON_WALLET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" 
 const ICON_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4"/><path d="M14 3l5 5h-5z"/><circle cx="17" cy="17" r="4.2"/><path d="M17 15.2V17l1.3 1"/></svg>';
 
 // ---------------- العرض ----------------
+// شعارات الفروع بجانب العنوان (بدون تكرار نفس الشعار)
+function renderBrandLogos() {
+  const seen = new Map();
+  for (const b of activeBranches()) if (b.logo) { if (!seen.has(b.logo)) seen.set(b.logo, []); seen.get(b.logo).push(b.name); }
+  $('brandLogos').innerHTML = [...seen].map(([src, names]) => `<img src="${esc(src)}" alt="${esc(names.join('، '))}" title="${esc(names.join('، '))}">`).join('');
+}
+
 function renderAll() {
+  renderBrandLogos();
   renderPeriodLabel(); renderLate(); renderCorrections(); renderHero(); renderKpis(); renderFinSum(); renderWasteSum(); renderGroups(); renderCharts(); renderHistory();
   if (S.detail) renderDetail();
   if (S.wasteView) renderWaste();
@@ -2101,7 +2133,6 @@ function renderSettings() {
   const link = S.settings.waste_whatsapp_link || '';
   const ae = document.activeElement;
   if (ae && ae.tagName === 'INPUT' && ae.type !== 'checkbox' && el.contains(ae)) return; // لا نعيد الرسم أثناء الكتابة
-  const reps = (S.allBranches || []).filter(b => b.is_rep);
   el.innerHTML = `
     <div class="set-sec"><h3>رابط قروب واتساب الخاص بالتوالف</h3>
       <div class="set-row"><input id="waLink" dir="ltr" placeholder="https://chat.whatsapp.com/..." value="${esc(link)}">
@@ -2128,18 +2159,20 @@ function renderSettings() {
         <input id="newViewer" placeholder="لمن الرابط؟ مثل: المدير المالي" autocomplete="off">
         <button class="btn btn-primary btn-sm" id="addViewer">إنشاء رابط</button></div>
       <p class="muted" style="font-size:13px;margin-top:6px">صاحب الرابط يرى كل الإحصائيات والتقارير والتوالف بدون تسجيل دخول، ولا يستطيع إدخال أو تعديل أو حذف أي شيء، ولا يرى روابط الفروع. تقدر توقف الرابط أو تحذفه في أي وقت.</p>`}</div>
-    <div class="set-sec"><h3>مناديب التوزيع (${esc(repGroup())})</h3>
-      ${reps.map(b => `<div class="rep-row${b.active ? '' : ' off'}">
-        <span class="pref">مندوب:</span>
-        <input data-repname="${b.id}" value="${esc(repShort(b.name))}" placeholder="اكتب اسم المندوب" autocomplete="off">
-        <button class="btn btn-primary btn-sm" data-repsave="${b.id}">حفظ الاسم</button>
+    <div class="set-sec"><h3>الفروع</h3>
+      ${(S.allBranches || []).map(b => `<div class="rep-row br-row${b.active ? '' : ' off'}">
+        <input data-brname="${b.id}" value="${esc(b.name)}" autocomplete="off" aria-label="اسم الفرع">
+        <select class="in br-type" data-brtype="${b.id}" aria-label="نوع المبيعات"><option value="cash"${b.credit ? '' : ' selected'}>مبيعات نقدية</option><option value="credit"${b.credit ? ' selected' : ''}>آجل + تحصيل</option></select>
+        <button class="btn btn-primary btn-sm" data-brsave="${b.id}">حفظ الاسم</button>
         ${b.active ? `<button class="btn btn-ghost btn-sm" data-copy="${esc(branchUrl(b))}">نسخ الرابط</button>` : '<span class="muted" style="font-size:13px">موقوف</span>'}
-        <button class="btn btn-ghost btn-sm${b.active ? ' btn-danger' : ''}" data-reptoggle="${b.id}">${b.active ? 'إيقاف' : 'تفعيل'}</button>
+        <button class="btn btn-ghost btn-sm${b.active ? ' btn-danger' : ''}" data-brtoggle="${b.id}">${b.active ? 'إيقاف' : 'تفعيل'}</button>
       </div>`).join('')}
-      <div class="set-row" style="margin-top:10px">
-        <input id="newRep" placeholder="اسم المندوب الجديد" autocomplete="off">
-        <button class="btn btn-primary btn-sm" id="addRep">إضافة مندوب</button></div>
-      <p class="muted" style="font-size:13px;margin-top:6px">كل مندوب له رابط إدخال خاص (يظهر أيضاً في روابط إدخال المبيعات)، ومبيعاته آجلة مع خانة التحصيل، ويظهر داخل بطاقة ${esc(repGroup())}. إيقاف المندوب يعطّل رابطه وتبقى مبيعاته السابقة في التقارير.</p></div>
+      <div class="set-row wrap" style="margin-top:10px">
+        <input id="newBr" placeholder="اسم الفرع الجديد، مثل: فرع التوزيع رقم 2 (المندوب ...)" autocomplete="off">
+        <select id="newBrType" class="in br-type"><option value="credit">آجل + تحصيل</option><option value="cash">مبيعات نقدية</option></select>
+        <label class="tgl"><input type="checkbox" id="newBrWaste">قسم التوالف</label>
+        <button class="btn btn-primary btn-sm" id="addBr">إضافة فرع</button></div>
+      <p class="muted" style="font-size:13px;margin-top:6px">كل فرع (ومنها فروع التوزيع للمناديب) له رابط إدخال خاص يظهر في "روابط الإدخال"، وبطاقة مستقلة في اللوحة. "آجل + تحصيل" يعني أن الموظف يدخل المبيعات الآجلة والتحصيل مثل البازل الذهبي. إيقاف الفرع يعطّل رابطه وتبقى مبيعاته السابقة في التقارير.</p></div>
     <div class="set-sec"><h3>أرقام واتساب الفروع والاستثناء من إشعار التأخير</h3>
       ${activeBranches().map(b => `<div class="rep-row">
         <span class="nm" style="min-width:180px">${esc(label(b))}</span>
@@ -2167,46 +2200,43 @@ function renderSettings() {
     S.settings.waste_whatsapp_link = v; $('waLink').blur(); renderSettings(); toast('تم حفظ رابط القروب');
   };
 }
-// ---------------- المناديب ----------------
-const REP_PREFIX = 'مندوب: ';
-const repShort = n => n.replace(/^مندوب(\s+التوزيع)?\s*[:：\-–]?\s*/, '').trim();
-function repGroup() {
-  const r = (S.allBranches || []).find(b => b.is_rep);
-  return r ? r.group_name : 'مصنع أفق النكهات';
-}
-async function addRep() {
-  const n = $('newRep').value.trim();
-  if (!n) { toast('اكتب اسم المندوب', 'err'); $('newRep').focus(); return; }
-  const tmpl = (S.allBranches || []).find(b => b.is_rep) || (S.allBranches || []).find(b => b.group_name === repGroup()) || {};
+// ---------------- الفروع: إضافة وتسمية ونوع وإيقاف ----------------
+async function addBranch() {
+  const n = $('newBr').value.trim().replace(/\s+/g, ' ');
+  if (!n) { toast('اكتب اسم الفرع', 'err'); $('newBr').focus(); return; }
+  if ((S.allBranches || []).some(b => b.name === n)) { toast('يوجد فرع بنفس الاسم', 'err'); return; }
   const maxSort = Math.max(0, ...(S.allBranches || []).map(b => b.sort_order || 0));
-  $('addRep').disabled = true;
+  $('addBr').disabled = true;
   const { error } = await sb.from('branches').insert({
-    name: REP_PREFIX + n, group_name: repGroup(), sort_order: maxSort + 1,
-    credit: tmpl.credit ?? true, waste: false, is_rep: true, active: true
+    name: n, group_name: n, sort_order: maxSort + 1, credit: $('newBrType').value === 'credit',
+    waste: $('newBrWaste').checked, is_rep: false, active: true
   });
-  $('addRep').disabled = false;
-  if (error) { toast(error.code === '23505' ? 'يوجد مندوب بنفس الاسم' : errMsg(error), 'err'); return; }
-  $('newRep').value = ''; $('newRep').blur();
-  toast(`تمت إضافة المندوب ${n}. انسخ رابطه وأرسله له`);
+  $('addBr').disabled = false;
+  if (error) { toast(error.code === '23505' ? 'يوجد فرع بنفس الاسم' : errMsg(error), 'err'); return; }
+  $('newBr').value = ''; $('newBr').blur();
+  toast(`تمت إضافة ${n}. انسخ رابطه من "روابط الإدخال" وأرسله للموظف`);
   await loadBranches(); renderAll();
 }
-async function saveRepName(id) {
-  const inp = document.querySelector(`[data-repname="${id}"]`), n = inp.value.trim();
-  if (!n) { toast('اكتب اسم المندوب', 'err'); inp.focus(); return; }
+async function saveBranchName(id) {
+  const inp = document.querySelector(`[data-brname="${id}"]`), n = inp.value.trim().replace(/\s+/g, ' '), b = S.byId[id];
+  if (!n) { toast('اكتب اسم الفرع', 'err'); inp.focus(); return; }
+  if (!b || n === b.name) return;
+  // الفرع المستقل: اسم البطاقة يتغير معه
+  const alone = (S.allBranches || []).filter(x => x.group_name === b.group_name).length === 1;
   inp.blur();
-  const { error } = await sb.from('branches').update({ name: REP_PREFIX + n }).eq('id', id);
-  if (error) { toast(error.code === '23505' ? 'يوجد مندوب بنفس الاسم' : errMsg(error), 'err'); return; }
-  toast('تم حفظ اسم المندوب'); await loadBranches(); renderAll();
+  const { error } = await sb.from('branches').update(alone ? { name: n, group_name: n } : { name: n }).eq('id', id);
+  if (error) { toast(error.code === '23505' ? 'يوجد فرع بنفس الاسم' : errMsg(error), 'err'); return; }
+  toast('تم حفظ اسم الفرع'); await loadBranches(); renderAll();
 }
-async function toggleRep(id) {
+async function toggleBranch(id) {
   const b = S.byId[id]; if (!b) return;
   if (b.active && !confirm(`إيقاف ${b.name}؟ سيتعطل رابطه، وتبقى مبيعاته السابقة في التقارير.`)) return;
-  await saveBranch(id, { active: !b.active }, b.active ? 'تم إيقاف المندوب' : 'تم تفعيل المندوب');
+  await saveBranch(id, { active: !b.active }, b.active ? 'تم إيقاف الفرع' : 'تم تفعيل الفرع');
 }
 $('settings').addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
-  if (e.target.id === 'newRep') { e.preventDefault(); addRep(); }
-  else if (e.target.dataset && e.target.dataset.repname) { e.preventDefault(); saveRepName(Number(e.target.dataset.repname)); }
+  if (e.target.id === 'newBr') { e.preventDefault(); addBranch(); }
+  else if (e.target.dataset && e.target.dataset.brname) { e.preventDefault(); saveBranchName(Number(e.target.dataset.brname)); }
 });
 
 async function addViewer() {
@@ -2248,15 +2278,17 @@ $('settings').addEventListener('click', async e => {
   if (e.target.closest('#addViewer')) return addViewer();
   const vt = e.target.closest('[data-vtoggle]'); if (vt) return viewerAction(Number(vt.dataset.vtoggle), false);
   const vd = e.target.closest('[data-vdel]'); if (vd) return viewerAction(Number(vd.dataset.vdel), true);
-  if (e.target.closest('#addRep')) return addRep();
-  const rs = e.target.closest('[data-repsave]'); if (rs) return saveRepName(Number(rs.dataset.repsave));
-  const rt = e.target.closest('[data-reptoggle]'); if (rt) return toggleRep(Number(rt.dataset.reptoggle));
+  if (e.target.closest('#addBr')) return addBranch();
+  const rs = e.target.closest('[data-brsave]'); if (rs) return saveBranchName(Number(rs.dataset.brsave));
+  const rt = e.target.closest('[data-brtoggle]'); if (rt) return toggleBranch(Number(rt.dataset.brtoggle));
   const b = e.target.closest('[data-logo],[data-logodel]'); if (!b) return;
   if (b.dataset.logo) { logoFor = Number(b.dataset.logo); $('logoFile').value = ''; $('logoFile').click(); return; }
   if (!confirm('حذف شعار الفرع؟')) return;
   await saveBranch(Number(b.dataset.logodel), { logo: null }, 'تم حذف الشعار');
 });
 $('settings').addEventListener('change', async e => {
+  const bt = e.target.closest('[data-brtype]');
+  if (bt) return saveBranch(Number(bt.dataset.brtype), { credit: bt.value === 'credit' }, bt.value === 'credit' ? 'صار الفرع: آجل + تحصيل' : 'صار الفرع: مبيعات نقدية');
   const lx = e.target.closest('[data-lexempt]');
   if (lx) {
     await saveBranch(Number(lx.dataset.lexempt), { late_exempt: lx.checked }, lx.checked ? 'تم استثناء الفرع من إشعار التأخير' : 'تم إلغاء الاستثناء');
