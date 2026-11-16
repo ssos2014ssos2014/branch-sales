@@ -21,6 +21,9 @@
   .top-in { max-width: 1180px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .brand { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .brand h1 { font-size: 20px; }
+  .nm2 { display: inline-flex; flex-direction: column; line-height: 1.25; vertical-align: middle; }
+  .nm2 .nm-main { font-weight: inherit; }
+  .nm2 .nm-sub { font-size: .74em; font-weight: 500; color: var(--muted); margin-top: 1px; }
   .brand-box { display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #2B1E18, #5C3D2A); color: #fff; padding: 7px 16px 7px 10px; border-radius: 16px; box-shadow: 0 6px 16px rgba(43,30,24,.22); }
   .brand-ic { width: 36px; height: 36px; border-radius: 11px; background: rgba(255,255,255,.14); display: grid; place-items: center; flex: none; }
   .brand-ic svg { width: 20px; height: 20px; }
@@ -30,10 +33,13 @@
   .brand-t .live::before { background: #8FCB6B; }
   .brand-t .live.on { color: #CFE8BE; }
   .brand-t .live.on::before { background: #8FCB6B; }
-  .brand-logos { display: flex; align-items: center; padding-inline-start: 6px; }
-  .brand-logos img { width: 40px; height: 40px; border-radius: 50%; object-fit: contain; background: #fff; border: 2px solid var(--surface); box-shadow: 0 2px 8px rgba(0,0,0,.14); margin-inline-start: -10px; transition: transform .15s; }
-  .brand-logos img:first-child { margin-inline-start: 0; }
-  .brand-logos img:hover { transform: translateY(-3px) scale(1.08); position: relative; z-index: 2; }
+  .brand { flex-wrap: nowrap; min-width: 0; }
+  .brand-logos { display: flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 6px 8px; box-shadow: 0 2px 10px rgba(43,30,24,.06); overflow-x: auto; scrollbar-width: none; min-width: 0; }
+  .brand-logos::-webkit-scrollbar { display: none; }
+  .brand-logos[hidden] { display: none; }
+  .blogo { flex: none; width: 42px; height: 42px; border-radius: 12px; background: #fff; border: 1px solid #ECE7E1; display: grid; place-items: center; overflow: hidden; transition: transform .15s, box-shadow .15s; }
+  .blogo img { width: 100%; height: 100%; object-fit: contain; padding: 3px; display: block; }
+  .blogo:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,.12); }
   .br-row input[data-brname] { flex: 1; min-width: 200px; }
   .br-type { max-width: 150px; }
   .live { font-size: 13px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
@@ -344,6 +350,25 @@
   .pay-btn:hover { background: var(--ink); color: var(--on-ink); }
   .paid-chip { white-space: nowrap; border: none; background: var(--ok-c); color: #fff; border-radius: 10px; padding: 7px 12px; font-weight: 700; cursor: pointer; font-family: inherit; font-size: 13px; }
   .paid-chip:disabled { cursor: default; }
+  .pay-acts { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .part-btn { border: 1px dashed var(--muted); background: transparent; color: var(--ink); border-radius: 10px; padding: 6px 10px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .part-btn:hover { border-style: solid; }
+  .part-chip { font-size: 12px; font-weight: 700; color: var(--caramel); background: var(--caramel-soft); border-radius: 99px; padding: 3px 9px; white-space: nowrap; }
+  .part-in { width: 90px; padding: 6px 8px; }
+  .icon-x.sm { width: 28px; height: 28px; font-size: 15px; }
+  .part-bar { grid-column: 1 / -1; height: 5px; background: var(--bg); border-radius: 99px; overflow: hidden; }
+  .part-bar i { display: block; height: 100%; background: var(--caramel); }
+  .inst.partial .inst-a, .loan.partial .loan-a { color: var(--caramel); }
+  .src-card { container-type: inline-size; }
+  @container (max-width: 560px) {
+    .inst { grid-template-columns: minmax(0, 1fr) auto auto; row-gap: 6px; }
+    .inst .pay-acts, .inst > .paid-chip { grid-column: 1 / -1; justify-content: flex-start; justify-self: start; }
+    .inst-d { white-space: nowrap; }
+  }
+  @media (max-width: 560px) {
+    .loan .pay-acts, .loan > .paid-chip { grid-column: 1 / -1; justify-content: flex-start; justify-self: start; }
+  }
+  .in.part-in { width: 100px; flex: none; }
   .unpaid-chip { margin-inline-start: auto; font-size: 12px; color: var(--muted); }
   .loan-total { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; background: color-mix(in srgb, var(--viz-2) 12%, var(--surface)); border-radius: var(--r-md); padding: 14px 16px; }
   .loan-total b { font-family: var(--font-head); font-size: 26px; }
@@ -473,7 +498,9 @@
     .chart { height: 110px; gap: 2px; }
     .brand h1 { font-size: 18px; }
     .brand-t h1 { font-size: 16px; }
-    .brand-logos img { width: 32px; height: 32px; margin-inline-start: -8px; }
+    .brand { flex-wrap: wrap; }
+    .brand-logos { padding: 4px 6px; gap: 4px; border-radius: 12px; max-width: 100%; }
+    .blogo { width: 34px; height: 34px; border-radius: 9px; }
   }
 </style>
 </head>
@@ -538,7 +565,7 @@
       <section id="groups" class="groups"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-16 ب</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-16 د</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -804,7 +831,7 @@ function renderLate() {
   }
   $('latePanel').innerHTML = `<div class="late-panel"><div class="late-head"><h2>فروع متأخرة في إدخال المبيعات (${late.length})</h2><button class="btn btn-ghost btn-sm" id="lateClose">إغلاق</button></div>
     ${late.map(b => { const L = lateOf(b.id), miss = lateMissing(b); return `<div class="late-row">
-      <div class="late-info"><b>${esc(label(b))}</b>
+      <div class="late-info"><b>${nameHtml(label(b))}</b>
         <span>لم تُدخل ${daysWord(miss.length)}: ${miss.map(d => esc(fmtShort(d))).join('، ')}</span>
         <span class="late-no">إشعار التأخير رقم ${L.count}</span></div>
       <div class="acts edit-only">
@@ -1103,10 +1130,10 @@ const loanPayOf = (lid, m) => S.fin.loanPays.find(p => p.loan_id === lid && p.mo
 function fundStats(m) {
   const srcs = S.fin.sources.filter(s => s.active || S.fin.payments.some(p => p.source_id === s.id && p.due_date.slice(0, 7) === m.slice(0, 7)));
   let inDue = 0, inPaid = 0;
-  for (const s of srcs) for (const d of dueDates(s, m)) { const p = payOf(s.id, d); inDue += p ? Number(p.amount) : Number(s.weekly_amount); if (p) inPaid += Number(p.amount); }
+  for (const s of srcs) for (const d of dueDates(s, m)) { const p = payOf(s.id, d); inDue += payState(p, s.weekly_amount).due; if (p) inPaid += Number(p.amount); }
   const loans = S.fin.loans.filter(l => loanActiveIn(l, m));
   let outDue = 0, outPaid = 0;
-  for (const l of loans) { const p = loanPayOf(l.id, m); outDue += p ? Number(p.amount) : Number(l.amount); if (p) outPaid += Number(p.amount); }
+  for (const l of loans) { const p = loanPayOf(l.id, m); outDue += payState(p, l.amount).due; if (p) outPaid += Number(p.amount); }
   const balance = S.fin.opening + S.fin.payments.reduce((a, p) => a + Number(p.amount), 0) - S.fin.loanPays.reduce((a, p) => a + Number(p.amount), 0);
   return { srcs, loans, inDue, inPaid, outDue, outPaid, balance };
 }
@@ -1117,9 +1144,25 @@ function daysTag(d, paid) {
   if (n === 0) return `<span class="dleft today">مستحق اليوم</span>`;
   return `<span class="dleft late">متأخر ${-n} ${-n === 1 ? 'يوم' : -n <= 10 ? 'أيام' : 'يوماً'}</span>`;
 }
-function payBtn(attr, paid, by) {
-  if (paid) return `<button class="paid-chip" ${VIEW ? 'disabled' : `data-un${attr}`} title="${VIEW ? '' : 'اضغط لإلغاء السداد'}">✓ تم السداد</button>`;
-  return VIEW ? `<span class="unpaid-chip">لم يُسدد</span>` : `<button class="pay-btn" data-${attr}>تم السداد</button>`;
+// حالة القسط: مسدد بالكامل أو جزئياً (due_amount = المبلغ المستحق وقت أول سداد)
+function payState(p, fallbackDue) {
+  if (!p) return { paid: 0, due: Number(fallbackDue), full: false, part: false };
+  const due = p.due_amount != null ? Number(p.due_amount) : Number(p.amount), paid = Number(p.amount);
+  return { paid, due, full: paid >= due - 0.005, part: paid < due - 0.005 };
+}
+// أزرار السداد: تم السداد (كامل/إكمال) + سداد جزئي بمبلغ يكتبه المدير
+function payCtl(kind, key, st) {
+  const k = `${kind}|${key}`;
+  if (st.full) return `<button class="paid-chip" ${VIEW ? 'disabled' : `data-un${kind}="${key}"`} title="${VIEW ? '' : 'اضغط لإلغاء السداد'}">✓ تم السداد</button>`;
+  const partTxt = st.part ? `<span class="part-chip" title="المتبقي ${money(st.due - st.paid)} ريال">مسدد ${money(st.paid)} · متبقي ${money(st.due - st.paid)}</span>` : '';
+  if (VIEW) return `<span class="pay-acts">${partTxt || '<span class="unpaid-chip">لم يُسدد</span>'}</span>`;
+  if (S.partOpen === k) return `<span class="pay-acts part-form">${partTxt}
+    <input class="in part-in" data-partkey="${k}" inputmode="decimal" dir="ltr" placeholder="المبلغ" aria-label="مبلغ السداد الجزئي">
+    <button class="pay-btn" data-partsave="${k}">حفظ</button><button class="icon-x sm" data-partcancel aria-label="إلغاء">×</button></span>`;
+  return `<span class="pay-acts">${partTxt}
+    <button class="pay-btn" data-${kind}="${key}">${st.part ? 'إكمال السداد' : 'تم السداد'}</button>
+    <button class="part-btn" data-partopen="${k}">${st.part ? '+ جزئي' : 'سداد جزئي'}</button>
+    ${st.part ? `<button class="icon-x sm" data-un${kind}="${key}" title="إلغاء كل السداد" aria-label="إلغاء السداد">×</button>` : ''}</span>`;
 }
 function renderFund() {
   const el = $('fund'); if (!el) return;
@@ -1141,47 +1184,73 @@ function renderFund() {
 
     <div class="sec-h"><h2>أقساط الفروع لحساب التمويلات</h2><span class="muted">تُدفع كل ${f.srcs.length && f.srcs.every(s => Number(s.weekday) === 5) ? 'جمعة' : 'أسبوع'}</span></div>
     ${f.srcs.length ? `<div class="src-grid">${f.srcs.map(s => {
-      const ds = dueDates(s, m), paidN = ds.filter(d => payOf(s.id, d)).length;
-      const due = ds.reduce((a, d) => a + (payOf(s.id, d) ? Number(payOf(s.id, d).amount) : Number(s.weekly_amount)), 0);
-      const paid = ds.reduce((a, d) => a + (payOf(s.id, d) ? Number(payOf(s.id, d).amount) : 0), 0);
+      const ds = dueDates(s, m), sts = ds.map(d => payState(payOf(s.id, d), s.weekly_amount));
+      const paidN = sts.filter(x => x.full).length, partN = sts.filter(x => x.part).length;
+      const due = sts.reduce((a, x) => a + x.due, 0), paid = sts.reduce((a, x) => a + x.paid, 0);
       return `<div class="src-card">
-        <div class="src-h"><div><b>${esc(s.label)}</b><small>${money(s.weekly_amount)} ريال كل ${WD[s.weekday]}</small></div><span class="src-sum num">${money(paid)} / ${money(due)}</span></div>
+        <div class="src-h"><div><b>${nameHtml(s.label)}</b><small>${money(s.weekly_amount)} ريال كل ${WD[s.weekday]}</small></div><span class="src-sum num">${money(paid)} / ${money(due)}</span></div>
         <div class="t-bar thin"><i style="width:${Math.min(100, pctOf(paid, due))}%"></i></div>
-        ${ds.map(d => { const p = payOf(s.id, d); return `<div class="inst${p ? ' paid' : ''}">
-          <span class="inst-d">${esc(fmtDayName(d))} ${esc(fmtShort(d))}</span><span class="num inst-a">${money(p ? p.amount : s.weekly_amount)}</span>
-          ${daysTag(d, p)}${payBtn(`pay="${s.id}|${d}"`, p)}</div>`; }).join('')}
-        <p class="fc-note">${paidN} من ${ds.length} أقساط مسددة</p></div>`;
+        ${ds.map((d, i) => { const st = sts[i]; return `<div class="inst${st.full ? ' paid' : st.part ? ' partial' : ''}">
+          <span class="inst-d">${esc(fmtDayName(d))} ${esc(fmtShort(d))}</span><span class="num inst-a">${money(st.due)}</span>
+          ${daysTag(d, st.full)}${payCtl('pay', `${s.id}|${d}`, st)}
+          ${st.part ? `<span class="part-bar"><i style="width:${pctOf(st.paid, st.due)}%"></i></span>` : ''}</div>`; }).join('')}
+        <p class="fc-note">${paidN} من ${ds.length} أقساط مسددة${partN ? ` · ${partN} مسدد جزئياً` : ''}</p></div>`;
     }).join('')}</div>` : `<p class="muted">لا توجد أقساط. أضفها من الإعدادات > التمويلات.</p>`}
 
     <div class="sec-h"><h2>التمويلات ومواعيد السداد</h2></div>
     ${f.loans.length ? `<div class="loan-total"><span>إجمالي تمويلات شهر ${esc(fmtMonth(m))}</span><b class="num">${money(f.outDue)}<span class="cur">ريال</span></b></div>
-      <div class="loans">${f.loans.map(l => { const d = loanDue(l, m), p = loanPayOf(l.id, m); return `<div class="loan${p ? ' paid' : ''}">
+      <div class="loans">${f.loans.map(l => { const d = loanDue(l, m), st = payState(loanPayOf(l.id, m), l.amount); return `<div class="loan${st.full ? ' paid' : st.part ? ' partial' : ''}">
         <div class="loan-n"><b>${esc(l.name)}</b>${l.notes ? `<small>${esc(l.notes)}</small>` : ''}</div>
-        <span class="num loan-a">${money(p ? p.amount : l.amount)}</span>
+        <span class="num loan-a">${money(st.due)}</span>
         <span class="loan-d">يستحق ${esc(fmtShort(d))}</span>
-        ${daysTag(d, p)}${payBtn(`lpay="${l.id}|${m}"`, p)}</div>`; }).join('')}</div>
+        ${daysTag(d, st.full)}${payCtl('lpay', `${l.id}|${m}`, st)}
+        ${st.part ? `<span class="part-bar"><i style="width:${pctOf(st.paid, st.due)}%"></i></span>` : ''}</div>`; }).join('')}</div>
       <div class="loan-sum"><div class="fc-row"><span>إجمالي المسدد من تمويلات الشهر الحالي</span><b class="num">${money(f.outPaid)} من ${money(f.outDue)} (${fmtPct(pctOf(f.outPaid, f.outDue))})</b></div>
         <div class="t-bar alt"><i style="width:${Math.min(100, pctOf(f.outPaid, f.outDue))}%"></i></div></div>`
     : `<p class="muted">لا توجد تمويلات لهذا الشهر${VIEW ? '' : '. أضف التمويلات ومواعيدها من الإعدادات > التمويلات'}.</p>`}`;
   bindBack();
   el.querySelectorAll('[data-fm]').forEach(b => b.onclick = () => { S.fundMonth = addMonths(S.fundMonth, Number(b.dataset.fm)); renderFund(); });
 }
+// سداد كامل (add = null) أو إضافة مبلغ جزئي — عند بلوغ المستحق يصبح "تم السداد"
+async function savePay(kind, key, add) {
+  const loan = kind === 'lpay', [idS, d] = key.split('|'), id = Number(idS);
+  const src = loan ? S.fin.loans.find(x => x.id === id) : S.fin.sources.find(x => x.id === id);
+  const p = loan ? loanPayOf(id, d) : payOf(id, d), st = payState(p, loan ? src.amount : src.weekly_amount);
+  const amount = add == null ? st.due : Math.min(st.due, Math.round((st.paid + add) * 100) / 100);
+  const table = loan ? 'loan_payments' : 'fund_payments';
+  const { error } = p
+    ? await sb.from(table).update({ amount, due_amount: st.due }).eq('id', p.id)
+    : await sb.from(table).insert({ [loan ? 'loan_id' : 'source_id']: id, [loan ? 'month' : 'due_date']: d, amount, due_amount: st.due });
+  if (error) return error;
+  toast(amount >= st.due - 0.005 ? '✓ تم السداد بالكامل' : `تم تسجيل سداد جزئي ${money(add)} ريال · المتبقي ${money(st.due - amount)}`);
+  return null;
+}
 async function fundAction(t) {
   if (VIEW) return;
   let error;
-  if (t.dataset.pay) {
-    const [sid, d] = t.dataset.pay.split('|'), s = S.fin.sources.find(x => x.id === Number(sid));
-    t.disabled = true; ({ error } = await sb.from('fund_payments').insert({ source_id: Number(sid), due_date: d, amount: s.weekly_amount }));
+  if ('partcancel' in t.dataset) { S.partOpen = null; return renderFund(); }
+  if (t.dataset.partopen) {
+    S.partOpen = t.dataset.partopen; renderFund();
+    const inp = document.querySelector(`[data-partkey="${t.dataset.partopen}"]`); if (inp) inp.focus();
+    return;
+  }
+  if (t.dataset.partsave) {
+    const k = t.dataset.partsave, inp = document.querySelector(`[data-partkey="${k}"]`), v = parseAmount(inp ? inp.value : '');
+    if (isNaN(v) || v <= 0) { toast('اكتب مبلغ السداد رقماً أكبر من صفر', 'err'); if (inp) inp.focus(); return; }
+    const [kind, ...rest] = k.split('|');
+    t.disabled = true; error = await savePay(kind, rest.join('|'), v);
+    if (!error) S.partOpen = null;
+  } else if (t.dataset.pay) {
+    t.disabled = true; error = await savePay('pay', t.dataset.pay, null);
   } else if (t.dataset.unpay) {
     const [sid, d] = t.dataset.unpay.split('|');
-    if (!confirm('إلغاء تسجيل سداد هذا القسط؟')) return;
+    if (!confirm('إلغاء كل السداد المسجل لهذا القسط؟')) return;
     ({ error } = await sb.from('fund_payments').delete().eq('source_id', Number(sid)).eq('due_date', d));
   } else if (t.dataset.lpay) {
-    const [lid, m] = t.dataset.lpay.split('|'), l = S.fin.loans.find(x => x.id === Number(lid));
-    t.disabled = true; ({ error } = await sb.from('loan_payments').insert({ loan_id: Number(lid), month: m, amount: l.amount }));
+    t.disabled = true; error = await savePay('lpay', t.dataset.lpay, null);
   } else if (t.dataset.unlpay) {
     const [lid, m] = t.dataset.unlpay.split('|');
-    if (!confirm('إلغاء تسجيل سداد هذا التمويل؟')) return;
+    if (!confirm('إلغاء كل السداد المسجل لهذا التمويل؟')) return;
     ({ error } = await sb.from('loan_payments').delete().eq('loan_id', Number(lid)).eq('month', m));
   }
   if (error) { toast(errMsg(error), 'err'); t.disabled = false; return; }
@@ -1455,10 +1524,26 @@ const ICON_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 
 // ---------------- العرض ----------------
 // شعارات الفروع بجانب العنوان (بدون تكرار نفس الشعار)
+// الأسماء الطويلة على سطرين: "حلويات مورا - البلد" ← حلويات مورا / (فرع البلد)
+// "فرع التوزيع رقم 1 (المندوب صادق النهاري)" ← فرع التوزيع رقم 1 / (المندوب صادق النهاري)
+function nameParts(n) {
+  n = String(n || '').trim();
+  let m = n.match(/^(.+?)\s*\(([^()]+)\)\s*$/);
+  if (m) return [m[1].trim(), m[2].trim()];
+  m = n.match(/^(.+?)\s+[-–]\s+(.+)$/);
+  if (m) return [m[1].trim(), /^فرع\s/.test(m[2]) ? m[2].trim() : 'فرع ' + m[2].trim()];
+  return [n, ''];
+}
+function nameHtml(n) {
+  const [a, b] = nameParts(n);
+  return b ? `<span class="nm2"><span class="nm-main">${esc(a)}</span><span class="nm-sub">(${esc(b)})</span></span>` : esc(a);
+}
 function renderBrandLogos() {
   const seen = new Map();
   for (const b of activeBranches()) if (b.logo) { if (!seen.has(b.logo)) seen.set(b.logo, []); seen.get(b.logo).push(b.name); }
-  $('brandLogos').innerHTML = [...seen].map(([src, names]) => `<img src="${esc(src)}" alt="${esc(names.join('، '))}" title="${esc(names.join('، '))}">`).join('');
+  const box = $('brandLogos');
+  box.hidden = !seen.size;
+  box.innerHTML = [...seen].map(([src, names]) => `<span class="blogo" title="${esc(names.join('، '))}"><img src="${esc(src)}" alt="${esc(names.join('، '))}"></span>`).join('');
 }
 
 function renderAll() {
@@ -1576,7 +1661,7 @@ function renderGroups() {
     const wasteLine = isWaste ? `<div class="sub"><span>البضائع التالفة</span><b class="no">${money(wasteTotal(S.waste.filter(r => g.branches.some(b => b.id === r.branch_id))))}</b></div>` : '';
 
     return `<div class="gcard" role="button" tabindex="0" data-detail="${esc(g.name)}">
-      <div class="g-top"><h3>${logo ? `<img class="g-logo" src="${esc(logo)}" alt="">` : ''}${esc(g.name)}${isCredit ? '<span class="credit-tag">آجل</span>' : ''}</h3><span class="share">${share.toFixed(1)}%</span></div>
+      <div class="g-top"><h3>${logo ? `<img class="g-logo" src="${esc(logo)}" alt="">` : ''}${nameHtml(g.name)}${isCredit ? '<span class="credit-tag">آجل</span>' : ''}</h3><span class="share">${share.toFixed(1)}%</span></div>
       <div class="g-total-row"><p class="g-total num">${money(gt)}<span class="cur">ريال</span></p>
         ${hasMargin(g.branches) ? `<button class="pf-btn${S.showProfit.has(g.name) ? ' on' : ''}" data-profit="${esc(g.name)}" type="button" title="الربح التقريبي" aria-label="عرض الربح التقريبي" aria-expanded="${S.showProfit.has(g.name)}">%</button>` : ''}</div>
       ${S.showProfit.has(g.name) ? `<div class="pf-line"><span>الربح التقريبي <small>(هامش ${marginLabel(g.branches)})</small></span><b class="num">${money(Math.round(profitOf(g.branches)))}${R}</b></div>` : ''}
@@ -1682,7 +1767,7 @@ function renderDetail() {
   const colFoot = b => `<td class="n">${money(branchTotal(b.id))}</td>${b.credit ? `<td class="n col">${money(branchCol(b.id))}</td>` : ''}`;
 
   $('detail').innerHTML = `
-    <div class="detail-head"><button class="back-btn" id="backBtn"><span aria-hidden="true">→</span> رجوع للوحة</button><h2>${esc(all ? 'جميع الفروع' : g.name)}</h2></div>
+    <div class="detail-head"><button class="back-btn" id="backBtn"><span aria-hidden="true">→</span> رجوع للوحة</button><h2>${all ? 'جميع الفروع' : nameHtml(g.name)}</h2></div>
     ${detailFinance(brs)}
     <div class="detail-sum">
       <div class="pill main"><span>${anyCredit && allCredit ? 'إجمالي المبيعات (آجل)' : 'الإجمالي'}</span><b>${money(total)}${R}</b></div>
@@ -1717,6 +1802,11 @@ function showView(v) {
 function openDetail(key) { S.detail = key; S.wasteView = false; S.commitOpen = false; showView('detail'); renderDetail(); }
 function closeDetail() { S.detail = null; S.wasteView = false; showView('overview'); }
 function openWaste(filter) { S.detail = null; S.wasteView = true; if (filter) S.wasteFilter = filter; showView('waste'); renderWaste(); }
+document.addEventListener('keydown', e => {
+  const k = e.target.dataset && e.target.dataset.partkey; if (!k) return;
+  if (e.key === 'Enter') { e.preventDefault(); const b = document.querySelector(`[data-partsave="${k}"]`); if (b) b.click(); }
+  if (e.key === 'Escape') { S.partOpen = null; renderFund(); }
+});
 function openFund() { S.detail = null; S.wasteView = false; S.fundMonth = monthStart(S.today); showView('fund'); renderFund(); }
 function openSettings(tab) { if (VIEW) return; S.detail = null; S.wasteView = false; if (tab) S.setTab = tab; showView('settings'); renderSettingsView(); }
 
@@ -2323,12 +2413,12 @@ $('logoFile').onchange = async () => {
 
 // ---------------- الأحداث ----------------
 document.addEventListener('click', async e => {
-  const t = e.target.closest('[data-profit],[data-open-fund],[data-open-settings],[data-pay],[data-unpay],[data-lpay],[data-unlpay],[data-detail],[data-approve],[data-reject],[data-copy],[data-add],[data-waste-open],[data-delbatch]');
+  const t = e.target.closest('[data-profit],[data-open-fund],[data-open-settings],[data-pay],[data-unpay],[data-lpay],[data-unlpay],[data-partopen],[data-partsave],[data-partcancel],[data-detail],[data-approve],[data-reject],[data-copy],[data-add],[data-waste-open],[data-delbatch]');
   if (!t) return;
   if (t.dataset.profit) { const k = t.dataset.profit; S.showProfit.has(k) ? S.showProfit.delete(k) : S.showProfit.add(k); return renderGroups(); }
   if ('openFund' in t.dataset) return openFund();
   if (t.dataset.openSettings) return openSettings(t.dataset.openSettings);
-  if (t.dataset.pay || t.dataset.unpay || t.dataset.lpay || t.dataset.unlpay) return fundAction(t);
+  if (t.dataset.pay || t.dataset.unpay || t.dataset.lpay || t.dataset.unlpay || t.dataset.partopen || t.dataset.partsave || 'partcancel' in t.dataset) return fundAction(t);
   if (t.dataset.wasteOpen) return openWaste(t.dataset.wasteOpen);
   if (VIEW && (t.dataset.add || t.dataset.approve || t.dataset.reject || t.dataset.delbatch)) return;
   if (t.dataset.delbatch) return deleteBatch(t.dataset.delbatch);

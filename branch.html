@@ -81,6 +81,9 @@
   .tag { font-size: 12px; padding: 3px 8px; border-radius: 99px; background: var(--caramel-soft); color: var(--caramel); white-space: nowrap; }
 
   /* ---- الشعار والتبويبات ---- */
+  .nm2 { display: inline-flex; flex-direction: column; line-height: 1.25; vertical-align: middle; }
+  .nm2 .nm-main { font-weight: inherit; }
+  .nm2 .nm-sub { font-size: .62em; font-weight: 500; color: var(--muted); margin-top: 1px; }
   .brand-row { display: flex; align-items: center; gap: 12px; }
   .logo { width: 58px; height: 58px; border-radius: 14px; object-fit: contain; background: #fff; border: 1px solid var(--line); flex: none; }
   .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 4px; margin-top: 16px; }
@@ -268,6 +271,20 @@ function lateBanner() {
   </div>`;
 }
 
+// الأسماء الطويلة على سطرين: "حلويات مورا - البلد" ← حلويات مورا / (فرع البلد)
+// "فرع التوزيع رقم 1 (المندوب صادق النهاري)" ← فرع التوزيع رقم 1 / (المندوب صادق النهاري)
+function nameParts(n) {
+  n = String(n || '').trim();
+  let m = n.match(/^(.+?)\s*\(([^()]+)\)\s*$/);
+  if (m) return [m[1].trim(), m[2].trim()];
+  m = n.match(/^(.+?)\s+[-–]\s+(.+)$/);
+  if (m) return [m[1].trim(), /^فرع\s/.test(m[2]) ? m[2].trim() : 'فرع ' + m[2].trim()];
+  return [n, ''];
+}
+function nameHtml(n) {
+  const [a, b] = nameParts(n);
+  return b ? `<span class="nm2"><span class="nm-main">${esc(a)}</span><span class="nm-sub">(${esc(b)})</span></span>` : esc(a);
+}
 function render() {
   const showGroup = info.group_name !== info.name;
   if (!info.waste) tab = 'sales';
@@ -276,7 +293,7 @@ function render() {
       ${info.logo ? `<img class="logo" src="${esc(info.logo)}" alt="">` : ''}
       <div>
         ${showGroup ? `<p class="group">${esc(info.group_name)}</p>` : ''}
-        <h1>${esc(info.name)}</h1>
+        <h1>${nameHtml(info.name)}</h1>
         <p class="today">اليوم ${esc(fmtLong(info.today))}</p>
       </div>
     </header>
@@ -933,6 +950,6 @@ else {
   }, 300000);
 }
 </script>
-<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-15 ج</p>
+<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-16 د</p>
 </body>
 </html>
