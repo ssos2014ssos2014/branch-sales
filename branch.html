@@ -196,6 +196,31 @@
   .pdf tr.sub td { background: #F6DFE3; font-weight: 700; color: #7d2a3b; }
   .pdf tr.pdf-day td { border-top: 2px solid #cfc7bf; }
   .pdf tfoot td { background: #2B1E18; color: #fff; font-weight: 700; }
+  .pdf tr.old td { color: #6d645c; }
+  .pdf-divider { position: relative; margin: 30px 0 6px; border-top: 3px dashed #A63D52; text-align: center; }
+  .pdf-divider span { position: relative; top: -14px; background: #fff; padding: 0 14px; font-family: 'Readex Pro', sans-serif; font-weight: 700; font-size: 16px; color: #A63D52; }
+  .pb-list { border: 1px solid #e8e4e0; border-radius: 12px; padding: 4px 12px; }
+  .pb-row { display: grid; grid-template-columns: 210px 1fr 92px; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #f0ece8; }
+  .pb-row:last-child { border-bottom: none; }
+  .pb-lbl b { display: block; font-size: 13px; line-height: 1.35; }
+  .pb-lbl small { display: block; font-size: 11px; color: #6d645c; line-height: 1.3; }
+  .pb-track { height: 16px; background: #f4f1ee; border-radius: 4px; overflow: hidden; direction: rtl; }
+  .pb-track i { display: block; height: 100%; background: #A63D52; border-radius: 4px; }
+  .pb-val { text-align: left; }
+  .pb-val b { display: block; font-family: 'Readex Pro', sans-serif; font-size: 14px; }
+  .pb-val small { font-size: 11px; color: #6d645c; }
+  .pb-list.top .pb-row { grid-template-columns: 30px 200px 1fr 92px; padding: 9px 0; }
+  .pb-list.top .pb-track { height: 24px; }
+  .pb-list.top .pb-track i { background: #2B1E18; }
+  .pb-list.top .pb-lbl b { font-size: 14px; }
+  .pb-rank { width: 26px; height: 26px; border-radius: 50%; background: #A63D52; color: #fff; display: grid; place-items: center; font-weight: 700; font-family: 'Readex Pro', sans-serif; }
+  .pc-wrap { border: 1px solid #e8e4e0; border-radius: 12px; padding: 12px 12px 6px; margin-top: 8px; }
+  .pc-cols { display: flex; align-items: flex-end; gap: 3px; height: 190px; direction: ltr; }
+  .pc-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; }
+  .pc-col i { display: block; width: 78%; background: #A63D52; border-radius: 3px 3px 0 0; }
+  .pc-v { font-size: 9px; color: #1d1a17; font-family: 'Readex Pro', sans-serif; margin-bottom: 2px; white-space: nowrap; }
+  .pc-d { font-size: 10px; color: #6d645c; border-top: 1px solid #cfc7bf; width: 100%; text-align: center; margin-top: 2px; padding-top: 2px; }
+  .pc-cap { font-size: 11px; color: #8a8178; text-align: center; margin-top: 4px; }
   .pdf .foot { margin-top: 18px; font-size: 11px; color: #8a8178; text-align: center; }
 
   /* ---- إشعار التأخير ---- */
@@ -206,6 +231,12 @@
   .late-days { font-family: var(--font-head); font-weight: 600; background: rgba(255,255,255,.14); border-radius: var(--r-sm); padding: 6px 10px; }
   .late-btn { margin-top: 12px; background: #fff; color: #B3261E; font-weight: 700; }
   .late-note { margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .resend-box { margin-top: 16px; background: #9a5b00; color: #fff; border-radius: var(--r-lg); padding: 16px; box-shadow: 0 6px 18px rgba(154,91,0,.25); }
+  .resend-box .late-ic { color: #9a5b00; font-size: 18px; }
+  .rs-item { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.25); }
+  .late-top + .rs-item { border-top: none; padding-top: 0; }
+  .rs-note { margin-top: 4px; font-size: 14px; background: rgba(255,255,255,.14); border-radius: var(--r-sm); padding: 6px 10px; }
+  .rs-btn { margin-top: 10px; background: #fff; color: #9a5b00; font-weight: 700; }
   /* ---- صنف آخر ---- */
   .chip-other { border-style: dashed; font-weight: 600; }
   #chips { display: block; }
@@ -323,6 +354,19 @@ function lateBanner() {
   </div>`;
 }
 
+// طلب الإدارة بإعادة الإرسال (بعد حذف تقرير يوم)
+function resendBanner() {
+  const list = (info.resend || []).filter(q => q.kind === 'waste' ? info.waste : !map[q.date]);
+  if (!list.length) return '';
+  return `<div class="resend-box" role="alert">
+    <div class="late-top"><span class="late-ic">↻</span><b>طلب من الإدارة: إعادة الإرسال</b></div>
+    ${list.map(q => `<div class="rs-item">
+      <p>${q.kind === 'waste' ? 'أعد إرسال <b>البضائع التالفة</b>' : 'أعد إدخال <b>المبيعات</b>'} ليوم <b>${esc(fmtLong(q.date))}</b></p>
+      ${q.note ? `<p class="rs-note">ملاحظة الإدارة: ${esc(q.note)}</p>` : ''}
+      <button class="btn btn-block rs-btn" data-rs="${q.id}">${q.kind === 'waste' ? 'إعادة إرسال التوالف الآن' : 'إدخال المبيعات الآن'}</button></div>`).join('')}
+  </div>`;
+}
+
 // الأسماء الطويلة على سطرين: "حلويات مورا - البلد" ← حلويات مورا / (فرع البلد)
 // "فرع التوزيع رقم 1 (المندوب صادق النهاري)" ← فرع التوزيع رقم 1 / (المندوب صادق النهاري)
 function nameParts(n) {
@@ -349,6 +393,7 @@ function render() {
         <p class="today">اليوم ${esc(fmtLong(info.today))}</p>
       </div>
     </header>
+    ${resendBanner()}
     ${lateBanner()}
     ${info.waste || info.credit ? `<nav class="tabs${info.waste && info.credit ? ' three' : ''}" role="tablist">
       <button role="tab" data-tab="sales" aria-selected="${tab === 'sales'}">${ICON_SALES}المبيعات</button>
@@ -369,6 +414,18 @@ function render() {
     selected = info.late.missing.find(d => !map[d]) || info.late.missing[0]; viewMonth = monthStart(selected); step = 'form'; render();
     const f = document.getElementById('form'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+  root.querySelectorAll('[data-rs]').forEach(b => b.onclick = () => {
+    const q = (info.resend || []).find(x => String(x.id) === b.dataset.rs); if (!q) return;
+    if (q.kind === 'waste') {
+      tab = 'waste'; history.replaceState(null, '', '#waste');
+      W.date = q.date; W.step = 'form'; W.month = monthStart(q.date); W.loaded = false; render();
+      const f = document.getElementById('wform'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      tab = 'sales'; history.replaceState(null, '', location.pathname + location.search);
+      selected = q.date; viewMonth = monthStart(q.date); step = 'form'; render();
+      const f = document.getElementById('form'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
   root.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
     tab = b.dataset.tab; history.replaceState(null, '', tab === 'sales' ? location.pathname + location.search : '#' + tab);
     render(); scrollTo({ top: 0 });
@@ -979,8 +1036,8 @@ function byItem(recs) {
   const map = {};
   for (const r of recs) {
     const k = r.item + '|' + r.unit;
-    (map[k] = map[k] || { item: r.item, unit: r.unit, qty: 0, cost: 0 });
-    map[k].qty += Number(r.qty); map[k].cost += Number(r.cost);
+    (map[k] = map[k] || { item: r.item, unit: r.unit, qty: 0, cost: 0, unit_cost: 0 });
+    map[k].qty += Number(r.qty); map[k].cost += Number(r.cost); map[k].unit_cost = Number(r.unit_cost) || map[k].unit_cost;
   }
   return Object.values(map).sort((a, b) => b.cost - a.cost);
 }
@@ -1036,40 +1093,79 @@ function loadScript(src) {
 }
 const branchLabel = () => info.group_name === info.name ? info.name : `${info.group_name} - ${info.name}`;
 
+const pdfCat = name => { const it = (info.items || []).find(x => x.name === name); return it ? catOf(it) : ''; };
+const shortNum = n => { n = Math.round(Number(n) || 0); return n >= 10000 ? (Math.round(n / 100) / 10) + 'k' : String(n); };
+// أعمدة أفقية: كل صف فيه اسم الصنف وسعر الوحدة والكمية وإجمالي المبلغ
+function pdfItemBars(items, opt = {}) {
+  const max = Math.max(1, ...items.map(i => i.cost)), total = items.reduce((a, i) => a + i.cost, 0);
+  return `<div class="pb-list${opt.top ? ' top' : ''}">${items.map((i, k) => `<div class="pb-row pdf-block">
+      ${opt.top ? `<span class="pb-rank">${k + 1}</span>` : ''}
+      <div class="pb-lbl"><b>${esc(i.item)}</b><small>سعر ${unitName(i.unit) === 'كيلو' ? 'الكيلو' : 'الحبة'} ${money(i.unit_cost)} · التالف ${esc(fmtQty(i.unit, i.qty))}</small></div>
+      <div class="pb-track"><i style="width:${Math.max(1.5, i.cost / max * 100)}%"></i></div>
+      <div class="pb-val"><b>${money(i.cost)}</b><small>${total ? (i.cost / total * 100).toFixed(1) : 0}%</small></div></div>`).join('')}</div>`;
+}
+// أعمدة رأسية: قيمة التوالف لكل يوم من الشهر حتى اليوم
+function pdfDayCols(recs, month) {
+  const end = month === monthStart(info.today) ? info.today : monthEnd(month);
+  const tot = {}; for (const r of recs) tot[r.date] = (tot[r.date] || 0) + Number(r.cost);
+  const days = []; for (let d = month; d <= end; d = addDays(d, 1)) days.push(d);
+  const max = Math.max(1, ...days.map(d => tot[d] || 0));
+  return `<div class="pc-wrap pdf-block"><div class="pc-cols">${days.map(d => { const v = tot[d] || 0;
+      return `<div class="pc-col"><span class="pc-v">${v ? shortNum(v) : ''}</span><i style="height:${v ? Math.max(2, v / max * 100) : 0}%"></i><span class="pc-d">${Number(d.slice(8))}</span></div>`; }).join('')}</div>
+    <p class="pc-cap">قيمة التوالف لكل يوم (ريال) — الأرقام أسفل الأعمدة هي أيام الشهر</p></div>`;
+}
 function pdfHtml({ batch, recs, month }) {
   const now = new Intl.DateTimeFormat(AR, { timeZone: TZ, day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date());
   const total = r2(recs.reduce((a, r) => a + Number(r.cost), 0));
   const items = byItem(recs), days = byDay(recs);
   const upTo = month === monthStart(info.today) ? ` حتى ${fmtShort(info.today)}` : '';
+  const dayRecs = batch ? recs.filter(r => r.date === batch.date) : [];
+  const dayTotal = r2(dayRecs.reduce((a, r) => a + Number(r.cost), 0));
+  const timeOf = at => at ? new Intl.DateTimeFormat(AR, { timeZone: TZ, hour: 'numeric', minute: '2-digit' }).format(new Date(at)) : '';
   let h = `<div class="pdf-head pdf-block">
       ${info.logo ? `<img src="${esc(info.logo)}" alt="">` : ''}
-      <div><h1>${esc(branchLabel())}</h1><p class="t">تقرير البضائع التالفة</p><p>شهر ${esc(fmtMonth(month))}${esc(upTo)}</p></div>
+      <div><h1>${esc(branchLabel())}</h1><p class="t">تقرير البضائع التالفة${batch ? ' اليومي' : ''}</p><p>${batch ? esc(fmtLong(batch.date)) : `شهر ${esc(fmtMonth(month))}${esc(upTo)}`}</p></div>
       <div class="meta">تاريخ الإصدار<br>${esc(now)}</div></div>
     <div class="pdf-tot pdf-block">
-      ${batch ? `<div><span>تكلفة إدخال ${esc(fmtShort(batch.date))}</span><b>${money(batch.total)} ريال</b></div>` : ''}
-      <div class="main"><span>إجمالي تكلفة التوالف للشهر</span><b>${money(total)} ريال</b></div>
-      <div><span>أيام فيها توالف</span><b>${days.length}</b></div></div>`;
+      ${batch ? `<div class="main"><span>توالف يوم ${esc(fmtShort(batch.date))}</span><b>${money(dayTotal)} ريال</b></div>
+        <div><span>أصناف هذا اليوم</span><b>${byItem(dayRecs).length}</b></div>
+        <div><span>إجمالي الشهر${esc(upTo)}</span><b>${money(total)} ريال</b></div>`
+      : `<div class="main"><span>إجمالي تكلفة التوالف للشهر</span><b>${money(total)} ريال</b></div>
+        <div><span>أيام فيها توالف</span><b>${days.length}</b></div>
+        <div><span>عدد الأصناف</span><b>${items.length}</b></div>`}</div>`;
   if (batch) {
-    h += `<h2 class="pdf-block">الإدخال الحالي: ${esc(fmtLong(batch.date))}</h2>
-      <table><thead><tr><th>الصنف</th><th>الكمية</th><th class="n">سعر الوحدة</th><th class="n">التكلفة</th></tr></thead><tbody>
-      ${batch.lines.map(l => `<tr><td>${esc(l.item)}</td><td>${esc(fmtQty(l.unit, l.qty))}</td><td class="n">${money(l.unit_cost)} / ${unitName(l.unit)}</td><td class="n">${money(l.cost)}</td></tr>`).join('')}
-      </tbody><tfoot><tr><td colspan="3">الإجمالي</td><td class="n">${money(batch.total)}</td></tr></tfoot></table>`;
-  }
-  h += `<h2 class="pdf-block">التفاصيل اليومية</h2>`;
-  if (!days.length) h += `<p>لا توجد توالف مسجلة.</p>`;
-  else {
-    h += `<table><thead><tr><th>التاريخ</th><th>الصنف</th><th>الكمية</th><th class="n">التكلفة</th></tr></thead><tbody>`;
-    for (const d of days) {
-      d.items.forEach((i, k) => {
-        h += `<tr class="${k === 0 ? 'pdf-day' : ''}"><td>${k === 0 ? esc(fmtShort(d.date)) + ' - ' + esc(fmtDayName(d.date)) : ''}</td><td>${esc(i.item)}</td><td>${esc(fmtQty(i.unit, i.qty))}</td><td class="n">${money(i.cost)}</td></tr>`;
-      });
-      h += `<tr class="sub"><td colspan="3">إجمالي ${esc(fmtShort(d.date))}</td><td class="n">${money(d.total)}</td></tr>`;
+    h += `<h2 class="pdf-block">توالف يوم ${esc(fmtLong(batch.date))} بالتفصيل</h2>
+      <table><thead><tr><th class="n">#</th><th>الصنف</th><th>القسم</th><th class="n">سعر الوحدة</th><th>الكمية</th><th class="n">التكلفة</th><th>وقت الإرسال</th></tr></thead><tbody>
+      ${dayRecs.map((r, k) => `<tr${r.batch === batch.batch ? '' : ' class="old"'}><td class="n">${k + 1}</td><td><b>${esc(r.item)}</b></td><td>${esc(pdfCat(r.item))}</td>
+        <td class="n">${money(r.unit_cost)} / ${unitName(r.unit)}</td><td>${esc(fmtQty(r.unit, r.qty))}</td><td class="n">${money(r.cost)}</td><td>${esc(timeOf(r.at))}</td></tr>`).join('')}
+      </tbody><tfoot><tr><td colspan="5">إجمالي توالف اليوم</td><td class="n">${money(dayTotal)}</td><td></td></tr></tfoot></table>`;
+  } else {
+    h += `<h2 class="pdf-block">التفاصيل اليومية</h2>`;
+    if (!days.length) h += `<p>لا توجد توالف مسجلة.</p>`;
+    else {
+      h += `<table><thead><tr><th>التاريخ</th><th>الصنف</th><th>الكمية</th><th class="n">التكلفة</th></tr></thead><tbody>`;
+      for (const d of days) {
+        d.items.forEach((i, k) => {
+          h += `<tr class="${k === 0 ? 'pdf-day' : ''}"><td>${k === 0 ? esc(fmtShort(d.date)) + ' - ' + esc(fmtDayName(d.date)) : ''}</td><td>${esc(i.item)}</td><td>${esc(fmtQty(i.unit, i.qty))}</td><td class="n">${money(i.cost)}</td></tr>`;
+        });
+        h += `<tr class="sub"><td colspan="3">إجمالي ${esc(fmtShort(d.date))}</td><td class="n">${money(d.total)}</td></tr>`;
+      }
+      h += `</tbody><tfoot><tr><td colspan="3">إجمالي الشهر</td><td class="n">${money(total)}</td></tr></tfoot></table>`;
     }
-    h += `</tbody><tfoot><tr><td colspan="3">إجمالي الشهر</td><td class="n">${money(total)}</td></tr></tfoot></table>`;
-    h += `<h2 class="pdf-block">ملخص الأصناف (الأعلى تكلفة أولاً)</h2>
-      <table><thead><tr><th class="n">#</th><th>الصنف</th><th>إجمالي الكمية</th><th class="n">التكلفة</th><th class="n">النسبة</th></tr></thead><tbody>
-      ${items.map((i, k) => `<tr><td class="n">${k + 1}</td><td>${esc(i.item)}</td><td>${esc(fmtQty(i.unit, i.qty))}</td><td class="n">${money(i.cost)}</td><td class="n">${total ? (i.cost / total * 100).toFixed(1) : 0}%</td></tr>`).join('')}
-      </tbody><tfoot><tr><td colspan="3">الإجمالي</td><td class="n">${money(total)}</td><td class="n">100%</td></tr></tfoot></table>`;
+  }
+  if (items.length) {
+    const active = days.length, top = days.slice().sort((a, b) => b.total - a.total)[0];
+    h += `<div class="pdf-divider pdf-block"><span>توالف شهر ${esc(fmtMonth(month))}${esc(upTo)}</span></div>
+      <h2 class="pdf-block">جميع الأصناف التالفة خلال الشهر (${items.length} صنف)</h2>
+      ${pdfItemBars(items)}
+      <h2 class="pdf-block">إجمالي قيمة التوالف</h2>
+      <div class="pdf-tot pdf-block">
+        <div class="main"><span>إجمالي قيمة التوالف${esc(upTo)}</span><b>${money(total)} ريال</b></div>
+        <div><span>متوسط يوم التوالف</span><b>${money(Math.round(active ? total / active : 0))}</b></div>
+        <div><span>أعلى يوم</span><b>${top ? `${money(top.total)}` : '0'}</b><span>${top ? esc(fmtShort(top.date)) : ''}</span></div></div>
+      ${pdfDayCols(recs, month)}
+      <h2 class="pdf-block">أكثر 5 أصناف تالفة (حسب القيمة)</h2>
+      ${pdfItemBars(items.slice(0, 5), { top: true })}`;
   }
   h += `<p class="foot pdf-block">برنامج إدارة مبيعات الفروع</p>`;
   return h;
@@ -1159,6 +1255,6 @@ else {
   }, 300000);
 }
 </script>
-<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-16 ط</p>
+<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-16 ي</p>
 </body>
 </html>
