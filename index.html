@@ -655,6 +655,19 @@
   .pdf .g { color: #2e7d32; font-weight: 700; }
   .pdf .bl { color: #1f5fae; font-weight: 600; }
   .pdf .bl-f { color: #9cc4f5; }
+  .pdf .tc-box { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 12px 0 4px; padding: 14px 20px; border-radius: 14px; background: #12325e; color: #fff; }
+  .pdf .tc-box span { font-size: 15px; font-weight: 600; opacity: .9; }
+  .pdf .tc-box b { font-family: 'Readex Pro', sans-serif; font-size: 26px; }
+  .pdf .tc-box small { font-size: 14px; opacity: .8; }
+  .pdf .ptbl td { padding-top: 10px; padding-bottom: 10px; vertical-align: middle; }
+  .pdf .pill-red, .pdf .pill-blue, .pdf .pill-green { display: inline-block; border-radius: 999px; padding: 4px 12px; font-weight: 800; font-size: 14px; white-space: nowrap; }
+  .pdf .pill-red { background: #fde8e6; color: #b3261e; border: 1.5px solid #b3261e; }
+  .pdf .pill-blue { background: #e3ecf8; color: #12325e; border: 1.5px solid #12325e; }
+  .pdf .pill-green { background: #e5f3e6; color: #1b6e2a; border: 1.5px solid #2e7d32; }
+  .pdf .pbar { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .pdf .pbar b { font-size: 14px; }
+  .pdf .pbar i { display: block; width: 92px; height: 8px; border-radius: 99px; background: #e7efe7; overflow: hidden; direction: rtl; }
+  .pdf .pbar em { display: block; height: 100%; background: #2e7d32; border-radius: 99px; margin-left: auto; }
   .pdf tr.hl td { background: #f6e3e7; font-weight: 700; color: #7a2236; }
   .pdf .pr-head { display: flex; gap: 16px; align-items: center; margin: 4px 0 10px; }
   .pdf .pr-head img { width: 130px; height: 130px; object-fit: cover; border-radius: 12px; border: 1px solid #e8e4e0; }
@@ -871,7 +884,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-17 و</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-17 ز</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -2622,11 +2635,16 @@ function prodReportHtml(list) {
         <tr><td>التكلفة قبل التعبئة</td><td></td><td class="n">${costB(k.base)}</td><td class="n">${k.total ? fmtPct(k.base / k.total * 100) : '—'}</td></tr>
         ${c.ings.map(r => `<tr><td>${esc(ingName(r))}</td><td>${ingQtyTxt(r)}</td><td class="n">${costB(ingRowCost(r))}</td><td class="n">${k.total ? fmtPct(ingRowCost(r) / k.total * 100) : '—'}</td></tr>`).join('')}
         ${c.extras.map(e => `<tr><td>${esc(e.name)}</td><td>تكلفة أخرى</td><td class="n">${costB(numIn(e.amount))}</td><td class="n">${k.total ? fmtPct(numIn(e.amount) / k.total * 100) : '—'}</td></tr>`).join('')}
-      </tbody><tfoot><tr><td colspan="2">إجمالي تكلفة القطعة</td><td class="n"><span class="bl-f">${m2(k.total)}</span></td><td class="n">100%</td></tr></tfoot></table>`;
-    const prow = v => { const st = priceStats(k.total, v); return `<tr><td class="n"><b>${m2(v)} ريال</b></td><td class="n">${costB(k.total)}</td><td class="n"><b style="color:${st.profit >= 0 ? '#2e7d32' : '#b3261e'}">${m2(st.profit)} ريال</b></td><td class="n">${pctG(st.onCost)}</td><td class="n">${pctG(st.onPrice)}</td></tr>`; };
+      </tbody><tfoot><tr><td colspan="2">إجمالي تكلفة القطعة</td><td class="n"><span class="bl-f">${m2(k.total)}</span></td><td class="n">100%</td></tr></tfoot></table>
+      <div class="tc-box pdf-block"><span>إجمالي تكلفة المنتج</span><b>${m2(k.total)} <small>ريال</small></b></div>`;
+    const all = [main, ...ws].filter(Boolean), maxOn = Math.max(100, ...all.map(v => priceStats(k.total, v).onCost));
+    const bar = (v, max) => `<div class="pbar"><b class="g">${fmtPct(v)}</b><i><em style="width:${Math.max(2, Math.min(100, v / max * 100))}%"></em></i></div>`;
+    const prow = v => { const st = priceStats(k.total, v); return `<tr><td class="n"><span class="pill-red">${m2(v)} ريال</span></td><td class="n"><span class="pill-blue">${m2(k.total)} ريال</span></td>
+      <td class="n"><span class="pill-green">${m2(st.profit)} ريال</span></td><td class="n">${bar(st.onCost, maxOn)}</td><td class="n">${bar(st.onPrice, 100)}</td></tr>`; };
     const phead = '<thead><tr><th class="n">سعر البيع</th><th class="n">التكلفة</th><th class="n">الربح في القطعة</th><th class="n">نسبة الربح من التكلفة</th><th class="n">هامش الربح من سعر البيع</th></tr></thead>';
-    if (main) h += `<h2 class="pdf-block">تفاصيل الربح</h2><table>${phead}<tbody>${prow(main)}</tbody></table>`;
-    if (ws.length) h += `<h2 class="pdf-block">أسعار بيع مقترحة لعملاء الجملة والتوزيع</h2><table>${phead}<tbody>${ws.map(prow).join('')}</tbody></table>`;
+    const ptbl = rows => `<table class="ptbl">${phead}<tbody>${rows}</tbody></table>`;
+    if (main) h += `<h2 class="pdf-block">تفاصيل الربح</h2>${ptbl(prow(main))}`;
+    if (ws.length) h += `<h2 class="pdf-block">أسعار بيع مقترحة لعملاء الجملة والتوزيع</h2>${ptbl(ws.map(prow).join(''))}`;
   }
   return h + '<p class="foot pdf-block">برنامج إدارة مبيعات الفروع · حاسبة تكلفة المنتج</p>';
 }
