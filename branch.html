@@ -99,7 +99,7 @@
   .nm2 .nm-main { font-weight: inherit; }
   .nm2 .nm-sub { font-size: .62em; font-weight: 500; color: var(--muted); margin-top: 1px; }
   .brand-row { display: flex; align-items: center; gap: 12px; }
-  .logo { width: 58px; height: 58px; border-radius: 14px; object-fit: contain; background: #fff; border: 1px solid var(--line); flex: none; }
+  .logo { width: 60px; height: 60px; border-radius: 14px; object-fit: contain; padding: 5px; background: #fff; border: 1px solid var(--line); flex: none; box-shadow: 0 2px 8px rgba(43,30,24,.06); }
   .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 4px; margin-top: 16px; }
   .tabs button { border: none; background: transparent; border-radius: 14px; padding: 11px 8px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 7px; }
   .tabs button[aria-selected="true"] { background: var(--ink); color: var(--on-ink); }
@@ -175,10 +175,10 @@
   .wday-l { display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); }
 
   /* ---- قالب تقرير PDF (ألوان ثابتة) ---- */
-  .pdf { position: fixed; left: -20000px; top: 0; width: 794px; background: #fff; color: #1d1a17; direction: rtl; padding: 36px 40px 30px; font-family: 'IBM Plex Sans Arabic', Tahoma, sans-serif; font-size: 14px; line-height: 1.6; }
+  .pdf { position: fixed; left: -20000px; top: 0; width: 794px; background: #fff; color: #1d1a17; direction: rtl; padding: 46px 50px 40px; font-family: 'IBM Plex Sans Arabic', Tahoma, sans-serif; font-size: 14px; line-height: 1.6; }
   .pdf * { color-scheme: light; }
   .pdf-head { display: flex; align-items: center; gap: 16px; border-bottom: 3px solid #A63D52; padding-bottom: 14px; }
-  .pdf-head img { width: 76px; height: 76px; object-fit: contain; border-radius: 12px; border: 1px solid #e3e0dc; }
+  .pdf-head img { width: 78px; height: 78px; object-fit: contain; padding: 6px; background: #fff; border-radius: 14px; border: 1px solid #e3e0dc; flex: none; }
   .pdf-head h1 { font-family: 'Readex Pro', sans-serif; font-size: 24px; margin: 0; color: #1d1a17; }
   .pdf-head p { margin: 0; color: #6d645c; }
   .pdf-head .t { font-size: 17px; color: #A63D52; font-weight: 600; }
@@ -1199,7 +1199,7 @@ async function buildPdfDoc(html, fileName) {
   try {
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
     await Promise.all([...el.querySelectorAll('img')].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
-    const SCALE = 2, W_PX = 794, PAGE_PX = Math.round(W_PX * 297 / 210), TOP = 30, BOT = 34;
+    const SCALE = 2, W_PX = 794, PAGE_PX = Math.round(W_PX * 297 / 210), TOP = 46, BOT = 52;
     const canvas = await window.html2canvas(el, { scale: SCALE, backgroundColor: '#ffffff', useCORS: true, logging: false });
     // نقاط القطع: نهاية كل صف أو عنوان، حتى لا ينقسم صف بين صفحتين
     const top0 = el.getBoundingClientRect().top;
@@ -1310,6 +1310,6 @@ else {
   }, 300000);
 }
 </script>
-<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-17 ب</p>
+<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-17 د</p>
 </body>
 </html>

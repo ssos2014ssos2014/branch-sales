@@ -38,7 +38,7 @@
   .brand-logos::-webkit-scrollbar { display: none; }
   .brand-logos[hidden] { display: none; }
   .blogo { flex: none; width: 42px; height: 42px; border-radius: 12px; background: #fff; border: 1px solid #ECE7E1; display: grid; place-items: center; overflow: hidden; transition: transform .15s, box-shadow .15s; }
-  .blogo img { width: 100%; height: 100%; object-fit: contain; padding: 3px; display: block; }
+  .blogo img { width: 100%; height: 100%; object-fit: contain; padding: 4px; display: block; }
   .blogo:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,.12); }
   .br-row input[data-brname] { flex: 1; min-width: 200px; }
   .br-type { max-width: 150px; }
@@ -47,11 +47,26 @@
   .live.on { color: var(--accent); }
   .live.on::before { background: var(--accent); animation: pulse 2s infinite; }
   @keyframes pulse { 50% { opacity: .35; } }
-  .top-actions { display: flex; gap: 8px; }
+  .top-in { flex-wrap: wrap; row-gap: 10px; }
+  .top-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-start; align-items: center; flex: 1 1 100%; padding-top: 10px; border-top: 1px dashed var(--line); }
+  .top-actions .btn { white-space: nowrap; }
+  .brand-t h1, .brand-t small { white-space: nowrap; }
   @media (max-width: 720px) {
-    .top-in { flex-wrap: wrap; padding: 10px 12px; gap: 8px; }
-    .top-actions { flex-wrap: wrap; gap: 6px; width: 100%; }
-    .top-actions .btn { padding-inline: 10px; }
+    .top-in { padding: 10px 12px 8px; gap: 8px; }
+    .brand { width: 100%; }
+    .brand-box { flex: 1 1 auto; min-width: 0; }
+    .brand-t { min-width: 0; }
+    .brand-t small { font-size: 10px; gap: 6px; }
+    .brand-t .sub-t { display: none; }
+    .brand { flex-wrap: wrap !important; }
+    .brand-box { overflow: hidden; }
+    .brand .view-tag { order: 3; flex: 1 1 100%; text-align: center; }
+    .top-actions { border-top: none; padding-top: 2px; }
+    /* الأزرار في صف واحد قابل للتمرير بدل عدة أسطر غير منتظمة */
+    .top-actions { flex-wrap: nowrap; justify-content: flex-start; width: 100%; overflow-x: auto; scrollbar-width: none; padding: 2px 0 4px; margin: 0 -12px; padding-inline: 12px; width: calc(100% + 24px); }
+    .top-actions::-webkit-scrollbar { display: none; }
+    .top-actions > * { flex: none; }
+    .top-actions .btn { padding-inline: 12px; }
   }
   body { overflow-x: hidden; }
   .badge { background: var(--rose); color: #fff; border-radius: 99px; padding: 0 7px; font-size: 12px; line-height: 20px; min-width: 20px; }
@@ -124,7 +139,7 @@
   .wsum .parts { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; }
   .wsum .parts em { font-style: normal; font-family: var(--font-head); font-weight: 600; color: var(--ink); }
   .wsum .btn { margin-inline-start: auto; }
-  .g-logo { width: 30px; height: 30px; border-radius: 8px; object-fit: contain; background: #fff; border: 1px solid var(--line); vertical-align: middle; margin-inline-end: 8px; }
+  .g-logo { width: 32px; height: 32px; border-radius: 9px; object-fit: contain; padding: 3px; background: #fff; border: 1px solid var(--line); vertical-align: middle; margin-inline-end: 8px; flex: none; }
   .g-top h3 { display: flex; align-items: center; flex-wrap: wrap; }
   .wtools { display: flex; gap: 8px; margin-inline-start: auto; }
   .wseg { margin: 4px 0 12px; flex-wrap: wrap; }
@@ -207,7 +222,7 @@
   .rep-row.off input { opacity: .55; }
   .logo-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; flex-wrap: wrap; }
   .logo-box { width: 52px; height: 52px; border-radius: 12px; border: 1px dashed var(--line); display: grid; place-items: center; background: #fff; overflow: hidden; color: var(--muted); font-family: var(--font-head); flex: none; }
-  .logo-box img { width: 100%; height: 100%; object-fit: contain; }
+  .logo-box img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
   .logo-row .nm { flex: 1; min-width: 140px; font-weight: 600; }
   .logo-row .acts { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
   .tgl { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
@@ -481,10 +496,10 @@
   .mv-form .pay-grid { margin-bottom: 8px; }
   @media (max-width: 480px) { .pay-grid { grid-template-columns: repeat(3, 1fr); } .pay-f.tot { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: baseline; } }
   /* ---- قالب تقرير PDF (ألوان ثابتة) ---- */
-  .pdf { position: fixed; left: -20000px; top: 0; width: 794px; background: #fff; color: #1d1a17; direction: rtl; padding: 36px 40px 30px; font-family: 'IBM Plex Sans Arabic', Tahoma, sans-serif; font-size: 14px; line-height: 1.6; }
+  .pdf { position: fixed; left: -20000px; top: 0; width: 794px; background: #fff; color: #1d1a17; direction: rtl; padding: 46px 50px 40px; font-family: 'IBM Plex Sans Arabic', Tahoma, sans-serif; font-size: 14px; line-height: 1.6; }
   .pdf * { color-scheme: light; }
   .pdf-head { display: flex; align-items: center; gap: 16px; border-bottom: 3px solid #A63D52; padding-bottom: 14px; }
-  .pdf-head img { width: 76px; height: 76px; object-fit: contain; border-radius: 12px; border: 1px solid #e3e0dc; }
+  .pdf-head img { width: 78px; height: 78px; object-fit: contain; padding: 6px; background: #fff; border-radius: 14px; border: 1px solid #e3e0dc; flex: none; }
   .pdf-head h1 { font-family: 'Readex Pro', sans-serif; font-size: 24px; margin: 0; color: #1d1a17; }
   .pdf-head p { margin: 0; color: #6d645c; }
   .pdf-head .t { font-size: 17px; color: #A63D52; font-weight: 600; }
@@ -535,7 +550,7 @@
   .pc-col.cur i { background: #2B1E18; }
   .pc-col.cur .pc-d { color: #2B1E18; font-weight: 700; }
   .pdf .foot { margin-top: 18px; font-size: 11px; color: #8a8178; text-align: center; }
-  .pdf.pv { position: static; left: auto; width: 100%; max-width: 794px; margin: 0 auto; box-shadow: 0 4px 24px rgba(0,0,0,.12); border-radius: 6px; padding: 28px 30px; }
+  .pdf.pv { position: static; left: auto; width: 100%; max-width: 794px; margin: 0 auto; box-shadow: 0 4px 24px rgba(0,0,0,.12); border-radius: 6px; padding: 46px 50px 40px; }
   .pdf table.tight td, .pdf table.tight th { padding: 4px 5px; font-size: 11.5px; }
   .pdf td small { color: #6d645c; font-size: 11px; }
   /* ---- التقارير الإدارية ---- */
@@ -549,9 +564,79 @@
   .rep-t.on small { color: inherit; opacity: .75; }
   .rep-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin: 14px 0; position: sticky; top: 0; background: var(--bg); padding: 8px 0; z-index: 3; }
   .rep-prev { overflow-x: auto; padding: 6px 2px 20px; }
-  @media (max-width: 720px) { .pdf.pv { zoom: .46; } .rep-types { grid-template-columns: 1fr 1fr; } .rep-t small { display: none; } .rep-t { padding: 9px 10px; } }
+  @media (max-width: 720px) { .rep-bar > label { flex: 1 1 100%; } .rep-bar .in { width: 100%; } .rep-bar > .btn { flex: 1 1 100%; white-space: nowrap; } .pdf.pv { width: 794px; max-width: none; zoom: .44; } .rep-types { grid-template-columns: 1fr 1fr; } .rep-t small { display: none; } .rep-t { padding: 9px 10px; } }
   .chip-on { font-size: 11px; font-weight: 700; color: #1f7a3e; background: #1f7a3e1a; border-radius: 99px; padding: 2px 9px; }
   .wa-links .rep-row input { min-width: 0; flex: 1 1 220px; }
+  /* ---- حاسبة تكلفة المنتج ---- */
+  #calcBtn.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+  .calc-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; align-items: start; }
+  @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
+  .calc-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px; }
+  .cc-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .cc-h h2 { font-size: 18px; }
+  .cc-row2 { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+  @media (max-width: 520px) { .cc-row2 { grid-template-columns: 1fr; } }
+  .calc-card .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+  .calc-card .field > span { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .calc-card input, .calc-card select { border: 1.5px solid var(--line); border-radius: var(--r-sm); background: var(--bg); padding: 10px 12px; font: inherit; color: var(--ink); min-width: 0; width: 100%; }
+  .calc-card input:focus, .calc-card select:focus { outline: none; border-color: var(--ink); background: var(--surface); }
+  .cc-img { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  .cc-img img, .cc-noimg { width: 84px; height: 84px; object-fit: cover; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); }
+  .cc-noimg { display: grid; place-items: center; font-size: 11px; color: var(--muted); }
+  .cc-noimg.sm { width: 44px; height: 44px; }
+  .cc-img > div { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cc-sub { font-size: 15px; margin: 14px 0 8px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .cc-sub small { font-size: 12px; color: var(--muted); font-weight: 400; }
+  .cc-line { display: grid; grid-template-columns: minmax(0, 1fr) 130px 70px 30px; gap: 6px; align-items: center; margin-bottom: 6px; }
+  .cc-line.ex { grid-template-columns: minmax(0, 1fr) 130px 30px; }
+  .cc-g { position: relative; display: block; }
+  .cc-g input { padding-inline-end: 44px; text-align: center; }
+  .cc-g span { position: absolute; inset-inline-end: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--muted); pointer-events: none; }
+  .cc-c { text-align: end; font-size: 14px; }
+  .cc-empty { font-size: 13px; margin-bottom: 6px; }
+  .cc-acts { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  @media (max-width: 520px) { .cc-line { grid-template-columns: minmax(0, 1fr) 30px; } .cc-line select { grid-column: 1; } .cc-line .cc-g { grid-column: 1; } .cc-line .cc-c { grid-column: 1; text-align: start; } .cc-line .icon-x { grid-row: 1; grid-column: 2; } .cc-line.ex { grid-template-columns: minmax(0, 1fr) 30px; } }
+  .cc-res { margin-top: 18px; border-top: 3px solid var(--ink); padding-top: 14px; }
+  .cc-res h3 { font-size: 16px; margin: 14px 0 8px; }
+  .cc-res h3:first-child { margin-top: 0; }
+  .cc-tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .cc-tbl td { padding: 8px 4px; border-bottom: 1px solid var(--line); }
+  .cc-tbl td small { display: block; font-size: 12px; color: var(--muted); }
+  .cc-tbl .n { text-align: end; white-space: nowrap; font-family: var(--font-head); }
+  .cc-tbl tfoot td { font-weight: 800; font-size: 16px; border-bottom: none; border-top: 2px solid var(--ink); }
+  .cc-price { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 620px) { .cc-price { grid-template-columns: 1fr; } }
+  .cc-pbox { background: var(--bg); border-radius: var(--r-md); padding: 12px; }
+  .cc-pbox input { background: var(--surface) !important; font-size: 18px; font-weight: 700; text-align: center; }
+  .cc-kpis { display: grid; gap: 6px; margin-top: 8px; }
+  .cc-kpis > div { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; background: var(--surface); border-radius: var(--r-sm); padding: 8px 10px; flex-wrap: wrap; }
+  .cc-kpis span { font-size: 13px; color: var(--muted); }
+  .cc-kpis b { font-family: var(--font-head); font-size: 17px; }
+  .cc-basis { margin-top: 2px; }
+  .cc-how { margin-top: 12px; background: var(--bg); border-radius: var(--r-md); padding: 10px 14px; font-size: 14px; }
+  .cc-how summary { cursor: pointer; font-weight: 700; }
+  .cc-how ol { margin: 8px 0 0; padding-inline-start: 20px; line-height: 1.9; }
+  .cc-save { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .cc-prods { display: grid; gap: 6px; }
+  .cc-p { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: var(--r-md); padding: 8px 10px; }
+  .cc-p.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+  .cc-p img { width: 44px; height: 44px; object-fit: cover; border-radius: 8px; }
+  .cc-pick input { width: 20px; height: 20px; }
+  .cc-pi { flex: 1; min-width: 0; }
+  .cc-pi b { display: block; font-size: 14px; }
+  .cc-pi small { font-size: 12px; color: var(--muted); }
+  .cc-pa { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+  .cc-prev-h { font-size: 17px; margin: 18px 0 8px; }
+  .cc-send { margin-top: 12px; display: grid; gap: 8px; border-top: 1px dashed var(--line); padding-top: 12px; }
+  .cc-send-h { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+  .ing-add { display: grid; grid-template-columns: 2fr 1fr auto; gap: 8px; margin-bottom: 12px; }
+  @media (max-width: 560px) { .ing-add { grid-template-columns: 1fr 1fr; } .ing-add .btn { grid-column: 1 / -1; } }
+  .set-tbl tr.off td { opacity: .55; }
+  .pdf tr.hl td { background: #f6e3e7; font-weight: 700; color: #7a2236; }
+  .pdf .pr-head { display: flex; gap: 16px; align-items: center; margin: 4px 0 10px; }
+  .pdf .pr-head img { width: 130px; height: 130px; object-fit: cover; border-radius: 12px; border: 1px solid #e8e4e0; }
+  .pdf .pr-head h2 { margin: 0 0 6px; font-size: 20px; }
+  .pdf .pr-head p { margin: 2px 0; font-size: 14px; }
   /* ---- الحذف وإعادة الإرسال ---- */
   .cell-del { border: none; background: transparent; color: var(--muted); font-size: 15px; line-height: 1; padding: 2px 5px; margin-inline-end: 4px; border-radius: 6px; cursor: pointer; opacity: .55; }
   .cell-del:hover, .cell-del:focus-visible { opacity: 1; background: var(--no-c); color: #fff; }
@@ -689,8 +774,8 @@
     .chart { height: 110px; gap: 2px; }
     .brand h1 { font-size: 18px; }
     .brand-t h1 { font-size: 16px; }
-    .brand { flex-wrap: wrap; }
-    .brand-logos { padding: 4px 6px; gap: 4px; border-radius: 12px; max-width: 100%; }
+    .brand { flex-wrap: nowrap; }
+    .brand-logos { padding: 4px 6px; gap: 4px; border-radius: 12px; max-width: 46%; flex: none; }
     .blogo { width: 34px; height: 34px; border-radius: 9px; }
   }
 </style>
@@ -713,7 +798,7 @@
     <div class="brand">
       <div class="brand-box">
         <span class="brand-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V11M10 20V5M16 20v-6M22 20H2"/></svg></span>
-        <div class="brand-t"><h1>مبيعات الفروع</h1><small>لوحة متابعة المبيعات والأهداف <span id="live" class="live">جارٍ الاتصال</span></small></div>
+        <div class="brand-t"><h1>مبيعات الفروع</h1><small><span class="sub-t">لوحة متابعة المبيعات والأهداف</span> <span id="live" class="live">جارٍ الاتصال</span></small></div>
       </div>
       <div class="brand-logos" id="brandLogos" aria-label="شعارات الفروع"></div>
       <span id="viewTag" class="view-tag view-only"></span>
@@ -721,6 +806,7 @@
     <div class="top-actions">
       <button id="addBtn" class="btn btn-primary btn-sm edit-only">إدخال مبيعات</button>
       <button id="repBtn" class="btn btn-ghost btn-sm">تقارير إدارية</button>
+      <button id="calcBtn" class="btn btn-ghost btn-sm edit-only">حاسبة التكلفة</button>
       <button id="cmpBtn" class="btn btn-ghost btn-sm">المقارنة</button>
       <button id="wasteBtn" class="btn btn-ghost btn-sm">التوالف</button>
       <button id="lateBtn" class="bell-btn" aria-expanded="false" aria-haspopup="true" aria-label="تنبيهات التأخير" title="تنبيهات التأخير"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span id="lateDot" class="bell-dot" hidden></span></button>
@@ -762,7 +848,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-17 ب</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-17 د</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -770,6 +856,7 @@
     <section id="fund" hidden></section>
     <section id="compare" hidden></section>
     <section id="reports" hidden></section>
+    <section id="calc" hidden></section>
     <section id="settingsView" hidden>
       <div class="page-head"><button class="back-btn" id="setBack" type="button"><span aria-hidden="true">→</span> رجوع للوحة</button><h2>الإعدادات</h2></div>
       <nav class="set-tabs" id="setTabs" role="tablist"></nav>
@@ -777,6 +864,7 @@
       <div id="setPanel-commit" class="set-panel" hidden></div>
       <div id="setPanel-fund" class="set-panel" hidden></div>
       <div id="setPanel-general" class="set-panel" hidden><div class="set-card"><div id="settings"></div></div></div>
+      <div id="setPanel-ings" class="set-panel" hidden></div>
       <div id="setPanel-links" class="set-panel" hidden><div class="set-card"><h3>روابط إدخال المبيعات للفروع</h3><div id="links"></div></div></div>
     </section>
   </main>
@@ -956,6 +1044,7 @@ async function reload() {
     await loadLate();
     await loadFin();
     await loadMoves();
+    await loadCost();
     buildGroups();
     renderAll();
   } catch (e) { toast(errMsg(e), 'err'); }
@@ -1498,7 +1587,7 @@ function bindBack() { document.querySelectorAll('[data-back]').forEach(b => b.on
 // =====================================================================
 //  صفحة الإعدادات (تبويبات)
 // =====================================================================
-const SET_TABS = [['targets', 'الأهداف وهامش الربح'], ['commit', 'الالتزامات'], ['fund', 'التمويلات'], ['general', 'الفروع والروابط والوصول'], ['links', 'روابط الإدخال']];
+const SET_TABS = [['targets', 'الأهداف وهامش الربح'], ['commit', 'الالتزامات'], ['fund', 'التمويلات'], ['general', 'الفروع والروابط والوصول'], ['links', 'روابط الإدخال'], ['ings', 'مكونات المنتجات']];
 function renderSettingsView() {
   const el = $('settingsView'); if (!el || el.hidden) return;
   const ae = document.activeElement;
@@ -1510,6 +1599,7 @@ function renderSettingsView() {
   if (S.setTab === 'fund') renderSetFund();
   if (S.setTab === 'general') renderSettings();
   if (S.setTab === 'links') renderLinks();
+  if (S.setTab === 'ings') renderSetIngs();
 }
 function renderSetTargets() {
   const brs = activeBranches();
@@ -2174,13 +2264,14 @@ function renderReports() {
     <div class="rep-prev"><div class="pdf pv">${html}</div></div>`;
   bindBack();
 }
-async function repBuild() {
+async function repBuild() { return htmlToPdf(REP.html, `${repTitle()} ${S.from} - ${S.to}.pdf`); }
+async function htmlToPdf(html, fileName) {
   for (const s of REP_LIBS) await repLoadScript(s);
-  const el = document.createElement('div'); el.className = 'pdf'; el.innerHTML = REP.html; document.body.appendChild(el);
+  const el = document.createElement('div'); el.className = 'pdf'; el.innerHTML = html; document.body.appendChild(el);
   try {
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
     await Promise.all([...el.querySelectorAll('img')].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
-    const SCALE = 2, W_PX = 794, PAGE_PX = Math.round(W_PX * 297 / 210), TOP = 30, BOT = 34;
+    const SCALE = 2, W_PX = 794, PAGE_PX = Math.round(W_PX * 297 / 210), TOP = 46, BOT = 52;
     const canvas = await window.html2canvas(el, { scale: SCALE, backgroundColor: '#ffffff', useCORS: true, logging: false });
     const top0 = el.getBoundingClientRect().top;
     const cuts = [...el.querySelectorAll('tr, .pdf-block, p')].map(e => Math.round(e.getBoundingClientRect().bottom - top0)).sort((a, b) => a - b);
@@ -2200,7 +2291,7 @@ async function repBuild() {
       pdf.addImage(part.toDataURL('image/jpeg', 0.92), 'JPEG', 0, (i ? TOP : 0) * mm, 210, (b - a) * mm);
       pdf.setFontSize(9); pdf.setTextColor(140); pdf.text(`${i + 1} / ${pages.length}`, 105, 290, { align: 'center' });
     });
-    const name = `${repTitle()} ${S.from} - ${S.to}.pdf`.replace(/[\\/:*?"<>|]/g, '-');
+    const name = fileName.replace(/[\\/:*?"<>|]/g, '-');
     return new File([pdf.output('blob')], name, { type: 'application/pdf' });
   } finally { el.remove(); }
 }
@@ -2229,6 +2320,357 @@ function bindReports() {
     if (e.target.id === 'repBranch') { REP.branch = e.target.value; renderReports(); }
     if (e.target.id === 'repTarget') REP.target = e.target.value;
   });
+}
+
+// =====================================================================
+//  حاسبة تكلفة المنتج (للإدارة فقط)
+// =====================================================================
+const PACK_TYPES = ['بوكس', 'علبة', 'كيس', 'أخرى'];
+const CC = { id: null, name: '', type: 'بوكس', base: '', image: null, ings: [], extras: [], price: '', pct: '', basis: 'cost', shown: false, sel: new Set(), fmt: 'pdf' };
+S.ings = []; S.prods = []; S.costOk = true;
+const r2c = n => Math.round((Number(n) || 0) * 100) / 100;
+const m2 = n => { const v = r2c(n); return v.toLocaleString('en-US', { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
+const numIn = v => String(v ?? '').trim() === '' ? 0 : parseAmount(v);
+
+async function loadCost() {
+  if (VIEW) return;
+  const [a, b] = await Promise.all([
+    sb.from('cost_ingredients').select('*').order('name'),
+    sb.from('cost_products').select('*').order('updated_at', { ascending: false })
+  ]);
+  S.costOk = !a.error && !b.error;
+  S.ings = a.data || []; S.prods = b.data || [];
+}
+const ingById = id => S.ings.find(i => i.id === Number(id));
+// سعر الكيلو الحالي للمكون (أو السعر المحفوظ مع المنتج إذا حُذف المكون)
+const ingPrice = r => { const i = ingById(r.id); return i ? Number(i.price_per_kg) : Number(r.price_per_kg) || 0; };
+const ingName = r => { const i = ingById(r.id); return i ? i.name : (r.name || 'مكون محذوف'); };
+const ingRowCost = r => (numIn(r.grams) || 0) / 1000 * ingPrice(r);
+function costOf(p) {
+  const base = numIn(p.base) || 0, ings = p.ings.reduce((a, r) => a + (ingRowCost(r) || 0), 0), ex = p.extras.reduce((a, x) => a + (numIn(x.amount) || 0), 0);
+  return { base, ings, ex, total: base + ings + ex };
+}
+// تحويل منتج محفوظ إلى نفس شكل الحاسبة
+const prodToCalc = p => ({ id: p.id, name: p.name, type: p.pack_type, base: p.base_cost != null ? String(Number(p.base_cost)) : '', image: p.image,
+  ings: (p.ingredients || []).map(r => ({ id: r.id, name: r.name, price_per_kg: r.price_per_kg, grams: String(r.grams ?? '') })),
+  extras: (p.extras || []).map(x => ({ name: x.name, amount: String(x.amount ?? '') })), price: p.sell_price != null ? String(Number(p.sell_price)) : '' });
+function priceStats(total, price) {
+  const profit = price - total;
+  return { price, profit, onCost: total ? profit / total * 100 : 0, onPrice: price ? profit / price * 100 : 0 };
+}
+const pctFromBasis = (total, p, basis) => basis === 'sale' ? (p >= 100 ? NaN : total / (1 - p / 100)) : total * (1 + p / 100);
+const ceilHalf = n => Math.ceil(n * 2) / 2;
+
+function openCalc() { S.detail = null; S.wasteView = false; showView('calc'); renderCalc(); }
+function renderCalc() {
+  const el = $('calc'); if (!el || el.hidden) return;
+  if (!S.costOk) { el.innerHTML = `${backHead('حاسبة تكلفة المنتج')}<p class="muted" style="margin-top:14px">شغّل ملف costcalc.sql في Supabase لتفعيل الحاسبة.</p>`; bindBack(); return; }
+  const ingOpts = sel => `<option value="">اختر المكون…</option>${S.ings.filter(i => i.active || Number(sel) === i.id).map(i => `<option value="${i.id}"${Number(sel) === i.id ? ' selected' : ''}>${esc(i.name)} — ${m2(i.price_per_kg)} ريال/كيلو</option>`).join('')}`;
+  el.innerHTML = `${backHead('حاسبة تكلفة المنتج')}
+  <div class="calc-grid">
+    <section class="calc-card">
+      <div class="cc-h"><h2>${CC.id ? 'تعديل منتج محفوظ' : 'منتج جديد'}</h2>${CC.id ? '<button class="btn btn-ghost btn-sm" data-cnew="1">+ منتج جديد</button>' : ''}</div>
+      <div class="cc-row2">
+        <label class="field"><span>اسم المنتج</span><input id="ccName" value="${esc(CC.name)}" placeholder="مثال: علبة شوكولاتة فاخرة" maxlength="80" autocomplete="off"></label>
+        <label class="field"><span>المنتج (نوع التعبئة)</span><select id="ccType">${PACK_TYPES.map(t => `<option${t === CC.type ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
+      </div>
+      <div class="cc-img">
+        ${CC.image ? `<img src="${esc(CC.image)}" alt="صورة المنتج">` : '<div class="cc-noimg">لا توجد صورة</div>'}
+        <div><button class="btn btn-ghost btn-sm" data-cimg="1">${CC.image ? 'تغيير الصورة' : '+ إضافة صورة للمنتج'}</button>
+        ${CC.image ? '<button class="btn btn-ghost btn-sm btn-danger" data-cimgdel="1">حذف الصورة</button>' : ''}</div>
+        <input type="file" id="ccImgFile" accept="image/*" hidden></div>
+      <label class="field"><span>التكلفة قبل التعبئة (ريال)</span><input id="ccBase" inputmode="decimal" dir="ltr" value="${esc(CC.base)}" placeholder="0"></label>
+
+      <h3 class="cc-sub">المكونات المستخدمة <small>(السعر حسب الكيلو، والوزن بالجرام)</small></h3>
+      <div id="ccIngs">${CC.ings.map((r, k) => `<div class="cc-line" data-ik="${k}">
+        <select data-ing="${k}">${ingOpts(r.id)}</select>
+        <label class="cc-g"><input data-grams="${k}" inputmode="decimal" dir="ltr" value="${esc(r.grams)}" placeholder="الوزن"><span>جرام</span></label>
+        <b class="num cc-c" data-ic="${k}">${m2(ingRowCost(r))}</b>
+        <button class="icon-x sm" data-ingdel="${k}" aria-label="حذف المكون">×</button></div>`).join('') || '<p class="muted cc-empty">لم تُضف مكونات بعد.</p>'}</div>
+      <div class="cc-acts"><button class="btn btn-ghost btn-sm" data-ingadd="1">+ إضافة مكون</button>
+        <button class="link-btn" data-goings="1">إدارة المكونات وأسعارها</button></div>
+
+      <h3 class="cc-sub">تكاليف أخرى للمنتج <small>(علبة، شريطة، ملصق، توصيل…)</small></h3>
+      <div id="ccEx">${CC.extras.map((x, k) => `<div class="cc-line ex">
+        <input data-exn="${k}" value="${esc(x.name)}" placeholder="اسم التكلفة" maxlength="60">
+        <label class="cc-g"><input data-exa="${k}" inputmode="decimal" dir="ltr" value="${esc(x.amount)}" placeholder="السعر"><span>ريال</span></label>
+        <button class="icon-x sm" data-exdel="${k}" aria-label="حذف التكلفة">×</button></div>`).join('') || '<p class="muted cc-empty">لا توجد تكاليف أخرى.</p>'}</div>
+      <div class="cc-acts"><button class="btn btn-ghost btn-sm" data-exadd="1">+ إضافة تكلفة أخرى</button></div>
+
+      <button class="btn btn-primary btn-block btn-lg" data-ccalc="1" style="margin-top:16px">احسب سعر المنتج</button>
+      <div id="ccOut">${CC.shown ? calcOutHtml() : ''}</div>
+    </section>
+
+    <section class="calc-card cc-list">
+      <div class="cc-h"><h2>المنتجات المحفوظة (${S.prods.length})</h2></div>
+      ${S.prods.length ? `<div class="cc-prods">${S.prods.map(p => { const c = costOf(prodToCalc(p)), st = p.sell_price != null ? priceStats(c.total, Number(p.sell_price)) : null;
+        return `<div class="cc-p${CC.id === p.id ? ' on' : ''}">
+          <label class="cc-pick"><input type="checkbox" data-psel="${p.id}"${CC.sel.has(p.id) ? ' checked' : ''} aria-label="اختيار ${esc(p.name)} للتقرير"></label>
+          ${p.image ? `<img src="${esc(p.image)}" alt="">` : '<div class="cc-noimg sm"></div>'}
+          <div class="cc-pi"><b>${esc(p.name)}</b><small>${esc(p.pack_type)} · التكلفة ${m2(c.total)}${st ? ` · البيع ${m2(st.price)} · ربح ${fmtPct(st.onCost)}` : ''}</small></div>
+          <div class="cc-pa"><button class="btn btn-ghost btn-sm" data-pedit="${p.id}">تعديل</button><button class="btn btn-ghost btn-sm btn-danger" data-pdel="${p.id}">حذف</button></div></div>`; }).join('')}</div>
+        <div class="cc-send">
+          <div class="cc-send-h"><button class="link-btn" data-pall="1">${CC.sel.size === S.prods.length ? 'إلغاء تحديد الكل' : 'تحديد الكل'}</button><span class="muted">المحدد: ${CC.sel.size}</span></div>
+          <div class="seg" role="group" aria-label="صيغة التقرير"><button data-pfmt="pdf" aria-pressed="${CC.fmt === 'pdf'}">PDF</button><button data-pfmt="png" aria-pressed="${CC.fmt === 'png'}">صورة</button></div>
+          ${repTargets().length ? `<select class="in" id="ccTarget">${repTargets().map(t => `<option value="${esc(t.v)}"${t.v === CC.target ? ' selected' : ''}>${esc(t.l)}</option>`).join('')}<option value="">بدون قروب (تنزيل فقط)</option></select>` : ''}
+          <button class="btn btn-wa btn-block" data-psend="1"${CC.sel.size ? '' : ' disabled'}>إرسال تقرير المنتجات المحددة على الواتساب</button>
+          <button class="btn btn-ghost btn-block btn-sm" data-pprev="1"${CC.sel.size ? '' : ' disabled'}>معاينة التقرير</button>
+        </div>
+`
+      : '<p class="muted">لا توجد منتجات محفوظة. احسب المنتج ثم اضغط "حفظ المنتج".</p>'}
+    </section>
+  </div>
+  <div id="ccPrev"></div>`;
+  bindBack();
+}
+function calcOutHtml() {
+  const c = costOf(CC);
+  const price = numIn(CC.price), pct = numIn(CC.pct);
+  const st = price > 0 ? priceStats(c.total, price) : null;
+  const pPrice = pct > 0 ? pctFromBasis(c.total, pct, CC.basis) : NaN;
+  return `<div class="cc-res">
+    <h3>تفاصيل التكلفة</h3>
+    <table class="cc-tbl"><tbody>
+      <tr><td>التكلفة قبل التعبئة</td><td class="n">${m2(c.base)}</td></tr>
+      ${CC.ings.filter(r => r.id).map(r => `<tr><td>${esc(ingName(r))} <small>${m2(numIn(r.grams) || 0)} جرام × ${m2(ingPrice(r))} ريال/كيلو</small></td><td class="n">${m2(ingRowCost(r))}</td></tr>`).join('')}
+      ${CC.extras.filter(x => x.name || numIn(x.amount)).map(x => `<tr><td>${esc(x.name || 'تكلفة أخرى')}</td><td class="n">${m2(numIn(x.amount) || 0)}</td></tr>`).join('')}
+    </tbody><tfoot><tr><td>إجمالي تكلفة المنتج</td><td class="n">${m2(c.total)} ريال</td></tr></tfoot></table>
+
+    <h3>تسعير المنتج</h3>
+    <div class="cc-price">
+      <div class="cc-pbox">
+        <label class="field"><span>سعر البيع المقترح (ريال)</span><input id="ccPrice" inputmode="decimal" dir="ltr" value="${esc(CC.price)}" placeholder="اكتب السعر"></label>
+        <div class="cc-kpis" id="ccPriceOut">${st ? `<div><span>مكسبك في القطعة</span><b class="${st.profit >= 0 ? 'ok' : 'no'}">${m2(st.profit)} ريال</b></div>
+          <div><span>نسبة الربح من التكلفة</span><b>${fmtPct(st.onCost)}</b></div><div><span>هامش الربح من سعر البيع</span><b>${fmtPct(st.onPrice)}</b></div>` : '<p class="muted">اكتب السعر ليظهر مكسبك.</p>'}</div>
+      </div>
+      <div class="cc-pbox">
+        <label class="field"><span>نسبة المكسب المطلوبة (%)</span><input id="ccPct" inputmode="decimal" dir="ltr" value="${esc(CC.pct)}" placeholder="مثال: 40"></label>
+        <div class="seg cc-basis" role="group" aria-label="طريقة حساب النسبة"><button data-cbasis="cost" aria-pressed="${CC.basis === 'cost'}">من التكلفة</button><button data-cbasis="sale" aria-pressed="${CC.basis === 'sale'}">من سعر البيع</button></div>
+        <div class="cc-kpis" id="ccPctOut">${isFinite(pPrice) && pPrice > 0 ? `<div><span>سعر البيع</span><b>${m2(pPrice)} ريال</b></div><div><span>الربح في القطعة</span><b class="ok">${m2(pPrice - c.total)} ريال</b></div>
+          <div><span>سعر مقرّب</span><b>${m2(ceilHalf(pPrice))}</b><button class="link-btn" data-cuse="${ceilHalf(pPrice)}">اعتماده</button></div>` : '<p class="muted">اكتب النسبة ليظهر السعر.</p>'}</div>
+      </div>
+    </div>
+    <details class="cc-how"><summary>آلية تسعير المنتج</summary>
+      <ol>
+        <li><b>إجمالي التكلفة</b> = التكلفة قبل التعبئة + (وزن كل مكون بالجرام ÷ 1000 × سعر الكيلو) + التكاليف الأخرى. لهذا المنتج: <b>${m2(c.total)} ريال</b>.</li>
+        <li><b>الربح من التكلفة</b>: سعر البيع = التكلفة × (1 + النسبة). مثال 40%: ${m2(c.total)} × 1.40 = <b>${m2(c.total * 1.4)}</b>.</li>
+        <li><b>هامش الربح من سعر البيع</b>: سعر البيع = التكلفة ÷ (1 − النسبة). مثال 40%: ${m2(c.total)} ÷ 0.60 = <b>${m2(c.total / 0.6)}</b>. الهامش يعطي سعراً أعلى من نفس النسبة على التكلفة.</li>
+        <li>قرّب السعر لأعلى (نصف ريال أو ريال) وتأكد أنه يغطي الهدر والخصومات والعمولات، وقارنه بأسعار السوق لنفس الحجم.</li>
+      </ol></details>
+    <div class="cc-save"><button class="btn btn-primary btn-lg" data-csave="1">${CC.id ? 'حفظ التعديلات' : 'حفظ المنتج'}</button>
+      ${CC.id ? '<button class="btn btn-ghost" data-csaveas="1">حفظ كمنتج جديد</button>' : ''}</div>
+  </div>`;
+}
+// تحديث الأرقام بدون إعادة رسم الحقول (حتى لا يضيع مكان الكتابة)
+function updCalc() {
+  CC.ings.forEach((r, k) => { const c = document.querySelector(`[data-ic="${k}"]`); if (c) c.textContent = m2(ingRowCost(r)); });
+  if (!CC.shown) return;
+  const out = $('ccOut'); if (!out) return;
+  const tmp = document.createElement('div'); tmp.innerHTML = calcOutHtml();
+  // نحدّث كل شيء ما عدا خانات السعر والنسبة المفتوحة
+  out.querySelector('.cc-tbl').replaceWith(tmp.querySelector('.cc-tbl'));
+  $('ccPriceOut').replaceWith(tmp.querySelector('#ccPriceOut'));
+  $('ccPctOut').replaceWith(tmp.querySelector('#ccPctOut'));
+  const how = out.querySelector('.cc-how'), open = how.open; how.replaceWith(tmp.querySelector('.cc-how')); out.querySelector('.cc-how').open = open;
+}
+function calcNew() { Object.assign(CC, { id: null, name: '', type: 'بوكس', base: '', image: null, ings: [], extras: [], price: '', pct: '', shown: false }); renderCalc(); }
+function calcValid() {
+  if (!CC.name.trim()) { toast('اكتب اسم المنتج', 'err'); $('ccName').focus(); return false; }
+  if (isNaN(numIn(CC.base)) || numIn(CC.base) < 0) { toast('التكلفة قبل التعبئة رقم فقط', 'err'); $('ccBase').focus(); return false; }
+  const bi = CC.ings.findIndex(r => r.id && (isNaN(numIn(r.grams)) || numIn(r.grams) <= 0));
+  if (bi >= 0) { toast(`اكتب وزن "${ingName(CC.ings[bi])}" بالجرام`, 'err'); document.querySelector(`[data-grams="${bi}"]`).focus(); return false; }
+  const be = CC.extras.findIndex(x => (x.name || x.amount) && isNaN(numIn(x.amount)));
+  if (be >= 0) { toast('سعر التكلفة الأخرى رقم فقط', 'err'); return false; }
+  if (!CC.ings.some(r => r.id) && !numIn(CC.base) && !CC.extras.some(x => numIn(x.amount))) { toast('أضف التكلفة قبل التعبئة أو مكوناً واحداً على الأقل', 'err'); return false; }
+  return true;
+}
+async function calcSave(asNew) {
+  if (!calcValid()) return;
+  const price = numIn(CC.price);
+  if (isNaN(price)) return toast('سعر البيع رقم فقط', 'err');
+  const row = { name: CC.name.trim(), pack_type: CC.type, base_cost: numIn(CC.base) || 0, image: CC.image || null,
+    ingredients: CC.ings.filter(r => r.id).map(r => ({ id: Number(r.id), name: ingName(r), price_per_kg: ingPrice(r), grams: numIn(r.grams) })),
+    extras: CC.extras.filter(x => x.name.trim() || numIn(x.amount)).map(x => ({ name: x.name.trim() || 'تكلفة أخرى', amount: numIn(x.amount) || 0 })),
+    sell_price: price > 0 ? price : null, updated_at: new Date().toISOString() };
+  const q = CC.id && !asNew ? sb.from('cost_products').update(row).eq('id', CC.id).select().single() : sb.from('cost_products').insert(row).select().single();
+  const { data, error } = await q;
+  if (error) return toast(errMsg(error), 'err');
+  const edited = CC.id && !asNew; CC.id = data.id; toast(edited ? 'تم حفظ التعديلات' : `تم حفظ "${data.name}" في قائمة المنتجات`); await loadCost(); renderCalc();
+}
+async function calcDelete(id) {
+  const p = S.prods.find(x => x.id === id); if (!p || !confirm(`حذف المنتج "${p.name}" نهائياً؟`)) return;
+  const { error } = await sb.from('cost_products').delete().eq('id', id);
+  if (error) return toast(errMsg(error), 'err');
+  CC.sel.delete(id); if (CC.id === id) CC.id = null;
+  toast('تم حذف المنتج'); await loadCost(); renderCalc();
+}
+async function calcImage(f) {
+  if (!f || !f.type.startsWith('image/')) return toast('اختر صورة', 'err');
+  try {
+    const url = await new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = bad; r.readAsDataURL(f); });
+    const img = await new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => bad(new Error('تعذّر قراءة الصورة')); i.src = url; });
+    const k = Math.min(1, 520 / Math.max(img.naturalWidth || 520, img.naturalHeight || 520)), c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round((img.naturalWidth || 520) * k)); c.height = Math.max(1, Math.round((img.naturalHeight || 520) * k));
+    const cx = c.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, c.width, c.height); cx.drawImage(img, 0, 0, c.width, c.height);
+    CC.image = c.toDataURL('image/jpeg', 0.85); renderCalc();
+  } catch (e) { toast(errMsg(e), 'err'); }
+}
+
+// ---------- تقرير المنتجات (PDF أو صورة) ----------
+function prodReportHtml(list) {
+  const now = new Intl.DateTimeFormat('ar-SA-u-nu-latn-ca-gregory', { timeZone: 'Asia/Riyadh', day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date());
+  const items = list.map(p => { const c = prodToCalc(p), k = costOf(c); return { p, c, k, st: p.sell_price != null ? priceStats(k.total, Number(p.sell_price)) : null }; });
+  let h = `<div class="pdf-head pdf-block"><div><h1>تقرير تكلفة وتسعير المنتجات</h1><p class="t">${items.length === 1 ? esc(items[0].p.name) : `${items.length} منتجات`}</p></div>
+    <div class="meta">تاريخ الإصدار<br>${esc(now)}</div></div>`;
+  if (items.length > 1) h += `<h2 class="pdf-block">ملخص المنتجات</h2><table><thead><tr><th>المنتج</th><th>النوع</th><th class="n">التكلفة</th><th class="n">سعر البيع</th><th class="n">الربح للقطعة</th><th class="n">من التكلفة</th><th class="n">من سعر البيع</th><th class="n">ربح 1000 قطعة</th></tr></thead><tbody>
+    ${items.map(x => `<tr><td><b>${esc(x.p.name)}</b></td><td>${esc(x.p.pack_type)}</td><td class="n">${m2(x.k.total)}</td><td class="n">${x.st ? m2(x.st.price) : '—'}</td><td class="n">${x.st ? m2(x.st.profit) : '—'}</td><td class="n">${x.st ? fmtPct(x.st.onCost) : '—'}</td><td class="n">${x.st ? fmtPct(x.st.onPrice) : '—'}</td><td class="n">${x.st ? money(Math.round(x.st.profit * 1000)) : '—'}</td></tr>`).join('')}
+    </tbody></table>`;
+  for (const x of items) {
+    const { p, c, k, st } = x;
+    h += `<div class="pdf-divider pdf-block"><span>${esc(p.name)}</span></div>
+      <div class="pr-head pdf-block">${p.image ? `<img src="${esc(p.image)}" alt="">` : ''}<div><h2>${esc(p.name)}</h2><p>نوع التعبئة: <b>${esc(p.pack_type)}</b></p>
+        <p>إجمالي التكلفة: <b>${m2(k.total)} ريال</b>${st ? ` · سعر البيع: <b>${m2(st.price)} ريال</b>` : ''}</p></div></div>
+      <h2 class="pdf-block">تفاصيل التكلفة</h2>
+      <table><thead><tr><th>البند</th><th>التفصيل</th><th class="n">التكلفة (ريال)</th><th class="n">النسبة</th></tr></thead><tbody>
+        <tr><td>التكلفة قبل التعبئة</td><td></td><td class="n">${m2(k.base)}</td><td class="n">${k.total ? fmtPct(k.base / k.total * 100) : '—'}</td></tr>
+        ${c.ings.map(r => `<tr><td>${esc(ingName(r))}</td><td>${m2(numIn(r.grams))} جرام × ${m2(ingPrice(r))} ريال/كيلو</td><td class="n">${m2(ingRowCost(r))}</td><td class="n">${k.total ? fmtPct(ingRowCost(r) / k.total * 100) : '—'}</td></tr>`).join('')}
+        ${c.extras.map(e => `<tr><td>${esc(e.name)}</td><td>تكلفة أخرى</td><td class="n">${m2(numIn(e.amount))}</td><td class="n">${k.total ? fmtPct(numIn(e.amount) / k.total * 100) : '—'}</td></tr>`).join('')}
+      </tbody><tfoot><tr><td colspan="2">إجمالي تكلفة القطعة</td><td class="n">${m2(k.total)}</td><td class="n">100%</td></tr></tfoot></table>`;
+    if (st) {
+      h += `<h2 class="pdf-block">تفاصيل الربح</h2>
+        <div class="pdf-tot pdf-block"><div class="main"><span>الربح في القطعة</span><b>${m2(st.profit)} ريال</b></div>
+          <div><span>نسبة الربح من التكلفة</span><b>${fmtPct(st.onCost)}</b></div><div><span>هامش الربح من سعر البيع</span><b>${fmtPct(st.onPrice)}</b></div></div>
+        <h2 class="pdf-block">حسابات تقديرية حسب الكمية المباعة</h2>
+        <table><thead><tr><th class="n">الكمية</th><th class="n">إجمالي المبيعات</th><th class="n">إجمالي التكلفة</th><th class="n">صافي الربح</th></tr></thead><tbody>
+        ${[100, 500, 1000, 5000, 10000].map(q => `<tr${q === 1000 ? ' class="hl"' : ''}><td class="n">${money(q)} قطعة</td><td class="n">${money(Math.round(st.price * q))}</td><td class="n">${money(Math.round(k.total * q))}</td><td class="n"><b>${money(Math.round(st.profit * q))}</b></td></tr>`).join('')}
+        </tbody></table>
+        <p class="pc-cap pdf-block">عند بيع 1000 قطعة بسعر ${m2(st.price)} ريال يكون الربح ${money(Math.round(st.profit * 1000))} ريال</p>`;
+    }
+    const sugg = [25, 35, 50, 75, 100].map(pc => { const pr = ceilHalf(k.total * (1 + pc / 100)); return { pr, s: priceStats(k.total, pr) }; })
+      .filter((v, i, a) => a.findIndex(z => z.pr === v.pr) === i && (!st || v.pr !== st.price));
+    if (k.total > 0) h += `<h2 class="pdf-block">أسعار بيع أخرى مقترحة</h2>
+      <table><thead><tr><th class="n">سعر البيع</th><th class="n">الربح للقطعة</th><th class="n">نسبة الربح من التكلفة</th><th class="n">هامش الربح من سعر البيع</th><th class="n">ربح 1000 قطعة</th></tr></thead><tbody>
+      ${sugg.map(v => `<tr><td class="n"><b>${m2(v.pr)}</b></td><td class="n">${m2(v.s.profit)}</td><td class="n">${fmtPct(v.s.onCost)}</td><td class="n">${fmtPct(v.s.onPrice)}</td><td class="n">${money(Math.round(v.s.profit * 1000))}</td></tr>`).join('')}
+      </tbody></table><p class="pc-cap pdf-block">الأسعار المقترحة مقرّبة لأعلى نصف ريال، ومحسوبة على تكلفة القطعة ${m2(k.total)} ريال</p>`;
+  }
+  return h + '<p class="foot pdf-block">برنامج إدارة مبيعات الفروع · حاسبة تكلفة المنتج</p>';
+}
+async function htmlToPng(html, name) {
+  await repLoadScript(REP_LIBS[0]);
+  const el = document.createElement('div'); el.className = 'pdf'; el.innerHTML = html; document.body.appendChild(el);
+  try {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    await Promise.all([...el.querySelectorAll('img')].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+    const canvas = await window.html2canvas(el, { scale: el.offsetHeight > 6000 ? 1.25 : 2, backgroundColor: '#ffffff', useCORS: true, logging: false });
+    const blob = await new Promise(ok => canvas.toBlob(ok, 'image/png'));
+    return new File([blob], name.replace(/[\\/:*?"<>|]/g, '-'), { type: 'image/png' });
+  } finally { el.remove(); }
+}
+async function prodSend(btn) {
+  const list = S.prods.filter(p => CC.sel.has(p.id)); if (!list.length) return;
+  const txt = btn.textContent; btn.disabled = true; btn.textContent = 'جارٍ تجهيز التقرير…';
+  const title = list.length === 1 ? `تكلفة ${list[0].name}` : `تكلفة ${list.length} منتجات`;
+  let f; try { f = CC.fmt === 'png' ? await htmlToPng(prodReportHtml(list), title + '.png') : await htmlToPdf(prodReportHtml(list), title + '.pdf'); } catch (e) { toast(errMsg(e), 'err'); }
+  btn.disabled = false; btn.textContent = txt; if (!f) return;
+  if (navigator.canShare && navigator.canShare({ files: [f] })) {
+    try { await navigator.share({ files: [f], title }); return; } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  const url = URL.createObjectURL(f), a = document.createElement('a');
+  a.href = url; a.download = f.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
+  const tg = $('ccTarget') ? $('ccTarget').value : '';
+  if (tg) { toast('تم تنزيل التقرير. أرفقه في القروب'); setTimeout(() => window.open(tg, '_blank', 'noopener'), 700); } else toast('تم تنزيل التقرير');
+}
+function bindCalc() {
+  const el = $('calc');
+  el.addEventListener('input', e => {
+    const t = e.target, d = t.dataset;
+    if (t.id === 'ccName') CC.name = t.value;
+    else if (t.id === 'ccBase') CC.base = t.value;
+    else if (t.id === 'ccPrice') CC.price = t.value;
+    else if (t.id === 'ccPct') CC.pct = t.value;
+    else if (d.grams != null) CC.ings[d.grams].grams = t.value;
+    else if (d.exn != null) CC.extras[d.exn].name = t.value;
+    else if (d.exa != null) CC.extras[d.exa].amount = t.value;
+    else return;
+    updCalc();
+  });
+  el.addEventListener('change', e => {
+    const t = e.target, d = t.dataset;
+    if (t.id === 'ccType') CC.type = t.value;
+    if (d.ing != null) { CC.ings[d.ing].id = t.value ? Number(t.value) : null; updCalc(); if (t.value) { const g = document.querySelector(`[data-grams="${d.ing}"]`); if (g && !g.value) g.focus(); } }
+    if (t.id === 'ccImgFile') calcImage(t.files[0]);
+    if (d.psel) { const id = Number(d.psel); t.checked ? CC.sel.add(id) : CC.sel.delete(id); renderCalc(); }
+    if (t.id === 'ccTarget') CC.target = t.value;
+  });
+  el.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
+    if (d.ingadd) { CC.ings.push({ id: null, grams: '' }); renderCalc(); const s = document.querySelector(`[data-ing="${CC.ings.length - 1}"]`); if (s) s.focus(); return; }
+    if (d.ingdel != null) { CC.ings.splice(Number(d.ingdel), 1); return renderCalc(); }
+    if (d.exadd) { CC.extras.push({ name: '', amount: '' }); renderCalc(); const s = document.querySelector(`[data-exn="${CC.extras.length - 1}"]`); if (s) s.focus(); return; }
+    if (d.exdel != null) { CC.extras.splice(Number(d.exdel), 1); return renderCalc(); }
+    if (d.ccalc) { if (!calcValid()) return; CC.shown = true; renderCalc(); $('ccOut').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+    if (d.cbasis) { CC.basis = d.cbasis; el.querySelectorAll('[data-cbasis]').forEach(x => x.setAttribute('aria-pressed', x === b)); return updCalc(); }
+    if (d.cuse) { CC.price = d.cuse; $('ccPrice').value = d.cuse; return updCalc(); }
+    if (d.csave) return calcSave(false);
+    if (d.csaveas) return calcSave(true);
+    if (d.cnew) return calcNew();
+    if (d.cimg) return $('ccImgFile').click();
+    if (d.cimgdel) { CC.image = null; return renderCalc(); }
+    if (d.goings) return openSettings('ings');
+    if (d.pedit) { const p = S.prods.find(x => x.id === Number(d.pedit)); if (!p) return; Object.assign(CC, prodToCalc(p), { pct: '', shown: true }); renderCalc(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    if (d.pdel) return calcDelete(Number(d.pdel));
+    if (d.pall) { if (CC.sel.size === S.prods.length) CC.sel.clear(); else S.prods.forEach(p => CC.sel.add(p.id)); return renderCalc(); }
+    if (d.pfmt) { CC.fmt = d.pfmt; return renderCalc(); }
+    if (d.psend) return prodSend(b);
+    if (d.pprev) { const list = S.prods.filter(p => CC.sel.has(p.id)); $('ccPrev').innerHTML = `<h2 class="cc-prev-h">معاينة التقرير</h2><div class="rep-prev"><div class="pdf pv">${prodReportHtml(list)}</div></div>`; $('ccPrev').scrollIntoView({ behavior: 'smooth' }); }
+  });
+}
+
+// ---------- إدارة مكونات المنتجات (الإعدادات) ----------
+function renderSetIngs() {
+  const el = $('setPanel-ings'); if (!el) return;
+  if (!S.costOk) { el.innerHTML = '<p class="muted">شغّل ملف costcalc.sql في Supabase لتفعيل مكونات المنتجات.</p>'; return; }
+  el.innerHTML = `<div class="set-card"><h3>مكونات المنتجات وسعر الكيلو</h3>
+    <p class="muted set-hint">تظهر هذه المكونات في حاسبة تكلفة المنتج. السعر لكل 1 كيلو، والحاسبة تحسب حسب الوزن بالجرام. تغيير السعر يحدّث تكلفة المنتجات المحفوظة تلقائياً.</p>
+    <div class="ing-add"><input class="in" id="ingNewName" placeholder="اسم المكون (مثال: شوكولاتة 2)" maxlength="60" autocomplete="off">
+      <input class="in" id="ingNewPrice" inputmode="decimal" dir="ltr" placeholder="سعر الكيلو">
+      <button class="btn btn-primary" data-ingnew="1">+ إضافة مكون</button></div>
+    <div class="tbl-wrap"><table class="set-tbl"><thead><tr><th>المكون</th><th>سعر الكيلو (ريال)</th><th>سعر 100 جرام</th><th>مستخدم في</th><th></th></tr></thead><tbody>
+    ${S.ings.map(i => { const used = S.prods.filter(p => (p.ingredients || []).some(r => Number(r.id) === i.id)).length;
+      return `<tr class="${i.active ? '' : 'off'}"><td><input class="in" data-ingname="${i.id}" value="${esc(i.name)}" maxlength="60"></td>
+      <td><input class="in sm" data-ingprice="${i.id}" inputmode="decimal" dir="ltr" value="${esc(String(Number(i.price_per_kg)))}"></td>
+      <td class="n">${m2(Number(i.price_per_kg) / 10)}</td><td>${used ? `${used} منتج` : '<span class="muted">—</span>'}</td>
+      <td><button class="btn btn-ghost btn-sm" data-ingsave="${i.id}">حفظ</button>
+        <button class="btn btn-ghost btn-sm" data-ingtog="${i.id}">${i.active ? 'إيقاف' : 'تفعيل'}</button>
+        <button class="btn btn-ghost btn-sm btn-danger" data-ingrm="${i.id}">حذف</button></td></tr>`; }).join('') || '<tr><td colspan="5" class="muted">لا توجد مكونات.</td></tr>'}
+    </tbody></table></div></div>`;
+}
+async function ingAction(b) {
+  const d = b.dataset;
+  if (d.ingnew) {
+    const name = $('ingNewName').value.trim(), price = parseAmount($('ingNewPrice').value);
+    if (!name) { toast('اكتب اسم المكون', 'err'); return $('ingNewName').focus(); }
+    if (isNaN(price) || price < 0) { toast('اكتب سعر الكيلو رقماً', 'err'); return $('ingNewPrice').focus(); }
+    const { error } = await sb.from('cost_ingredients').insert({ name, price_per_kg: price });
+    if (error) return toast(error.code === '23505' ? 'هذا المكون موجود' : errMsg(error), 'err');
+    toast(`تمت إضافة ${name}`);
+  } else {
+    const id = Number(d.ingsave || d.ingtog || d.ingrm), i = S.ings.find(x => x.id === id); if (!i) return;
+    let res;
+    if (d.ingsave) {
+      const name = document.querySelector(`[data-ingname="${id}"]`).value.trim(), price = parseAmount(document.querySelector(`[data-ingprice="${id}"]`).value);
+      if (!name || isNaN(price) || price < 0) return toast('اكتب الاسم وسعر الكيلو رقماً', 'err');
+      res = await sb.from('cost_ingredients').update({ name, price_per_kg: price, updated_at: new Date().toISOString() }).eq('id', id);
+    } else if (d.ingtog) res = await sb.from('cost_ingredients').update({ active: !i.active }).eq('id', id);
+    else {
+      const used = S.prods.filter(p => (p.ingredients || []).some(r => Number(r.id) === id)).length;
+      if (!confirm(used ? `"${i.name}" مستخدم في ${used} منتج. عند حذفه تبقى المنتجات بآخر سعر محفوظ. حذف؟` : `حذف "${i.name}"؟`)) return;
+      res = await sb.from('cost_ingredients').delete().eq('id', id);
+    }
+    if (res.error) return toast(res.error.code === '23505' ? 'يوجد مكون بنفس الاسم' : errMsg(res.error), 'err');
+    toast('تم الحفظ');
+  }
+  await loadCost(); renderSetIngs();
 }
 
 // ---------------- إدارة روابط الاطلاع (للإدارة) ----------------
@@ -2621,12 +3063,13 @@ function renderDetail() {
 // الصفحات: اللوحة، تفاصيل فرع، التوالف، حساب التمويلات، الإعدادات
 function showView(v) {
   S.view = v;
-  for (const [id, name] of [['overview', 'overview'], ['detail', 'detail'], ['waste', 'waste'], ['fund', 'fund'], ['settingsView', 'settings'], ['compare', 'compare'], ['reports', 'reports']]) $(id).hidden = v !== name;
+  for (const [id, name] of [['overview', 'overview'], ['detail', 'detail'], ['waste', 'waste'], ['fund', 'fund'], ['settingsView', 'settings'], ['compare', 'compare'], ['reports', 'reports'], ['calc', 'calc']]) $(id).hidden = v !== name;
+  $('calcBtn').classList.toggle('on', v === 'calc');
   $('repBtn').classList.toggle('on', v === 'reports');
   $('cmpBtn').classList.toggle('on', v === 'compare');
   $('settingsBtn').classList.toggle('on', v === 'settings');
   // الفترة وطلبات التعديل تخص اللوحة والتقارير فقط
-  const side = v === 'fund' || v === 'settings' || v === 'compare';
+  const side = v === 'fund' || v === 'settings' || v === 'compare' || v === 'calc';
   document.querySelector('.period').hidden = side; $('corrections').hidden = side;
   $('resendBox').hidden = side || v === 'reports'; if (v === 'reports') $('corrections').hidden = true;
   scrollTo({ top: 0 });
@@ -3458,6 +3901,9 @@ $('ddOk').onclick = confirmDel; $('ddCancel').onclick = () => $('delDlg').close(
 $('mgSave').onclick = saveMerge; $('mgCancel').onclick = () => $('mergeDlg').close();
 bindCompare();
 bindReports();
+bindCalc();
+$('calcBtn').onclick = () => S.view === 'calc' ? closeDetail() : openCalc();
+$('settingsView').addEventListener('click', e => { const b = e.target.closest('[data-ingnew],[data-ingsave],[data-ingtog],[data-ingrm]'); if (b) ingAction(b); });
 $('repBtn').onclick = () => S.view === 'reports' ? closeDetail() : openReports();
 $('settingsBtn').onclick = () => S.view === 'settings' ? closeDetail() : openSettings();
 bindSettingsView();
