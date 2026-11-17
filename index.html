@@ -630,6 +630,18 @@
   .cc-send { margin-top: 12px; display: grid; gap: 8px; border-top: 1px dashed var(--line); padding-top: 12px; }
   .cc-send-h { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
   .ing-add { display: grid; grid-template-columns: 2fr 1.2fr 1fr auto; gap: 8px; margin-bottom: 12px; }
+  body.guest .top-actions, body.guest .brand-logos, body.guest #viewTag, body.guest .ver { display: none !important; }
+  .guest-h { margin-top: 6px; }
+  .cl-add { grid-template-columns: 1fr auto !important; }
+  .cl-list { display: grid; gap: 8px; }
+  .cl-row { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px 12px; flex-wrap: wrap; }
+  .cl-row.off { opacity: .55; }
+  .cl-i { flex: 1; min-width: 200px; }
+  .cl-i b { display: block; }
+  .cl-i code { display: block; font-size: 11px; color: var(--muted); word-break: break-all; margin-top: 2px; }
+  .cl-a { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cc-pl-h.ws { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); }
+  .cc-pitem.main { box-shadow: 0 0 0 1.5px var(--ink); }
   .cc-pl-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
   .cc-plist { display: grid; gap: 8px; }
   .cc-pitem { background: var(--surface); border-radius: var(--r-sm); padding: 8px; }
@@ -639,6 +651,10 @@
   .cc-pst b.ok { color: var(--ok-c); } .cc-pst b.no { color: var(--no-c); }
   @media (max-width: 560px) { .ing-add { grid-template-columns: 1fr 1fr; } .ing-add #ingNewName { grid-column: 1 / -1; } .ing-add .btn { grid-column: 1 / -1; } }
   .set-tbl tr.off td { opacity: .55; }
+  .pdf td.n, .pdf th.n { text-align: center !important; }
+  .pdf .g { color: #2e7d32; font-weight: 700; }
+  .pdf .bl { color: #1f5fae; font-weight: 600; }
+  .pdf .bl-f { color: #9cc4f5; }
   .pdf tr.hl td { background: #f6e3e7; font-weight: 700; color: #7a2236; }
   .pdf .pr-head { display: flex; gap: 16px; align-items: center; margin: 4px 0 10px; }
   .pdf .pr-head img { width: 130px; height: 130px; object-fit: cover; border-radius: 12px; border: 1px solid #e8e4e0; }
@@ -855,7 +871,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-17 هـ</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-17 و</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -2339,14 +2355,52 @@ const r2c = n => Math.round((Number(n) || 0) * 100) / 100;
 const m2 = n => { const v = r2c(n); return v.toLocaleString('en-US', { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
 const numIn = v => String(v ?? '').trim() === '' ? 0 : parseAmount(v);
 
+// رابط مشاركة الحاسبة: index.html?calc=TOKEN — يرى الحاسبة فقط بدون حفظ أو أي صلاحية
+const GUEST = new URLSearchParams(location.search).get('calc');
 async function loadCost() {
-  if (VIEW) return;
-  const [a, b] = await Promise.all([
+  if (VIEW || GUEST) return;
+  const [a, b, l] = await Promise.all([
     sb.from('cost_ingredients').select('*').order('name'),
-    sb.from('cost_products').select('*').order('updated_at', { ascending: false })
+    sb.from('cost_products').select('*').order('updated_at', { ascending: false }),
+    sb.from('calc_links').select('*').order('id', { ascending: false })
   ]);
   S.costOk = !a.error && !b.error;
   S.ings = a.data || []; S.prods = b.data || [];
+  S.calcLinksOk = !l.error; S.calcLinks = l.data || [];
+}
+async function startGuest() {
+  S.started = true;
+  document.body.classList.add('viewer', 'guest');
+  $('login').hidden = true; $('app').hidden = false;
+  document.title = 'حاسبة تكلفة المنتج';
+  const h1 = document.querySelector('.brand-t h1'); if (h1) h1.textContent = 'حاسبة تكلفة المنتج';
+  const sub = document.querySelector('.brand-t small'); if (sub) sub.textContent = 'احسب تكلفة منتجك وسعر بيعه';
+  document.querySelectorAll('main.shell > *').forEach(x => { x.hidden = x.id !== 'calc'; });
+  const { data, error } = await sb.rpc('calc_data', { p_token: GUEST });
+  if (error) {
+    $('app').hidden = true;
+    document.body.insertAdjacentHTML('beforeend', `<div class="login"><div class="login-card"><h1>تعذّر فتح الحاسبة</h1><p class="muted" style="margin-top:8px">${esc(errMsg(error))}</p></div></div>`);
+    return;
+  }
+  S.ings = data.ings || []; S.prods = []; S.costOk = true; S.guestLabel = data.label;
+  renderCalc();
+}
+// تحويل مدخلات الحاسبة إلى منتج (للمعاينة والصورة بدون حفظ)
+function calcToProd() {
+  const main = numIn(CC.prices[0]), ws = CC.prices.slice(1).map(numIn).filter(v => !isNaN(v) && v > 0);
+  return { name: CC.name.trim() || 'منتج', pack_type: CC.type, base_cost: numIn(CC.base) || 0, image: CC.image,
+    ingredients: CC.ings.filter(r => r.id).map(r => ({ id: Number(r.id), name: ingName(r), price_per_kg: ingPrice(r), unit: ingUnit(r), grams: numIn(r.grams) })),
+    extras: CC.extras.filter(x => x.name.trim() || numIn(x.amount)).map(x => ({ name: x.name.trim() || 'تكلفة أخرى', amount: numIn(x.amount) || 0 })),
+    sell_price: main > 0 ? main : null, sell_prices: main > 0 ? [main, ...ws] : [0, ...ws] };
+}
+async function guestDownload(btn) {
+  if (!calcValid()) return;
+  const txt = btn.textContent; btn.disabled = true; btn.textContent = 'جارٍ تجهيز الصورة…';
+  let f; try { const p = calcToProd(); f = await htmlToPng(prodReportHtml([p]), `تكلفة ${p.name}.png`); } catch (e) { toast(errMsg(e), 'err'); }
+  btn.disabled = false; btn.textContent = txt; if (!f) return;
+  const url = URL.createObjectURL(f), a = document.createElement('a');
+  a.href = url; a.download = f.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
+  toast('تم تنزيل الصورة على جهازك');
 }
 const ingById = id => S.ings.find(i => i.id === Number(id));
 // سعر الكيلو الحالي للمكون (أو السعر المحفوظ مع المنتج إذا حُذف المكون)
@@ -2355,8 +2409,8 @@ const ingName = r => { const i = ingById(r.id); return i ? i.name : (r.name || '
 const ingUnit = r => { const i = ingById(r.id); return i ? (i.unit || 'weight') : (r.unit || 'weight'); };
 const isPiece = r => ingUnit(r) === 'piece';
 const ingRowCost = r => isPiece(r) ? (numIn(r.grams) || 0) * ingPrice(r) : (numIn(r.grams) || 0) / 1000 * ingPrice(r);
-const ingQtyTxt = r => isPiece(r) ? `${m2(numIn(r.grams) || 0)} حبة × ${m2(ingPrice(r))} ريال/حبة` : `${m2(numIn(r.grams) || 0)} جرام × ${m2(ingPrice(r))} ريال/كيلو`;
-const ingPriceTxt = i => `${m2(i.price_per_kg)} ريال/${(i.unit || 'weight') === 'piece' ? 'حبة' : 'كيلو'}`;
+const ingQtyTxt = r => isPiece(r) ? `${m2(numIn(r.grams) || 0)} × ${m2(ingPrice(r))} ريال` : `${m2(numIn(r.grams) || 0)} جرام × ${m2(ingPrice(r))} ريال/كيلو`;
+const ingPriceTxt = i => (i.unit || 'weight') === 'piece' ? `${m2(i.price_per_kg)} ريال` : `${m2(i.price_per_kg)} ريال/كيلو`;
 const validPrices = () => CC.prices.map(numIn).filter(v => !isNaN(v) && v > 0);
 function costOf(p) {
   const base = numIn(p.base) || 0, ings = p.ings.reduce((a, r) => a + (ingRowCost(r) || 0), 0), ex = p.extras.reduce((a, x) => a + (numIn(x.amount) || 0), 0);
@@ -2366,7 +2420,7 @@ function costOf(p) {
 const prodToCalc = p => ({ id: p.id, name: p.name, type: p.pack_type, base: p.base_cost != null ? String(Number(p.base_cost)) : '', image: p.image,
   ings: (p.ingredients || []).map(r => ({ id: r.id, name: r.name, price_per_kg: r.price_per_kg, unit: r.unit, grams: String(r.grams ?? '') })),
   extras: (p.extras || []).map(x => ({ name: x.name, amount: String(x.amount ?? '') })),
-  prices: (() => { const a = (Array.isArray(p.sell_prices) && p.sell_prices.length ? p.sell_prices : (p.sell_price != null ? [p.sell_price] : [])).map(v => String(Number(v))); return a.length ? a : ['']; })() });
+  prices: (() => { const a = (Array.isArray(p.sell_prices) && p.sell_prices.length ? p.sell_prices : (p.sell_price != null ? [p.sell_price] : [])).map(v => Number(v) > 0 ? String(Number(v)) : ''); return a.length ? a : ['']; })() });
 function priceStats(total, price) {
   const profit = price - total;
   return { price, profit, onCost: total ? profit / total * 100 : 0, onPrice: price ? profit / price * 100 : 0 };
@@ -2377,9 +2431,10 @@ const ceilHalf = n => Math.ceil(n * 2) / 2;
 function openCalc() { S.detail = null; S.wasteView = false; showView('calc'); renderCalc(); }
 function renderCalc() {
   const el = $('calc'); if (!el || el.hidden) return;
-  if (!S.costOk) { el.innerHTML = `${backHead('حاسبة تكلفة المنتج')}<p class="muted" style="margin-top:14px">شغّل ملف costcalc.sql في Supabase لتفعيل الحاسبة.</p>`; bindBack(); return; }
+  const head = GUEST ? `<div class="sec-h guest-h"><h2>حاسبة تكلفة المنتج</h2></div>` : backHead('حاسبة تكلفة المنتج');
+  if (!S.costOk) { el.innerHTML = `${head}<p class="muted" style="margin-top:14px">شغّل ملف costcalc.sql في Supabase لتفعيل الحاسبة.</p>`; bindBack(); return; }
   const ingOpts = sel => `<option value="">اختر المكون…</option>${S.ings.filter(i => i.active || Number(sel) === i.id).map(i => `<option value="${i.id}"${Number(sel) === i.id ? ' selected' : ''}>${esc(i.name)} — ${ingPriceTxt(i)}</option>`).join('')}`;
-  el.innerHTML = `${backHead('حاسبة تكلفة المنتج')}
+  el.innerHTML = `${head}
   <div class="calc-grid">
     <section class="calc-card">
       <div class="cc-h"><h2>${CC.id ? 'تعديل منتج محفوظ' : 'منتج جديد'}</h2>${CC.id ? '<button class="btn btn-ghost btn-sm" data-cnew="1">+ منتج جديد</button>' : ''}</div>
@@ -2394,14 +2449,14 @@ function renderCalc() {
         <input type="file" id="ccImgFile" accept="image/*" hidden></div>
       <label class="field"><span>التكلفة قبل التعبئة (ريال)</span><input id="ccBase" inputmode="decimal" dir="ltr" value="${esc(CC.base)}" placeholder="0"></label>
 
-      <h3 class="cc-sub">المكونات المستخدمة <small>(بالوزن: سعر الكيلو والوزن بالجرام · بالحبة: سعر الحبة والعدد)</small></h3>
+      <h3 class="cc-sub">المكونات المستخدمة <small>(بالوزن: سعر الكيلو والوزن بالجرام · بالريال: سعر ثابت × العدد)</small></h3>
       <div id="ccIngs">${CC.ings.map((r, k) => `<div class="cc-line" data-ik="${k}">
         <select data-ing="${k}">${ingOpts(r.id)}</select>
-        <label class="cc-g"><input data-grams="${k}" inputmode="decimal" dir="ltr" value="${esc(r.grams)}" placeholder="${r.id && isPiece(r) ? 'العدد' : 'الوزن'}"><span data-gu="${k}">${r.id && isPiece(r) ? 'حبة' : 'جرام'}</span></label>
+        <label class="cc-g"><input data-grams="${k}" inputmode="decimal" dir="ltr" value="${esc(r.grams)}" placeholder="${r.id && isPiece(r) ? 'العدد' : 'الوزن'}"><span data-gu="${k}">${r.id && isPiece(r) ? 'عدد' : 'جرام'}</span></label>
         <b class="num cc-c" data-ic="${k}">${m2(ingRowCost(r))}</b>
         <button class="icon-x sm" data-ingdel="${k}" aria-label="حذف المكون">×</button></div>`).join('') || '<p class="muted cc-empty">لم تُضف مكونات بعد.</p>'}</div>
       <div class="cc-acts"><button class="btn btn-ghost btn-sm" data-ingadd="1">+ إضافة مكون</button>
-        <button class="link-btn" data-goings="1">إدارة المكونات وأسعارها</button></div>
+        ${GUEST ? '' : '<button class="link-btn" data-goings="1">إدارة المكونات وأسعارها</button>'}</div>
 
       <h3 class="cc-sub">تكاليف أخرى للمنتج <small>(علبة، شريطة، ملصق، توصيل…)</small></h3>
       <div id="ccEx">${CC.extras.map((x, k) => `<div class="cc-line ex">
@@ -2414,13 +2469,18 @@ function renderCalc() {
       <div id="ccOut">${CC.shown ? calcOutHtml() : ''}</div>
     </section>
 
-    <section class="calc-card cc-list">
+    ${GUEST ? `<section class="calc-card cc-list">
+      <div class="cc-h"><h2>معاينة وتنزيل</h2></div>
+      <p class="muted" style="font-size:14px;line-height:1.8">اكتب بيانات المنتج واضغط "احسب سعر المنتج"، ثم اعرض المعاينة ونزّل التقرير صورة على جهازك. الحسابات تتم على جهازك فقط ولا تُحفظ في أي مكان.</p>
+      <div class="cc-send"><button class="btn btn-ghost btn-block" data-gprev="1">معاينة المنتج</button>
+        <button class="btn btn-wa btn-block" data-gdl="1">تنزيل الصورة</button></div>
+    </section>` : `<section class="calc-card cc-list">
       <div class="cc-h"><h2>المنتجات المحفوظة (${S.prods.length})</h2></div>
       ${S.prods.length ? `<div class="cc-prods">${S.prods.map(p => { const pc = prodToCalc(p), c = costOf(pc), pr = pc.prices.map(numIn).filter(v => v > 0), st = pr.length ? priceStats(c.total, pr[0]) : null;
         return `<div class="cc-p${CC.id === p.id ? ' on' : ''}">
           <label class="cc-pick"><input type="checkbox" data-psel="${p.id}"${CC.sel.has(p.id) ? ' checked' : ''} aria-label="اختيار ${esc(p.name)} للتقرير"></label>
           ${p.image ? `<img src="${esc(p.image)}" alt="">` : '<div class="cc-noimg sm"></div>'}
-          <div class="cc-pi"><b>${esc(p.name)}</b><small>${esc(p.pack_type)} · التكلفة ${m2(c.total)}${st ? ` · البيع ${pr.map(m2).join(' / ')} · ربح ${pr.map(v => fmtPct(priceStats(c.total, v).onCost)).join(' / ')}` : ''}</small></div>
+          <div class="cc-pi"><b>${esc(p.name)}</b><small>${esc(p.pack_type)} · التكلفة ${m2(c.total)}${numIn(pc.prices[0]) > 0 ? ` · البيع ${m2(numIn(pc.prices[0]))} · ربح ${fmtPct(priceStats(c.total, numIn(pc.prices[0])).onCost)}` : ''}${pc.prices.slice(1).filter(v => numIn(v) > 0).length ? ` · ${pc.prices.slice(1).filter(v => numIn(v) > 0).length} سعر جملة` : ''}</small></div>
           <div class="cc-pa"><button class="btn btn-ghost btn-sm" data-pedit="${p.id}">تعديل</button><button class="btn btn-ghost btn-sm btn-danger" data-pdel="${p.id}">حذف</button></div></div>`; }).join('')}</div>
         <div class="cc-send">
           <div class="cc-send-h"><button class="link-btn" data-pall="1">${CC.sel.size === S.prods.length ? 'إلغاء تحديد الكل' : 'تحديد الكل'}</button><span class="muted">المحدد: ${CC.sel.size}</span></div>
@@ -2431,7 +2491,7 @@ function renderCalc() {
         </div>
 `
       : '<p class="muted">لا توجد منتجات محفوظة. احسب المنتج ثم اضغط "حفظ المنتج".</p>'}
-    </section>
+    </section>`}
   </div>
   <div id="ccPrev"></div>`;
   bindBack();
@@ -2456,17 +2516,21 @@ function calcOutHtml() {
     <h3>تسعير المنتج</h3>
     <div class="cc-price">
       <div class="cc-pbox">
-        <div class="cc-pl-h"><span>أسعار البيع المقترحة (ريال)</span><button class="link-btn" data-padd="1">+ إضافة سعر آخر</button></div>
-        <div class="cc-plist">${CC.prices.map((v, k) => `<div class="cc-pitem">
-          <div class="cc-pin"><input data-price="${k}" inputmode="decimal" dir="ltr" value="${esc(v)}" placeholder="السعر ${k + 1}" aria-label="سعر البيع ${k + 1}">
-            ${CC.prices.length > 1 ? `<button class="icon-x sm" data-pdelp="${k}" aria-label="حذف السعر">×</button>` : ''}</div>
-          <div class="cc-pst" data-pst="${k}">${priceStatHtml(c.total, v)}</div></div>`).join('')}</div>
+        <div class="cc-pl-h"><span>سعر البيع (ريال)</span></div>
+        <div class="cc-plist"><div class="cc-pitem main">
+          <div class="cc-pin"><input data-price="0" inputmode="decimal" dir="ltr" value="${esc(CC.prices[0] || '')}" placeholder="سعر البيع" aria-label="سعر البيع"></div>
+          <div class="cc-pst" data-pst="0">${priceStatHtml(c.total, CC.prices[0])}</div></div></div>
+        <div class="cc-pl-h ws"><span>أسعار مقترحة لعملاء الجملة والتوزيع</span><button class="link-btn" data-padd="1">+ إضافة سعر</button></div>
+        <div class="cc-plist">${CC.prices.slice(1).map((v, j) => { const k = j + 1; return `<div class="cc-pitem">
+          <div class="cc-pin"><input data-price="${k}" inputmode="decimal" dir="ltr" value="${esc(v)}" placeholder="سعر جملة ${k}" aria-label="سعر جملة ${k}">
+            <button class="icon-x sm" data-pdelp="${k}" aria-label="حذف السعر">×</button></div>
+          <div class="cc-pst" data-pst="${k}">${priceStatHtml(c.total, v)}</div></div>`; }).join('') || '<p class="muted" style="font-size:12px">لا توجد أسعار جملة.</p>'}</div>
       </div>
       <div class="cc-pbox">
         <label class="field"><span>نسبة المكسب المطلوبة (%)</span><input id="ccPct" inputmode="decimal" dir="ltr" value="${esc(CC.pct)}" placeholder="مثال: 40"></label>
         <div class="seg cc-basis" role="group" aria-label="طريقة حساب النسبة"><button data-cbasis="cost" aria-pressed="${CC.basis === 'cost'}">من التكلفة</button><button data-cbasis="sale" aria-pressed="${CC.basis === 'sale'}">من سعر البيع</button></div>
         <div class="cc-kpis" id="ccPctOut">${isFinite(pPrice) && pPrice > 0 ? `<div><span>سعر البيع</span><b>${m2(pPrice)} ريال</b></div><div><span>الربح في القطعة</span><b class="ok">${m2(pPrice - c.total)} ريال</b></div>
-          <div><span>سعر مقرّب</span><b>${m2(ceilHalf(pPrice))}</b><button class="link-btn" data-cuse="${ceilHalf(pPrice)}">إضافته للأسعار</button></div>` : '<p class="muted">اكتب النسبة ليظهر السعر.</p>'}</div>
+          <div><span>سعر مقرّب</span><b>${m2(ceilHalf(pPrice))}</b><button class="link-btn" data-cuse="${ceilHalf(pPrice)}">${String(CC.prices[0] || '').trim() ? 'إضافته لأسعار الجملة' : 'اعتماده سعراً للبيع'}</button></div>` : '<p class="muted">اكتب النسبة ليظهر السعر.</p>'}</div>
       </div>
     </div>
     <details class="cc-how"><summary>آلية تسعير المنتج</summary>
@@ -2476,8 +2540,8 @@ function calcOutHtml() {
         <li><b>هامش الربح من سعر البيع</b>: سعر البيع = التكلفة ÷ (1 − النسبة). مثال 40%: ${m2(c.total)} ÷ 0.60 = <b>${m2(c.total / 0.6)}</b>. الهامش يعطي سعراً أعلى من نفس النسبة على التكلفة.</li>
         <li>قرّب السعر لأعلى (نصف ريال أو ريال) وتأكد أنه يغطي الهدر والخصومات والعمولات، وقارنه بأسعار السوق لنفس الحجم.</li>
       </ol></details>
-    <div class="cc-save"><button class="btn btn-primary btn-lg" data-csave="1">${CC.id ? 'حفظ التعديلات' : 'حفظ المنتج'}</button>
-      ${CC.id ? '<button class="btn btn-ghost" data-csaveas="1">حفظ كمنتج جديد</button>' : ''}</div>
+    ${GUEST ? '' : `<div class="cc-save"><button class="btn btn-primary btn-lg" data-csave="1">${CC.id ? 'حفظ التعديلات' : 'حفظ المنتج'}</button>
+      ${CC.id ? '<button class="btn btn-ghost" data-csaveas="1">حفظ كمنتج جديد</button>' : ''}</div>`}
   </div>`;
 }
 // تحديث الأرقام بدون إعادة رسم الحقول (حتى لا يضيع مكان الكتابة)
@@ -2506,11 +2570,12 @@ function calcValid() {
 async function calcSave(asNew) {
   if (!calcValid()) return;
   if (CC.prices.some(v => String(v).trim() && (isNaN(numIn(v)) || numIn(v) < 0))) return toast('أسعار البيع أرقام فقط', 'err');
-  const prices = validPrices();
+  const main = numIn(CC.prices[0]), ws = CC.prices.slice(1).map(numIn).filter(v => !isNaN(v) && v > 0);
+  const prices = main > 0 ? [main, ...ws] : ws;
   const row = { name: CC.name.trim(), pack_type: CC.type, base_cost: numIn(CC.base) || 0, image: CC.image || null,
     ingredients: CC.ings.filter(r => r.id).map(r => ({ id: Number(r.id), name: ingName(r), price_per_kg: ingPrice(r), unit: ingUnit(r), grams: numIn(r.grams) })),
     extras: CC.extras.filter(x => x.name.trim() || numIn(x.amount)).map(x => ({ name: x.name.trim() || 'تكلفة أخرى', amount: numIn(x.amount) || 0 })),
-    sell_price: prices.length ? prices[0] : null, sell_prices: prices, updated_at: new Date().toISOString() };
+    sell_price: main > 0 ? main : null, sell_prices: main > 0 ? prices : [0, ...ws], updated_at: new Date().toISOString() };
   const q = CC.id && !asNew ? sb.from('cost_products').update(row).eq('id', CC.id).select().single() : sb.from('cost_products').insert(row).select().single();
   const { data, error } = await q;
   if (error) return toast(errMsg(error), 'err');
@@ -2538,28 +2603,30 @@ async function calcImage(f) {
 // ---------- تقرير المنتجات (PDF أو صورة) ----------
 function prodReportHtml(list) {
   const now = new Intl.DateTimeFormat('ar-SA-u-nu-latn-ca-gregory', { timeZone: 'Asia/Riyadh', day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date());
-  const items = list.map(p => { const c = prodToCalc(p), k = costOf(c), prs = c.prices.map(numIn).filter(v => v > 0); return { p, c, k, prs, st: prs.length ? priceStats(k.total, prs[0]) : null }; });
+  const items = list.map(p => { const c = prodToCalc(p), k = costOf(c), main = numIn(c.prices[0]), ws = c.prices.slice(1).map(numIn).filter(v => v > 0);
+    return { p, c, k, main: main > 0 ? main : null, ws }; });
+  const pctG = v => `<span class="g">${fmtPct(v)}</span>`, costB = v => `<span class="bl">${m2(v)}</span>`;
   let h = `<div class="pdf-head pdf-block"><div><h1>تقرير تكلفة وتسعير المنتجات</h1><p class="t">${items.length === 1 ? esc(items[0].p.name) : `${items.length} منتجات`}</p></div>
     <div class="meta">تاريخ الإصدار<br>${esc(now)}</div></div>`;
   if (items.length > 1) h += `<h2 class="pdf-block">ملخص المنتجات</h2><table><thead><tr><th>المنتج</th><th>النوع</th><th class="n">التكلفة</th><th class="n">سعر البيع</th><th class="n">الربح للقطعة</th><th class="n">من التكلفة</th><th class="n">من سعر البيع</th></tr></thead><tbody>
-    ${items.map(x => (x.prs.length ? x.prs : [null]).map((v, i) => { const st = v ? priceStats(x.k.total, v) : null;
-      return `<tr>${i ? '<td></td><td></td><td></td>' : `<td><b>${esc(x.p.name)}</b></td><td>${esc(x.p.pack_type)}</td><td class="n">${m2(x.k.total)}</td>`}<td class="n">${st ? m2(st.price) : '—'}</td><td class="n">${st ? m2(st.profit) : '—'}</td><td class="n">${st ? fmtPct(st.onCost) : '—'}</td><td class="n">${st ? fmtPct(st.onPrice) : '—'}</td></tr>`; }).join('')).join('')}
+    ${items.map(x => { const st = x.main ? priceStats(x.k.total, x.main) : null;
+      return `<tr><td><b>${esc(x.p.name)}</b></td><td>${esc(x.p.pack_type)}</td><td class="n">${costB(x.k.total)}</td><td class="n">${st ? m2(st.price) : '—'}</td><td class="n">${st ? m2(st.profit) : '—'}</td><td class="n">${st ? pctG(st.onCost) : '—'}</td><td class="n">${st ? pctG(st.onPrice) : '—'}</td></tr>`; }).join('')}
     </tbody></table>`;
   for (const x of items) {
-    const { p, c, k, prs } = x;
+    const { p, c, k, main, ws } = x;
     h += `<div class="pdf-divider pdf-block"><span>${esc(p.name)}</span></div>
       <div class="pr-head pdf-block">${p.image ? `<img src="${esc(p.image)}" alt="">` : ''}<div><h2>${esc(p.name)}</h2><p>نوع التعبئة: <b>${esc(p.pack_type)}</b></p>
-        <p>إجمالي التكلفة: <b>${m2(k.total)} ريال</b>${prs.length ? ` · سعر البيع: <b>${prs.map(m2).join(' / ')} ريال</b>` : ''}</p></div></div>
+        <p>إجمالي التكلفة: <b class="bl">${m2(k.total)} ريال</b>${main ? ` · سعر البيع: <b>${m2(main)} ريال</b>` : ''}</p></div></div>
       <h2 class="pdf-block">تفاصيل التكلفة</h2>
       <table><thead><tr><th>البند</th><th>التفصيل</th><th class="n">التكلفة (ريال)</th><th class="n">النسبة</th></tr></thead><tbody>
-        <tr><td>التكلفة قبل التعبئة</td><td></td><td class="n">${m2(k.base)}</td><td class="n">${k.total ? fmtPct(k.base / k.total * 100) : '—'}</td></tr>
-        ${c.ings.map(r => `<tr><td>${esc(ingName(r))}</td><td>${ingQtyTxt(r)}</td><td class="n">${m2(ingRowCost(r))}</td><td class="n">${k.total ? fmtPct(ingRowCost(r) / k.total * 100) : '—'}</td></tr>`).join('')}
-        ${c.extras.map(e => `<tr><td>${esc(e.name)}</td><td>تكلفة أخرى</td><td class="n">${m2(numIn(e.amount))}</td><td class="n">${k.total ? fmtPct(numIn(e.amount) / k.total * 100) : '—'}</td></tr>`).join('')}
-      </tbody><tfoot><tr><td colspan="2">إجمالي تكلفة القطعة</td><td class="n">${m2(k.total)}</td><td class="n">100%</td></tr></tfoot></table>`;
-    if (prs.length) h += `<h2 class="pdf-block">تفاصيل الربح${prs.length > 1 ? ' حسب أسعار البيع' : ''}</h2>
-      <table><thead><tr><th class="n">سعر البيع</th><th class="n">الربح في القطعة</th><th class="n">نسبة الربح من التكلفة</th><th class="n">هامش الربح من سعر البيع</th></tr></thead><tbody>
-      ${prs.map(v => { const st = priceStats(k.total, v); return `<tr><td class="n"><b>${m2(v)} ريال</b></td><td class="n"><b style="color:${st.profit >= 0 ? '#2e7d32' : '#b3261e'}">${m2(st.profit)} ريال</b></td><td class="n">${fmtPct(st.onCost)}</td><td class="n">${fmtPct(st.onPrice)}</td></tr>`; }).join('')}
-      </tbody></table>`;
+        <tr><td>التكلفة قبل التعبئة</td><td></td><td class="n">${costB(k.base)}</td><td class="n">${k.total ? fmtPct(k.base / k.total * 100) : '—'}</td></tr>
+        ${c.ings.map(r => `<tr><td>${esc(ingName(r))}</td><td>${ingQtyTxt(r)}</td><td class="n">${costB(ingRowCost(r))}</td><td class="n">${k.total ? fmtPct(ingRowCost(r) / k.total * 100) : '—'}</td></tr>`).join('')}
+        ${c.extras.map(e => `<tr><td>${esc(e.name)}</td><td>تكلفة أخرى</td><td class="n">${costB(numIn(e.amount))}</td><td class="n">${k.total ? fmtPct(numIn(e.amount) / k.total * 100) : '—'}</td></tr>`).join('')}
+      </tbody><tfoot><tr><td colspan="2">إجمالي تكلفة القطعة</td><td class="n"><span class="bl-f">${m2(k.total)}</span></td><td class="n">100%</td></tr></tfoot></table>`;
+    const prow = v => { const st = priceStats(k.total, v); return `<tr><td class="n"><b>${m2(v)} ريال</b></td><td class="n">${costB(k.total)}</td><td class="n"><b style="color:${st.profit >= 0 ? '#2e7d32' : '#b3261e'}">${m2(st.profit)} ريال</b></td><td class="n">${pctG(st.onCost)}</td><td class="n">${pctG(st.onPrice)}</td></tr>`; };
+    const phead = '<thead><tr><th class="n">سعر البيع</th><th class="n">التكلفة</th><th class="n">الربح في القطعة</th><th class="n">نسبة الربح من التكلفة</th><th class="n">هامش الربح من سعر البيع</th></tr></thead>';
+    if (main) h += `<h2 class="pdf-block">تفاصيل الربح</h2><table>${phead}<tbody>${prow(main)}</tbody></table>`;
+    if (ws.length) h += `<h2 class="pdf-block">أسعار بيع مقترحة لعملاء الجملة والتوزيع</h2><table>${phead}<tbody>${ws.map(prow).join('')}</tbody></table>`;
   }
   return h + '<p class="foot pdf-block">برنامج إدارة مبيعات الفروع · حاسبة تكلفة المنتج</p>';
 }
@@ -2606,7 +2673,7 @@ function bindCalc() {
     const t = e.target, d = t.dataset;
     if (t.id === 'ccType') CC.type = t.value;
     if (d.ing != null) { CC.ings[d.ing].id = t.value ? Number(t.value) : null; const r = CC.ings[d.ing], u = document.querySelector(`[data-gu="${d.ing}"]`), g = document.querySelector(`[data-grams="${d.ing}"]`);
-      if (u) u.textContent = r.id && isPiece(r) ? 'حبة' : 'جرام'; if (g) g.placeholder = r.id && isPiece(r) ? 'العدد' : 'الوزن'; updCalc(); if (t.value) { const g = document.querySelector(`[data-grams="${d.ing}"]`); if (g && !g.value) g.focus(); } }
+      if (u) u.textContent = r.id && isPiece(r) ? 'عدد' : 'جرام'; if (g) g.placeholder = r.id && isPiece(r) ? 'العدد' : 'الوزن'; updCalc(); if (t.value) { const g = document.querySelector(`[data-grams="${d.ing}"]`); if (g && !g.value) g.focus(); } }
     if (t.id === 'ccImgFile') calcImage(t.files[0]);
     if (d.psel) { const id = Number(d.psel); t.checked ? CC.sel.add(id) : CC.sel.delete(id); renderCalc(); }
     if (t.id === 'ccTarget') CC.target = t.value;
@@ -2619,9 +2686,12 @@ function bindCalc() {
     if (d.exdel != null) { CC.extras.splice(Number(d.exdel), 1); return renderCalc(); }
     if (d.ccalc) { if (!calcValid()) return; CC.shown = true; renderCalc(); $('ccOut').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
     if (d.cbasis) { CC.basis = d.cbasis; el.querySelectorAll('[data-cbasis]').forEach(x => x.setAttribute('aria-pressed', x === b)); return updCalc(); }
-    if (d.cuse) { const i = CC.prices.findIndex(v => !String(v).trim()); if (i >= 0) CC.prices[i] = d.cuse; else if (!CC.prices.map(numIn).includes(Number(d.cuse))) CC.prices.push(d.cuse); CC.shown = true; renderCalc(); return; }
+    if (d.cuse) { if (!String(CC.prices[0] || '').trim()) CC.prices[0] = d.cuse; else if (!CC.prices.map(numIn).includes(Number(d.cuse))) CC.prices.push(d.cuse); CC.shown = true; renderCalc(); return; }
     if (d.padd) { CC.prices.push(''); renderCalc(); const x = document.querySelector(`[data-price="${CC.prices.length - 1}"]`); if (x) x.focus(); return; }
     if (d.pdelp != null) { CC.prices.splice(Number(d.pdelp), 1); if (!CC.prices.length) CC.prices = ['']; return renderCalc(); }
+    if (d.gprev) { if (!calcValid()) return; $('ccPrev').innerHTML = `<h2 class="cc-prev-h">معاينة المنتج</h2><div class="rep-prev"><div class="pdf pv">${prodReportHtml([calcToProd()])}</div></div>`; $('ccPrev').scrollIntoView({ behavior: 'smooth' }); return; }
+    if (d.gdl) return guestDownload(b);
+    if (GUEST) return;
     if (d.csave) return calcSave(false);
     if (d.csaveas) return calcSave(true);
     if (d.cnew) return calcNew();
@@ -2642,21 +2712,44 @@ function renderSetIngs() {
   const el = $('setPanel-ings'); if (!el) return;
   if (!S.costOk) { el.innerHTML = '<p class="muted">شغّل ملف costcalc.sql في Supabase لتفعيل مكونات المنتجات.</p>'; return; }
   el.innerHTML = `<div class="set-card"><h3>مكونات المنتجات وأسعارها</h3>
-    <p class="muted set-hint">تظهر هذه المكونات في حاسبة تكلفة المنتج. المكون <b>بالوزن</b> سعره لكل 1 كيلو ويُدخل في الحاسبة بالجرام. المكون <b>بالحبة</b> (علبة، شريطة، ملصق، كرتون…) سعره لكل 1 حبة ويُدخل بالعدد. تغيير السعر يحدّث تكلفة المنتجات المحفوظة تلقائياً.</p>
+    <p class="muted set-hint">تظهر هذه المكونات في حاسبة تكلفة المنتج. المكون <b>بالوزن</b> سعره لكل 1 كيلو ويُدخل في الحاسبة بالجرام. المكون <b>بالريال</b> (علبة، شريطة، ملصق، كرتون…) له سعر ثابت بالريال ويُدخل في الحاسبة بالعدد. تغيير السعر يحدّث تكلفة المنتجات المحفوظة تلقائياً.</p>
     <div class="ing-add"><input class="in" id="ingNewName" placeholder="اسم المكون (مثال: شوكولاتة 2 أو شريطة)" maxlength="60" autocomplete="off">
-      <select class="in" id="ingNewUnit"><option value="weight">بالوزن (سعر الكيلو)</option><option value="piece">بالحبة (سعر الحبة)</option></select>
+      <select class="in" id="ingNewUnit"><option value="weight">بالوزن (سعر الكيلو)</option><option value="piece">بالريال (سعر ثابت)</option></select>
       <input class="in" id="ingNewPrice" inputmode="decimal" dir="ltr" placeholder="السعر">
       <button class="btn btn-primary" data-ingnew="1">+ إضافة مكون</button></div>
     <div class="tbl-wrap"><table class="set-tbl"><thead><tr><th>المكون</th><th>النوع</th><th>السعر (ريال)</th><th>سعر 100 جرام</th><th>مستخدم في</th><th></th></tr></thead><tbody>
     ${S.ings.map(i => { const used = S.prods.filter(p => (p.ingredients || []).some(r => Number(r.id) === i.id)).length;
       return `<tr class="${i.active ? '' : 'off'}"><td><input class="in" data-ingname="${i.id}" value="${esc(i.name)}" maxlength="60"></td>
-      <td><select class="in" data-ingunit="${i.id}"><option value="weight"${(i.unit || 'weight') === 'weight' ? ' selected' : ''}>بالوزن (للكيلو)</option><option value="piece"${i.unit === 'piece' ? ' selected' : ''}>بالحبة</option></select></td>
+      <td><select class="in" data-ingunit="${i.id}"><option value="weight"${(i.unit || 'weight') === 'weight' ? ' selected' : ''}>بالوزن (للكيلو)</option><option value="piece"${i.unit === 'piece' ? ' selected' : ''}>بالريال</option></select></td>
       <td><input class="in sm" data-ingprice="${i.id}" inputmode="decimal" dir="ltr" value="${esc(String(Number(i.price_per_kg)))}"></td>
       <td class="n">${i.unit === 'piece' ? '<span class="muted">—</span>' : m2(Number(i.price_per_kg) / 10)}</td><td>${used ? `${used} منتج` : '<span class="muted">—</span>'}</td>
       <td><button class="btn btn-ghost btn-sm" data-ingsave="${i.id}">حفظ</button>
         <button class="btn btn-ghost btn-sm" data-ingtog="${i.id}">${i.active ? 'إيقاف' : 'تفعيل'}</button>
         <button class="btn btn-ghost btn-sm btn-danger" data-ingrm="${i.id}">حذف</button></td></tr>`; }).join('') || '<tr><td colspan="6" class="muted">لا توجد مكونات.</td></tr>'}
-    </tbody></table></div></div>`;
+    </tbody></table></div></div>
+    <div class="set-card" style="margin-top:14px"><h3>روابط مشاركة الحاسبة</h3>
+      <p class="muted set-hint">أنشئ رابطاً وأرسله لأي شخص: يفتح الحاسبة فقط ويرى أسماء المكونات وأسعارها، ويحسب منتجه ويعاين ويحمّل الصورة على جهازه. لا يرى أي شيء آخر في البرنامج ولا يستطيع حفظ أو تعديل أي شيء. تقدر توقف الرابط أو تحذفه في أي وقت.</p>
+      ${S.calcLinksOk === false ? '<p class="muted">شغّل ملف calclinks.sql في Supabase لتفعيل روابط الحاسبة.</p>' : `
+      <div class="ing-add cl-add"><input class="in" id="clLabel" placeholder="اسم صاحب الرابط (مثال: أبو محمد - مورد)" maxlength="60" autocomplete="off"><button class="btn btn-primary" data-clnew="1">+ إنشاء رابط</button></div>
+      ${(S.calcLinks || []).length ? `<div class="cl-list">${S.calcLinks.map(l => { const url = location.origin + location.pathname + '?calc=' + l.token; return `<div class="cl-row${l.active ? '' : ' off'}">
+        <div class="cl-i"><b>${esc(l.label)}</b><code dir="ltr">${esc(url)}</code></div>
+        <div class="cl-a">${l.active ? `<button class="btn btn-primary btn-sm" data-copy="${esc(url)}">نسخ الرابط</button>` : ''}
+          <button class="btn btn-ghost btn-sm" data-cltog="${l.id}">${l.active ? 'إيقاف' : 'تفعيل'}</button>
+          <button class="btn btn-ghost btn-sm btn-danger" data-cldel="${l.id}">حذف</button></div></div>`; }).join('')}</div>` : '<p class="muted" style="font-size:13px">لا توجد روابط بعد.</p>'}`}
+    </div>`;
+}
+async function calcLinkAction(b) {
+  const d = b.dataset; let res;
+  if (d.clnew) {
+    const label = $('clLabel').value.trim(); if (!label) { toast('اكتب اسم صاحب الرابط', 'err'); return $('clLabel').focus(); }
+    res = await sb.from('calc_links').insert({ label });
+  } else {
+    const id = Number(d.cltog || d.cldel), l = (S.calcLinks || []).find(x => x.id === id); if (!l) return;
+    if (d.cldel && !confirm(`حذف رابط "${l.label}"؟ لن يعمل الرابط بعد الحذف.`)) return;
+    res = d.cltog ? await sb.from('calc_links').update({ active: !l.active }).eq('id', id) : await sb.from('calc_links').delete().eq('id', id);
+  }
+  if (res.error) return toast(errMsg(res.error), 'err');
+  toast(d.clnew ? 'تم إنشاء الرابط' : 'تم الحفظ'); await loadCost(); renderSetIngs();
 }
 async function ingAction(b) {
   const d = b.dataset;
@@ -3916,7 +4009,7 @@ bindCompare();
 bindReports();
 bindCalc();
 $('calcBtn').onclick = () => S.view === 'calc' ? closeDetail() : openCalc();
-$('settingsView').addEventListener('click', e => { const b = e.target.closest('[data-ingnew],[data-ingsave],[data-ingtog],[data-ingrm]'); if (b) ingAction(b); });
+$('settingsView').addEventListener('click', e => { const b = e.target.closest('[data-ingnew],[data-ingsave],[data-ingtog],[data-ingrm]'); if (b) ingAction(b); const c = e.target.closest('[data-clnew],[data-cltog],[data-cldel]'); if (c) calcLinkAction(c); });
 $('repBtn').onclick = () => S.view === 'reports' ? closeDetail() : openReports();
 $('settingsBtn').onclick = () => S.view === 'settings' ? closeDetail() : openSettings();
 bindSettingsView();
@@ -4083,6 +4176,7 @@ async function makeQuickLink() {
 }
 
 (async () => {
+  if (GUEST) return startGuest();
   if (VIEW) return startViewer();
   const q = await quickLogin();
   if (q === null) return;
