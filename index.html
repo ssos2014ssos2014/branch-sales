@@ -567,6 +567,38 @@
   @media (max-width: 720px) { .rep-bar > label { flex: 1 1 100%; } .rep-bar .in { width: 100%; } .rep-bar > .btn { flex: 1 1 100%; white-space: nowrap; } .pdf.pv { width: 794px; max-width: none; zoom: .44; } .rep-types { grid-template-columns: 1fr 1fr; } .rep-t small { display: none; } .rep-t { padding: 9px 10px; } }
   .chip-on { font-size: 11px; font-weight: 700; color: #1f7a3e; background: #1f7a3e1a; border-radius: 99px; padding: 2px 9px; }
   .wa-links .rep-row input { min-width: 0; flex: 1 1 220px; }
+  /* ---- مصمم الصور ---- */
+  #studioBtn.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+  .st-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); }
+  @media (max-width: 900px) { .st-grid { grid-template-columns: 1fr; } }
+  .st-drop { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 2px dashed var(--line); border-radius: var(--r-md); padding: 22px; cursor: pointer; background: var(--bg); text-align: center; }
+  .st-drop.over, .st-drop:hover { border-color: var(--ink); }
+  .st-drop small { color: var(--muted); font-size: 12px; }
+  .st-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; margin-top: 10px; }
+  .st-th { position: relative; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff; }
+  .st-th.logo { border: 2px solid var(--viz-2); }
+  .st-th img { width: 100%; aspect-ratio: 1; object-fit: contain; display: block; padding: 4px; }
+  .st-th .icon-x { position: absolute; top: 4px; inset-inline-end: 4px; background: #fff; }
+  .st-role { display: block; width: 100%; border: 0; border-top: 1px solid var(--line); background: var(--bg); font: inherit; font-size: 12px; padding: 4px; cursor: pointer; color: var(--ink); }
+  .st-th.logo .st-role { background: var(--viz-2); color: #fff; font-weight: 700; }
+  .st-th.cut img { background-color: #fff; background-image: linear-gradient(45deg,#e9e9e9 25%,transparent 25%,transparent 75%,#e9e9e9 75%),linear-gradient(45deg,#e9e9e9 25%,transparent 25%,transparent 75%,#e9e9e9 75%); background-size: 12px 12px; background-position: 0 0, 6px 6px; }
+  .st-color { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 8px; }
+  .st-pick { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+  .st-pick input { width: 44px; height: 32px; border: 1px solid var(--line); border-radius: 8px; padding: 2px; background: #fff; }
+  #studio input[type=range] { width: 100%; accent-color: var(--ink); }
+  .st-styles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+  .calc-card textarea { border: 1.5px solid var(--line); border-radius: var(--r-sm); background: var(--bg); padding: 10px 12px; font: inherit; color: var(--ink); width: 100%; resize: vertical; }
+  .st-row3 { grid-template-columns: 1fr 1fr 1fr !important; }
+  .st-res { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+  .st-r { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; background: var(--bg); }
+  .st-r img { width: 100%; display: block; cursor: zoom-in; background: #fff; }
+  .st-ra { display: flex; gap: 6px; padding: 8px; flex-wrap: wrap; }
+  .st-ra .btn { flex: 1 1 auto; }
+  .st-r.wait, .st-r.err { min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 14px; text-align: center; font-size: 13px; color: var(--muted); }
+  .st-r.err { color: var(--no-c); border-color: var(--no-c); }
+  .st-spin { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--ink); animation: stspin 0.9s linear infinite; }
+  @keyframes stspin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .st-spin { animation-duration: 3s; } }
   /* ---- حاسبة تكلفة المنتج ---- */
   #calcBtn.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
   .calc-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; align-items: start; }
@@ -843,6 +875,7 @@
       <button id="addBtn" class="btn btn-primary btn-sm edit-only">إدخال مبيعات</button>
       <button id="repBtn" class="btn btn-ghost btn-sm">تقارير إدارية</button>
       <button id="calcBtn" class="btn btn-ghost btn-sm edit-only">حاسبة التكلفة</button>
+      <button id="studioBtn" class="btn btn-ghost btn-sm edit-only">مصمم الصور</button>
       <button id="cmpBtn" class="btn btn-ghost btn-sm">المقارنة</button>
       <button id="wasteBtn" class="btn btn-ghost btn-sm">التوالف</button>
       <button id="lateBtn" class="bell-btn" aria-expanded="false" aria-haspopup="true" aria-label="تنبيهات التأخير" title="تنبيهات التأخير"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span id="lateDot" class="bell-dot" hidden></span></button>
@@ -884,7 +917,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-17 ز</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-18 ب</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -893,6 +926,7 @@
     <section id="compare" hidden></section>
     <section id="reports" hidden></section>
     <section id="calc" hidden></section>
+    <section id="studio" hidden></section>
     <section id="settingsView" hidden>
       <div class="page-head"><button class="back-btn" id="setBack" type="button"><span aria-hidden="true">→</span> رجوع للوحة</button><h2>الإعدادات</h2></div>
       <nav class="set-tabs" id="setTabs" role="tablist"></nav>
@@ -2797,6 +2831,629 @@ async function ingAction(b) {
   await loadCost(); renderSetIngs();
 }
 
+// =====================================================================
+//  مصمم الصور الاحترافي — مجاني بالكامل ويعمل داخل المتصفح (بدون أي خدمة مدفوعة)
+//  إزالة الخلفية ← ضبط الإضاءة ← وضع المنتجات في بيئة مرسومة مع ظلال وانعكاس وإضاءة
+//  المنتج والشعار يُرسمان كما هما بالضبط (لا يُعاد توليدهما)
+// =====================================================================
+const STUDIO_STYLES = [
+  { id: 'lux', t: 'فخم بألوان العبوة', d: 'جدار بلون العبوة، رخام لامع، شموع وإضاءة ذهبية' },
+  { id: 'marble', t: 'رخام أبيض فاخر', d: 'رخام كرارا وضوء نهار ناعم' },
+  { id: 'wood', t: 'خشب دافئ', d: 'طاولة خشب وإضاءة شموع دافئة' },
+  { id: 'velvet', t: 'مخمل داكن درامي', d: 'خلفية داكنة وإضاءة مركّزة ولمعة' },
+  { id: 'ramadan', t: 'رمضاني', d: 'فوانيس وهلال ونجوم وإضاءة ذهبية' },
+  { id: 'eid', t: 'عيد وهدايا', d: 'أضواء احتفالية وهدايا وقصاصات ذهبية' },
+  { id: 'white', t: 'استوديو أبيض للمتاجر', d: 'خلفية بيضاء نظيفة وظل ناعم' }
+];
+const STUDIO_ASPECTS = [['3:2', 'عرضي 3:2'], ['1:1', 'مربع 1:1'], ['4:5', 'إنستقرام 4:5'], ['9:16', 'ستوري 9:16'], ['16:9', 'عريض 16:9']];
+const ST = { files: [], style: 'lux', aspect: '3:2', size: '1K', count: 2, mode: 'merge', logoPos: 'wall', cutMode: 'smart',
+  autoLight: true, scale: 100, colorAuto: true, color: '#5b2a52', results: [], busy: false, seq: 0, status: '' };
+
+// ---------- أدوات الرسم ----------
+const stCanvas = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h)); return c; };
+const stImg = src => new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => bad(new Error('تعذّر قراءة الصورة')); i.src = src; });
+function stRand(seed) { let s = (seed >>> 0) || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
+const ST_FILTER = (() => { try { const x = document.createElement('canvas').getContext('2d'); x.filter = 'blur(2px)'; return x.filter === 'blur(2px)'; } catch (e) { return false; } })();
+function stBlur(src, r) {
+  if (r < 0.5) return src;
+  const c = stCanvas(src.width, src.height), x = c.getContext('2d');
+  if (ST_FILTER) { x.filter = `blur(${r}px)`; x.drawImage(src, 0, 0); x.filter = 'none'; return c; }
+  // بديل لمتصفحات لا تدعم filter: تصغير ثم تكبير
+  const f = Math.max(0.02, Math.min(1, 1.5 / r)), s = stCanvas(src.width * f, src.height * f), sx = s.getContext('2d');
+  sx.imageSmoothingQuality = 'high'; sx.drawImage(src, 0, 0, s.width, s.height);
+  x.imageSmoothingQuality = 'high'; x.drawImage(s, 0, 0, c.width, c.height); return c;
+}
+const hex2rgb = h => { const n = parseInt(h.replace('#', ''), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+const rgb2hex = c => '#' + c.map(v => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('');
+const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+const rgba = (c, a) => `rgba(${c.map(Math.round).join(',')},${a})`;
+const GOLD = [214, 176, 98], WARM = [255, 214, 140];
+
+// ---------- قراءة الصورة ----------
+async function studioPrep(file) {
+  const url = await new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = bad; r.readAsDataURL(file); });
+  const img = await stImg(url);
+  const max = 1600, k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = stCanvas(img.naturalWidth * k, img.naturalHeight * k), cx = c.getContext('2d');
+  cx.imageSmoothingQuality = 'high'; cx.drawImage(img, 0, 0, c.width, c.height);
+  let alpha = false;
+  if (file.type !== 'image/jpeg') {
+    const d = cx.getImageData(0, 0, c.width, c.height).data;
+    for (let i = 3; i < d.length; i += 4 * 7) if (d[i] < 200) { alpha = true; break; }
+  }
+  return { id: ++ST.seq, name: file.name, src: c, url: c.toDataURL(alpha ? 'image/png' : 'image/jpeg', 0.85), alpha, role: 'product', cut: null, cutKey: '' };
+}
+async function studioAdd(list) {
+  const fs = [...list].filter(f => /^image\/(png|jpeg|webp)$/.test(f.type));
+  if (!fs.length) return toast('اختر صوراً بصيغة JPG أو PNG أو WEBP', 'err');
+  for (const f of fs) {
+    if (ST.files.length >= 8) { toast('الحد الأعلى 8 صور', 'err'); break; }
+    try { ST.files.push(await studioPrep(f)); } catch (e) { toast(errMsg(e), 'err'); }
+  }
+  renderStudio();
+}
+
+// ---------- إزالة الخلفية ----------
+let ST_BG = null;
+async function stBgLib() {
+  if (ST_BG) return ST_BG;
+  let last;
+  for (const u of ['https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm', 'https://esm.sh/@imgly/background-removal@1.7.0']) {
+    try { const m = await import(u); if (m && m.removeBackground) return (ST_BG = m); } catch (e) { last = e; }
+  }
+  throw last || new Error('تعذّر تحميل أداة إزالة الخلفية');
+}
+async function stCutSmart(f) {
+  const m = await stBgLib();
+  const blob = await new Promise(ok => f.src.toBlob(ok, 'image/png'));
+  const out = await m.removeBackground(blob, { model: 'isnet_fp16', output: { format: 'image/png' },
+    progress: (key, cur, tot) => { if (/fetch/.test(key) && tot) stStatus(`تحميل أداة إزالة الخلفية (أول مرة فقط) ${Math.round(cur / tot * 100)}%`); } });
+  const u = URL.createObjectURL(out), img = await stImg(u); URL.revokeObjectURL(u);
+  const c = stCanvas(img.naturalWidth, img.naturalHeight); c.getContext('2d').drawImage(img, 0, 0); return c;
+}
+// للصور على خلفية بيضاء أو سادة: تعبئة من الأطراف بنفس لون الخلفية
+function stCutSimple(src, global) {
+  const w = src.width, h = src.height, cx = src.getContext('2d'), id = cx.getImageData(0, 0, w, h), p = id.data;
+  const border = []; const step = Math.max(1, Math.floor((w + h) / 600));
+  for (let x = 0; x < w; x += step) border.push(x, (h - 1) * w + x);
+  for (let y = 0; y < h; y += step) border.push(y * w, y * w + w - 1);
+  let m = [0, 0, 0]; for (const i of border) for (let k = 0; k < 3; k++) m[k] += p[i * 4 + k]; m = m.map(v => v / border.length);
+  let sd = 0; for (const i of border) sd += (p[i * 4] - m[0]) ** 2 + (p[i * 4 + 1] - m[1]) ** 2 + (p[i * 4 + 2] - m[2]) ** 2;
+  sd = Math.sqrt(sd / border.length / 3);
+  if (sd > 26) return null;
+  const tol = Math.max(34, sd * 3 + 24), tol2 = tol * tol, tolF = (tol * 1.7) ** 2;
+  const bg = new Uint8Array(w * h), q = new Int32Array(w * h); let qh = 0, qt = 0;
+  const dm = i => { const a = p[i * 4] - m[0], b = p[i * 4 + 1] - m[1], c = p[i * 4 + 2] - m[2]; return a * a + b * b + c * c; };
+  const dn = (i, j) => { const a = p[i * 4] - p[j * 4], b = p[i * 4 + 1] - p[j * 4 + 1], c = p[i * 4 + 2] - p[j * 4 + 2]; return a * a + b * b + c * c; };
+  for (let x = 0; x < w; x++) for (const i of [x, (h - 1) * w + x]) if (!bg[i] && dm(i) < tol2) { bg[i] = 1; q[qt++] = i; }
+  for (let y = 0; y < h; y++) for (const i of [y * w, y * w + w - 1]) if (!bg[i] && dm(i) < tol2) { bg[i] = 1; q[qt++] = i; }
+  if (global) for (let i = 0; i < w * h; i++) if (!bg[i] && dm(i) < tol2 * 0.7) bg[i] = 1;
+  while (qh < qt) {
+    const i = q[qh++], x = i % w;
+    const nb = [x > 0 ? i - 1 : -1, x < w - 1 ? i + 1 : -1, i - w, i + w];
+    for (const j of nb) {
+      if (j < 0 || j >= w * h || bg[j]) continue;
+      const d = dm(j);
+      if (d < tol2 || (d < tolF && dn(i, j) < 90)) { bg[j] = 1; q[qt++] = j; }
+    }
+  }
+  // تآكل بكسل واحد لإزالة الهالة ثم تنعيم الحافة
+  const a = new Float32Array(w * h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = y * w + x;
+    if (bg[i]) continue;
+    const e = (x > 0 && bg[i - 1]) || (x < w - 1 && bg[i + 1]) || (y > 0 && bg[i - w]) || (y < h - 1 && bg[i + w]);
+    a[i] = e ? 0.45 : 1;
+  }
+  const out = stCanvas(w, h), ox = out.getContext('2d'), od = ox.createImageData(w, h), o = od.data;
+  let fg = 0;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = y * w + x; let s = a[i] * 4, n = 4;
+    if (x > 0) { s += a[i - 1]; n++; } if (x < w - 1) { s += a[i + 1]; n++; }
+    if (y > 0) { s += a[i - w]; n++; } if (y < h - 1) { s += a[i + w]; n++; }
+    const al = a[i] ? s / n : 0; if (al > 0.5) fg++;
+    o[i * 4] = p[i * 4]; o[i * 4 + 1] = p[i * 4 + 1]; o[i * 4 + 2] = p[i * 4 + 2]; o[i * 4 + 3] = Math.round(al * 255);
+  }
+  if (fg < w * h * 0.01) return null;
+  ox.putImageData(od, 0, 0); return out;
+}
+function stTrim(c) {
+  const w = c.width, h = c.height, d = c.getContext('2d').getImageData(0, 0, w, h).data;
+  let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (d[(y * w + x) * 4 + 3] > 12) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  if (x1 < 0) return null;
+  const o = stCanvas(x1 - x0 + 1, y1 - y0 + 1); o.getContext('2d').drawImage(c, -x0, -y0); return o;
+}
+async function stCut(f) {
+  const key = (f.alpha ? 'alpha' : ST.cutMode) + (f.role === 'logo' ? ':L' : '');
+  if (f.cut && f.cutKey === key) return f.cut;
+  let c = null, used = key;
+  if (/^(alpha|none)/.test(key)) c = f.src;
+  else {
+    if (key.startsWith('smart')) {
+      try { c = await stCutSmart(f); }
+      catch (e) { console.warn(e); used = 'simple'; if (!ST.smartWarned) { ST.smartWarned = true; toast('تعذّر تحميل الإزالة الذكية (تحقق من الإنترنت)، استُخدمت الإزالة البسيطة', 'err'); } }
+    }
+    if (!c) c = stCutSimple(f.src, f.role === 'logo');
+    if (!c) throw new Error(`خلفية الصورة "${f.name}" ليست سادة. استخدم الإزالة الذكية، أو ارفع الصورة على خلفية بيضاء، أو PNG بدون خلفية`);
+  }
+  const t = stTrim(c); if (!t) throw new Error(`لم يُعثر على منتج في الصورة "${f.name}"`);
+  f.cut = t; f.cutKey = key; f.cutUsed = used; f.lit = null; f.cutUrl = t.toDataURL('image/png');
+  return t;
+}
+
+// ---------- ضبط الإضاءة (مستويات خفيفة بدون تغيير ألوان العبوة) ----------
+function stLight(c) {
+  const w = c.width, h = c.height, o = stCanvas(w, h), ox = o.getContext('2d'); ox.drawImage(c, 0, 0);
+  const id = ox.getImageData(0, 0, w, h), p = id.data, hist = new Uint32Array(256); let n = 0, sum = 0;
+  for (let i = 0; i < p.length; i += 4) if (p[i + 3] > 200) { const l = (p[i] * 0.2126 + p[i + 1] * 0.7152 + p[i + 2] * 0.0722) | 0; hist[l]++; n++; sum += l; }
+  if (n < 200) return c;
+  const pct = q => { let acc = 0; for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc >= n * q) return v; } return 255; };
+  const lo = Math.min(pct(0.005), 38), hi = Math.max(pct(0.995), 218), mean = (sum / n - lo) / Math.max(1, hi - lo);
+  const g = Math.max(0.82, Math.min(1.2, 1 + (Math.log(0.5) / Math.log(Math.max(0.05, Math.min(0.95, mean))) - 1) * 0.35));
+  const lut = new Uint8ClampedArray(256);
+  for (let v = 0; v < 256; v++) { const t = Math.max(0, Math.min(1, (v - lo) / Math.max(1, hi - lo))); lut[v] = Math.round(255 * Math.pow(t, g) * 0.75 + v * 0.25); }
+  for (let i = 0; i < p.length; i += 4) {
+    if (!p[i + 3]) continue;
+    let r = lut[p[i]], gg = lut[p[i + 1]], b = lut[p[i + 2]];
+    const l = (r + gg + b) / 3; r = l + (r - l) * 1.05; gg = l + (gg - l) * 1.05; b = l + (b - l) * 1.05;
+    p[i] = r; p[i + 1] = gg; p[i + 2] = b;
+  }
+  ox.putImageData(id, 0, 0); return o;
+}
+// اللون الغالب في العبوة (لبيئة "فخم بألوان العبوة")
+function stDominant(cs) {
+  const bins = Array.from({ length: 24 }, () => ({ w: 0, r: 0, g: 0, b: 0 }));
+  for (const c of cs) {
+    const k = Math.min(1, 300 / Math.max(c.width, c.height)), s = stCanvas(c.width * k, c.height * k), sx = s.getContext('2d');
+    sx.drawImage(c, 0, 0, s.width, s.height); const d = sx.getImageData(0, 0, s.width, s.height).data;
+    for (let i = 0; i < d.length; i += 4) {
+      if (d[i + 3] < 200) continue;
+      const r = d[i] / 255, g = d[i + 1] / 255, b = d[i + 2] / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, dd = mx - mn;
+      if (dd < 0.12) continue;
+      const sat = dd / (1 - Math.abs(2 * l - 1) || 1);
+      let hh = mx === r ? ((g - b) / dd) % 6 : mx === g ? (b - r) / dd + 2 : (r - g) / dd + 4; hh = (hh * 60 + 360) % 360;
+      const wt = sat * (1 - Math.abs(l - 0.45) * 1.5); if (wt <= 0) continue;
+      const bn = bins[Math.floor(hh / 15) % 24]; bn.w += wt; bn.r += d[i] * wt; bn.g += d[i + 1] * wt; bn.b += d[i + 2] * wt;
+    }
+  }
+  const top = bins.reduce((a, b) => b.w > a.w ? b : a);
+  return top.w > 40 ? [top.r / top.w, top.g / top.w, top.b / top.w] : [74, 44, 34];
+}
+
+// ---------- عناصر البيئة ----------
+function stBokeh(x, rnd, n, col, x0, x1, y0, y1, r0, r1, a0 = 0.18) {
+  x.save(); x.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < n; i++) {
+    const cx = x0 + rnd() * (x1 - x0), cy = y0 + rnd() * (y1 - y0), r = r0 + rnd() * (r1 - r0), a = a0 * (0.4 + rnd() * 0.8);
+    const g = x.createRadialGradient(cx, cy, 0, cx, cy, r); g.addColorStop(0, rgba(col, a)); g.addColorStop(0.7, rgba(col, a * 0.7)); g.addColorStop(1, rgba(col, 0));
+    x.fillStyle = g; x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.fill();
+  }
+  x.restore();
+}
+function stGlow(x, cx, cy, r, col, a) {
+  x.save(); x.globalCompositeOperation = 'lighter';
+  const g = x.createRadialGradient(cx, cy, 0, cx, cy, r); g.addColorStop(0, rgba(col, a)); g.addColorStop(0.35, rgba(col, a * 0.45)); g.addColorStop(1, rgba(col, 0));
+  x.fillStyle = g; x.fillRect(cx - r, cy - r, r * 2, r * 2); x.restore();
+}
+function stMarble(W, h, base, vein, rnd, k) {
+  const tall = h * 2.6, c = stCanvas(W, tall), x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, W, tall); g.addColorStop(0, rgb2hex(mix(base, [255, 255, 255], 0.15))); g.addColorStop(0.5, rgb2hex(base)); g.addColorStop(1, rgb2hex(mix(base, [0, 0, 0], 0.06)));
+  x.fillStyle = g; x.fillRect(0, 0, W, tall);
+  for (let i = 0; i < 22; i++) {
+    let px = rnd() * W, py = rnd() * tall, ang = rnd() * Math.PI * 2;
+    x.beginPath(); x.moveTo(px, py);
+    const len = 30 + rnd() * 60;
+    for (let s = 0; s < len; s++) { ang += (rnd() - 0.5) * 0.7; px += Math.cos(ang) * W * 0.012; py += Math.sin(ang) * W * 0.012; x.lineTo(px, py); }
+    x.strokeStyle = rgba(vein, 0.08 + rnd() * 0.22); x.lineWidth = (0.6 + rnd() * 2.6) * k; x.stroke();
+  }
+  return stBlur(c, 0.8 * k);
+}
+function stWood(W, h, rnd, k) {
+  const c = stCanvas(W, h), x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#4a2c19'); g.addColorStop(1, '#7b4b2a'); x.fillStyle = g; x.fillRect(0, 0, W, h);
+  const planks = 5;
+  for (let p = 0; p < planks; p++) {
+    const t0 = p / planks, t1 = (p + 1) / planks, y0 = h * t0 * t0 * 0.9 + h * t0 * 0.1, y1 = h * t1 * t1 * 0.9 + h * t1 * 0.1;
+    x.fillStyle = rgba([255, 220, 180], 0.02 + rnd() * 0.05); x.fillRect(0, y0, W, y1 - y0);
+    for (let i = 0; i < 26; i++) {
+      const yy = y0 + rnd() * (y1 - y0); x.beginPath(); x.moveTo(0, yy);
+      for (let xx = 0; xx <= W; xx += W / 40) x.lineTo(xx, yy + Math.sin(xx / W * 9 + i) * (y1 - y0) * 0.05 * rnd());
+      x.strokeStyle = rgba(rnd() > 0.5 ? [40, 20, 10] : [160, 110, 70], 0.1 + rnd() * 0.15); x.lineWidth = (0.5 + rnd() * 1.4) * k; x.stroke();
+    }
+    x.fillStyle = 'rgba(20,10,5,.55)'; x.fillRect(0, y1 - 1.2 * k, W, 1.2 * k);
+  }
+  return c;
+}
+function stCandle(x, cx, yb, h, k, rnd, holder) {
+  const w = h * 0.34;
+  if (holder) { // حامل ذهبي شفاف
+    const hh = h * 0.62, g = x.createLinearGradient(cx - w * 0.75, 0, cx + w * 0.75, 0);
+    g.addColorStop(0, 'rgba(150,110,40,.85)'); g.addColorStop(0.45, 'rgba(250,215,140,.9)'); g.addColorStop(1, 'rgba(120,85,30,.85)');
+    x.fillStyle = g; x.fillRect(cx - w * 0.75, yb - hh, w * 1.5, hh);
+    x.strokeStyle = 'rgba(255,235,180,.35)'; x.lineWidth = 1.2 * k;
+    for (let i = 1; i < 5; i++) { x.beginPath(); x.moveTo(cx - w * 0.75 + w * 1.5 * i / 5, yb - hh); x.lineTo(cx - w * 0.75 + w * 1.5 * i / 5, yb); x.stroke(); }
+    x.beginPath(); x.moveTo(cx - w * 0.75, yb - hh * 0.5); x.lineTo(cx + w * 0.75, yb - hh * 0.5); x.stroke();
+  }
+  const g2 = x.createLinearGradient(cx - w / 2, 0, cx + w / 2, 0); g2.addColorStop(0, '#d9cbb3'); g2.addColorStop(0.4, '#fbf3e4'); g2.addColorStop(1, '#bfae92');
+  x.fillStyle = g2; x.fillRect(cx - w / 2, yb - h, w, h * (holder ? 0.4 : 1));
+  x.fillStyle = '#fff6e6'; x.beginPath(); x.ellipse(cx, yb - h, w / 2, w * 0.12, 0, 0, Math.PI * 2); x.fill();
+  x.strokeStyle = '#2b1d12'; x.lineWidth = 1.5 * k; x.beginPath(); x.moveTo(cx, yb - h); x.lineTo(cx, yb - h - h * 0.07); x.stroke();
+  const fy = yb - h - h * 0.17, fh = h * 0.16;
+  stGlow(x, cx, fy, h * 1.4, WARM, 0.32); stGlow(x, cx, fy, h * 0.35, [255, 236, 190], 0.5);
+  const fg = x.createRadialGradient(cx, fy + fh * 0.3, 0, cx, fy, fh); fg.addColorStop(0, '#fffbe8'); fg.addColorStop(0.5, '#ffd36b'); fg.addColorStop(1, 'rgba(255,140,40,0)');
+  x.fillStyle = fg; x.beginPath(); x.ellipse(cx, fy, fh * 0.32, fh * 0.75, 0, 0, Math.PI * 2); x.fill();
+}
+function stLantern(x, cx, top, size, k) {
+  x.strokeStyle = 'rgba(200,160,80,.7)'; x.lineWidth = 1.5 * k; x.beginPath(); x.moveTo(cx, 0); x.lineTo(cx, top); x.stroke();
+  const w = size * 0.55, h = size;
+  stGlow(x, cx, top + h * 0.55, size * 1.6, WARM, 0.35);
+  const g = x.createLinearGradient(cx - w, 0, cx + w, 0); g.addColorStop(0, '#7a5a22'); g.addColorStop(0.5, '#e8c46e'); g.addColorStop(1, '#6d4e1c');
+  x.fillStyle = g;
+  x.beginPath(); x.moveTo(cx, top); x.lineTo(cx + w * 0.5, top + h * 0.2); x.lineTo(cx - w * 0.5, top + h * 0.2); x.closePath(); x.fill();
+  x.beginPath(); x.moveTo(cx - w * 0.5, top + h * 0.2); x.lineTo(cx + w * 0.5, top + h * 0.2); x.lineTo(cx + w * 0.62, top + h * 0.55); x.lineTo(cx + w * 0.4, top + h * 0.9);
+  x.lineTo(cx - w * 0.4, top + h * 0.9); x.lineTo(cx - w * 0.62, top + h * 0.55); x.closePath();
+  const ig = x.createRadialGradient(cx, top + h * 0.55, 0, cx, top + h * 0.55, w * 0.7); ig.addColorStop(0, '#fff3c8'); ig.addColorStop(0.6, '#ffc35a'); ig.addColorStop(1, '#b8781e');
+  x.fillStyle = ig; x.fill(); x.strokeStyle = '#c9a24e'; x.lineWidth = 2 * k; x.stroke();
+  x.beginPath(); x.moveTo(cx, top + h * 0.2); x.lineTo(cx, top + h * 0.9); x.moveTo(cx - w * 0.62, top + h * 0.55); x.lineTo(cx + w * 0.62, top + h * 0.55); x.stroke();
+  x.fillStyle = g; x.fillRect(cx - w * 0.45, top + h * 0.9, w * 0.9, h * 0.07);
+}
+function stRibbon(x, W, H, col, rnd, k, side) {
+  const s = side > 0 ? 1 : -1, ox = side > 0 ? W : 0, P = [[ox + s * W * 0.02, H * 0.86], [ox - s * W * (0.16 + rnd() * 0.05), H * 0.8], [ox - s * W * 0.26, H * 1.0], [ox - s * W * 0.42, H * 0.93],
+    [ox - s * W * 0.52, H * 0.89], [ox - s * W * 0.5, H * 1.02], [ox - s * W * 0.62, H * 1.05]];
+  const bz = (a, b, c, d, t) => a * (1 - t) ** 3 + 3 * b * t * (1 - t) ** 2 + 3 * c * t * t * (1 - t) + d * t ** 3;
+  const pts = [];
+  for (let seg = 0; seg < 2; seg++) for (let i = 0; i <= 40; i++) { const t = i / 40, q = P.slice(seg * 3, seg * 3 + 4);
+    pts.push([bz(q[0][0], q[1][0], q[2][0], q[3][0], t), bz(q[0][1], q[1][1], q[2][1], q[3][1], t)]); }
+  const tw = rnd() * 3;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [x0, y0] = pts[i], [x1, y1] = pts[i + 1], len = Math.hypot(x1 - x0, y1 - y0) || 1, nx = -(y1 - y0) / len, ny = (x1 - x0) / len;
+    const f = t => Math.cos(t / pts.length * Math.PI * 3.2 + tw), w0 = W * 0.024 * (0.25 + 0.75 * Math.abs(f(i))), w1 = W * 0.024 * (0.25 + 0.75 * Math.abs(f(i + 1)));
+    const sh = 0.25 + 0.75 * Math.abs(f(i));
+    x.fillStyle = rgb2hex(mix(mix(col, [0, 0, 0], 0.45), mix(col, [255, 255, 255], 0.25), sh));
+    x.beginPath(); x.moveTo(x0 + nx * w0, y0 + ny * w0); x.lineTo(x1 + nx * w1, y1 + ny * w1); x.lineTo(x1 - nx * w1, y1 - ny * w1); x.lineTo(x0 - nx * w0, y0 - ny * w0); x.closePath(); x.fill();
+  }
+}
+function stConfetti(x, rnd, n, cols, x0, x1, y0, y1, k) {
+  for (let i = 0; i < n; i++) {
+    x.save(); x.translate(x0 + rnd() * (x1 - x0), y0 + rnd() * (y1 - y0)); x.rotate(rnd() * Math.PI);
+    x.fillStyle = cols[Math.floor(rnd() * cols.length)]; const s = (3 + rnd() * 6) * k; x.fillRect(-s, -s * 0.35, s * 2, s * 0.7); x.restore();
+  }
+}
+function stGift(x, cx, yb, w, h, col, k) {
+  const g = x.createLinearGradient(cx - w / 2, 0, cx + w / 2, 0); g.addColorStop(0, rgb2hex(mix(col, [0, 0, 0], 0.3))); g.addColorStop(0.5, rgb2hex(col)); g.addColorStop(1, rgb2hex(mix(col, [0, 0, 0], 0.4)));
+  x.fillStyle = g; x.fillRect(cx - w / 2, yb - h, w, h);
+  x.fillStyle = rgb2hex(mix(col, [255, 255, 255], 0.12)); x.fillRect(cx - w * 0.54, yb - h - h * 0.12, w * 1.08, h * 0.14);
+  x.fillStyle = rgb2hex(GOLD); x.fillRect(cx - w * 0.06, yb - h - h * 0.12, w * 0.12, h * 1.12);
+  x.beginPath(); x.ellipse(cx - w * 0.14, yb - h - h * 0.2, w * 0.16, h * 0.09, -0.4, 0, Math.PI * 2); x.ellipse(cx + w * 0.14, yb - h - h * 0.2, w * 0.16, h * 0.09, 0.4, 0, Math.PI * 2); x.fill();
+}
+
+// ---------- ترتيب المنتجات ----------
+function stLayout(cs, W, H, y0, top, scale, rnd) {
+  const n = cs.length;
+  const it = cs.map((c, i) => { const s = Math.sqrt(1 / (c.width * c.height)); return { c, i, w: c.width * s, h: c.height * s }; });
+  const floor = H - y0, rows = n >= 4 ? 2 : 1;
+  const sorted = [...it].sort((a, b) => b.h - a.h);
+  const back = rows === 2 ? sorted.slice(0, Math.ceil(n / 2)) : sorted, front = rows === 2 ? sorted.slice(Math.ceil(n / 2)) : [];
+  const arrange = row => { // الأطول في الوسط والبقية على الجانبين
+    const out = []; row.forEach((r, i) => { if (i === 0) out.push(r); else if ((i % 2 === 1) === (rnd() > 0.5)) out.unshift(r); else out.push(r); }); return out; };
+  const place = (row, yb, availH, maxW) => {
+    if (!row.length) return [];
+    const gap = 0.06, tw = row.reduce((s, r) => s + r.w, 0) * (1 + gap) , mh = Math.max(...row.map(r => r.h));
+    const kk = Math.min(maxW / tw, availH / mh) * scale;
+    let x = (W - tw * kk) / 2 + (rnd() - 0.5) * W * 0.03;
+    const mid = row.indexOf(row.reduce((a, b) => b.h > a.h ? b : a));
+    return row.map((r, i) => { const w = r.w * kk, h = r.h * kk, o = { c: r.c, x: x + r.w * kk * gap / 2, w, h, yb: yb + (i === mid ? floor * 0.035 : 0), z: i === mid ? 2 : 1 }; x += w * (1 + gap); return o; });
+  };
+  let out;
+  if (rows === 1) { const yb = y0 + floor * 0.5; out = place(arrange(back), yb, yb - top, W * 0.8); }
+  else {
+    const ybB = y0 + floor * 0.28, ybF = y0 + floor * 0.74;
+    out = [...place(arrange(back), ybB, ybB - top, W * 0.78).map(o => ({ ...o, z: o.z })), ...place(arrange(front), ybF, (ybF - top) * 0.62, W * 0.86).map(o => ({ ...o, z: o.z + 10 }))];
+  }
+  return out.sort((a, b) => a.z - b.z || a.yb - b.yb);
+}
+const stSil = (c, col) => { const s = stCanvas(c.width, c.height), x = s.getContext('2d'); x.drawImage(c, 0, 0); x.globalCompositeOperation = 'source-in'; x.fillStyle = col; x.fillRect(0, 0, s.width, s.height); return s; };
+
+// ---------- رسم التصميم ----------
+function stDims(aspect, size) { const [a, b] = aspect.split(':').map(Number), L = size === '2K' ? 2400 : 1600; return a >= b ? [L, Math.round(L * b / a)] : [Math.round(L * a / b), L]; }
+function stRender(job, seed) {
+  const [W, H] = stDims(job.aspect, job.size), k = Math.max(W, H) / 1600, rnd = stRand(seed);
+  const st = job.style, C = job.color, light = rnd() > 0.5 ? 1 : -1;
+  const out = stCanvas(W, H), x = out.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
+  const portrait = H > W * 1.1, y0 = H * ((portrait ? 0.56 : 0.6) + (rnd() - 0.5) * 0.04) | 0;
+  const dark = st === 'lux' || st === 'wood' || st === 'velvet' || st === 'ramadan';
+
+  // ===== الجدار =====
+  const wall = stCanvas(W, y0 + 4), wx = wall.getContext('2d');
+  const WALL = { lux: [mix(C, [0, 0, 0], 0.28), mix(C, [0, 0, 0], 0.72)], marble: [[244, 239, 233], [214, 205, 194]], wood: [[92, 62, 42], [28, 18, 12]],
+    velvet: [mix(C, [0, 0, 0], 0.62), [8, 6, 8]], ramadan: [[24, 62, 78], [6, 18, 26]], eid: [[248, 236, 214], [214, 190, 150]], white: [[255, 255, 255], [236, 236, 236]] }[st];
+  const lx = W * (0.5 + light * 0.12), wg = wx.createRadialGradient(lx, y0 * 0.55, 0, lx, y0 * 0.55, Math.max(W, y0) * 0.85);
+  wg.addColorStop(0, rgb2hex(WALL[0])); wg.addColorStop(1, rgb2hex(WALL[1])); wx.fillStyle = wg; wx.fillRect(0, 0, W, wall.height);
+  if (st === 'lux') { // ألواح بإطارات ذهبية
+    wx.strokeStyle = rgba(GOLD, 0.28); wx.lineWidth = 2 * k; const pw = W / 4;
+    for (let i = 0; i < 4; i++) { wx.strokeRect(i * pw + pw * 0.12, y0 * 0.08, pw * 0.76, y0 * 0.8); wx.strokeRect(i * pw + pw * 0.17, y0 * 0.13, pw * 0.66, y0 * 0.7); }
+    stBokeh(wx, rnd, 26, WARM, 0, W, 0, y0, 14 * k, 60 * k, 0.16);
+  } else if (st === 'marble') { // ضوء نافذة
+    wx.save(); wx.globalCompositeOperation = 'lighter'; wx.translate(W * (light > 0 ? 0.15 : 0.85), 0); wx.rotate(light * -0.5);
+    for (let i = 0; i < 3; i++) { wx.fillStyle = 'rgba(255,250,235,.10)'; wx.fillRect(i * W * 0.09, -H * 0.2, W * 0.06, H * 1.6); } wx.restore();
+  } else if (st === 'wood') stBokeh(wx, rnd, 34, WARM, 0, W, 0, y0, 12 * k, 55 * k, 0.2);
+  else if (st === 'velvet') { // ستارة مخمل
+    for (let i = 0; i < 14; i++) { const fx = W * i / 13; const g = wx.createLinearGradient(fx - W * 0.04, 0, fx + W * 0.04, 0);
+      g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.5, rgba(mix(C, [255, 255, 255], 0.15), 0.12)); g.addColorStop(1, 'rgba(0,0,0,0)'); wx.fillStyle = g; wx.fillRect(fx - W * 0.04, 0, W * 0.08, y0); }
+    stBokeh(wx, rnd, 10, mix(C, WARM, 0.6), 0, W, 0, y0 * 0.8, 10 * k, 40 * k, 0.12);
+  } else if (st === 'ramadan') {
+    for (let i = 0; i < 70; i++) { const sx = rnd() * W, sy = rnd() * y0 * 0.85, r = (0.6 + rnd() * 1.8) * k; wx.fillStyle = rgba([255, 236, 190], 0.4 + rnd() * 0.5); wx.beginPath(); wx.arc(sx, sy, r, 0, 7); wx.fill(); }
+    const mx = W * (light > 0 ? 0.8 : 0.2), my = y0 * 0.24, mr = Math.min(W, H) * 0.07;
+    stGlow(wx, mx, my, mr * 3, WARM, 0.25);
+    const cr = stCanvas(mr * 2.4, mr * 2.4), cc = cr.getContext('2d'); cc.fillStyle = '#f1cf7c'; cc.beginPath(); cc.arc(mr * 1.2, mr * 1.2, mr, 0, 7); cc.fill();
+    cc.globalCompositeOperation = 'destination-out'; cc.beginPath(); cc.arc(mr * 1.2 + mr * 0.42 * light, mr * 1.02, mr * 0.9, 0, 7); cc.fill();
+    wx.drawImage(cr, mx - mr * 1.2, my - mr * 1.2);
+    stBokeh(wx, rnd, 16, WARM, 0, W, y0 * 0.4, y0, 10 * k, 40 * k, 0.12);
+  } else if (st === 'eid') {
+    for (let s = 0; s < 2; s++) { const yy = y0 * (0.12 + s * 0.2); wx.strokeStyle = 'rgba(120,90,50,.35)'; wx.lineWidth = 1.2 * k; wx.beginPath();
+      for (let i = 0; i <= 40; i++) { const t = i / 40, px = t * W, py = yy + Math.sin(t * Math.PI) * y0 * 0.12; i ? wx.lineTo(px, py) : wx.moveTo(px, py); } wx.stroke();
+      for (let i = 1; i < 18; i++) { const t = i / 18, px = t * W, py = yy + Math.sin(t * Math.PI) * y0 * 0.12 + 4 * k; stGlow(wx, px, py, 18 * k, WARM, 0.55); wx.fillStyle = '#fff1c4'; wx.beginPath(); wx.arc(px, py, 2.6 * k, 0, 7); wx.fill(); } }
+    stBokeh(wx, rnd, 22, WARM, 0, W, 0, y0, 10 * k, 45 * k, 0.14);
+  }
+  if (st !== 'white') x.drawImage(stBlur(wall, 2.2 * k), 0, 0); else x.drawImage(wall, 0, 0);
+  // هالة ضوء خلف المنتجات
+  if (st !== 'white') stGlow(x, W / 2 + light * W * 0.05, y0 * 0.78, Math.max(W, H) * 0.42, dark ? mix(WARM, C, 0.25) : [255, 250, 240], dark ? 0.22 : 0.12);
+  if (st === 'ramadan') { const n = 2 + (rnd() * 2 | 0); const lp = [0.07, 0.93, 0.2, 0.8]; for (let i = 0; i < n; i++) stLantern(x, W * lp[i] + (rnd() - 0.5) * W * 0.03, y0 * (0.08 + rnd() * 0.18), Math.min(W, H) * (0.09 + rnd() * 0.04), k); }
+
+  // ===== الشعار على الجدار =====
+  let topLimit = H * 0.08;
+  if (job.logo && job.logoPos === 'wall') {
+    const lc = job.logo, s = Math.min(W * 0.26 / lc.width, H * 0.16 / lc.height), lw = lc.width * s, lh = lc.height * s, lxp = (W - lw) / 2, lyp = Math.max(H * 0.05, y0 * 0.1);
+    if (dark || st === 'velvet') {
+      const sil = stSil(lc, '#ffe2a6'), big = stCanvas(lw * 1.6, lh * 1.6); big.getContext('2d').drawImage(sil, lw * 0.3, lh * 0.3, lw, lh);
+      x.save(); x.globalCompositeOperation = 'lighter'; x.globalAlpha = 0.85; x.drawImage(stBlur(big, 14 * k), lxp - lw * 0.3, lyp - lh * 0.3); x.globalAlpha = 0.5; x.drawImage(stBlur(big, 4 * k), lxp - lw * 0.3, lyp - lh * 0.3); x.restore();
+    } else { x.save(); x.shadowColor = 'rgba(0,0,0,.22)'; x.shadowBlur = 12 * k; x.shadowOffsetY = 5 * k; x.drawImage(lc, lxp, lyp, lw, lh); x.restore(); }
+    x.drawImage(lc, lxp, lyp, lw, lh);
+    topLimit = lyp + lh + H * 0.05;
+  }
+
+  // ===== الطاولة =====
+  const fh = H - y0;
+  if (st === 'white') {
+    const g = x.createLinearGradient(0, y0 - fh * 0.4, 0, H); g.addColorStop(0, 'rgba(236,236,236,0)'); g.addColorStop(1, '#f6f6f6'); x.fillStyle = g; x.fillRect(0, y0 - fh * 0.4, W, fh * 1.4);
+  } else {
+    let tb;
+    if (st === 'lux') tb = stMarble(W, fh, mix(C, [255, 255, 255], 0.8), mix(C, [120, 100, 90], 0.5), rnd, k);
+    else if (st === 'marble') tb = stMarble(W, fh, [246, 244, 241], [120, 120, 125], rnd, k);
+    else if (st === 'wood' || st === 'ramadan') tb = stWood(W, fh, rnd, k);
+    else if (st === 'velvet') { tb = stCanvas(W, fh); const tx = tb.getContext('2d'), g = tx.createLinearGradient(0, 0, 0, fh); g.addColorStop(0, '#060507'); g.addColorStop(1, rgb2hex(mix(C, [0, 0, 0], 0.78))); tx.fillStyle = g; tx.fillRect(0, 0, W, fh); }
+    else { tb = stCanvas(W, fh); const tx = tb.getContext('2d'), g = tx.createLinearGradient(0, 0, 0, fh); g.addColorStop(0, '#e9d8bd'); g.addColorStop(1, '#fbf1e1'); tx.fillStyle = g; tx.fillRect(0, 0, W, fh);
+      for (let i = 0; i < 9; i++) { const fx = rnd() * W, gg = tx.createLinearGradient(fx - W * 0.06, 0, fx + W * 0.06, 0); gg.addColorStop(0, 'rgba(255,255,255,0)'); gg.addColorStop(0.5, 'rgba(255,255,255,.35)'); gg.addColorStop(1, 'rgba(255,255,255,0)'); tx.fillStyle = gg; tx.fillRect(fx - W * 0.06, 0, W * 0.12, fh); } }
+    x.drawImage(tb, 0, y0, W, fh);
+    // عمق: الجزء البعيد أغمق + لمعة
+    const dg = x.createLinearGradient(0, y0, 0, H); dg.addColorStop(0, `rgba(0,0,0,${dark ? 0.45 : 0.12})`); dg.addColorStop(0.35, 'rgba(0,0,0,0)'); dg.addColorStop(1, `rgba(0,0,0,${dark ? 0.35 : 0.06})`);
+    x.fillStyle = dg; x.fillRect(0, y0, W, fh);
+    x.fillStyle = rgba(dark ? [255, 220, 170] : [255, 255, 255], dark ? 0.18 : 0.5); x.fillRect(0, y0, W, 1.4 * k);
+    stGlow(x, W / 2 + light * W * 0.1, y0 + fh * 0.45, W * 0.45, dark ? WARM : [255, 255, 255], dark ? 0.1 : 0.12);
+  }
+
+  // ===== عناصر خلف المنتجات =====
+  const items = stLayout(job.prods, W, H, y0, topLimit, job.scale, rnd);
+  const minX = Math.min(...items.map(o => o.x)), maxX = Math.max(...items.map(o => o.x + o.w)), maxH = Math.max(...items.map(o => o.h));
+  const sideL = Math.max(W * 0.06, minX - W * 0.07), sideR = Math.min(W * 0.94, maxX + W * 0.07), ybBack = y0 + fh * 0.18;
+  const props = stCanvas(W, H), px = props.getContext('2d');
+  if (st === 'lux' || st === 'wood') {
+    const ch = Math.min(maxH * 0.55, fh * 1.1);
+    if (minX > W * 0.1) { stCandle(px, sideL, ybBack, ch, k, rnd, st === 'lux'); if (rnd() > 0.4) stCandle(px, Math.max(W * 0.05, sideL - ch * 0.45), ybBack - fh * 0.04, ch * 0.7, k, rnd, st === 'lux'); }
+    if (maxX < W * 0.9) stCandle(px, sideR, ybBack, ch * (0.8 + rnd() * 0.3), k, rnd, st === 'lux');
+  } else if (st === 'ramadan' && maxX < W * 0.88) stLantern(px, sideR, ybBack - Math.min(W, H) * 0.12, Math.min(W, H) * 0.11, k);
+  else if (st === 'eid') {
+    const gc = [C, GOLD.map(v => v * 0.9), mix(C, [255, 255, 255], 0.4)];
+    if (minX > W * 0.12) stGift(px, sideL, ybBack, Math.min(maxH * 0.45, W * 0.1), Math.min(maxH * 0.38, fh * 0.9), gc[0], k);
+    if (maxX < W * 0.88) stGift(px, sideR, ybBack, Math.min(maxH * 0.38, W * 0.09), Math.min(maxH * 0.3, fh * 0.8), gc[2], k);
+  }
+  x.drawImage(stBlur(props, 1.6 * k), 0, 0);
+
+  // ===== الظلال =====
+  const sh = stCanvas(W, H), sx = sh.getContext('2d');
+  for (const o of items) {
+    const sil = stSil(o.c, '#000');
+    sx.save(); sx.translate(o.x, o.yb); sx.transform(1, 0, -light * 0.9, 0.22, 0, 0); sx.globalAlpha = st === 'white' ? 0.22 : 0.42; sx.drawImage(sil, 0, -o.h, o.w, o.h); sx.restore();
+  }
+  x.drawImage(stBlur(sh, 9 * k), 0, 0);
+  for (const o of items) { // ظل التلامس
+    const cx = o.x + o.w / 2, rx = o.w * 0.55, ry = Math.max(4 * k, o.w * 0.05);
+    x.save(); x.translate(cx, o.yb); x.scale(1, ry / rx);
+    const g = x.createRadialGradient(0, 0, 0, 0, 0, rx); g.addColorStop(0, `rgba(0,0,0,${st === 'white' ? 0.38 : 0.6})`); g.addColorStop(0.6, 'rgba(0,0,0,.18)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    x.fillStyle = g; x.beginPath(); x.arc(0, 0, rx, 0, 7); x.fill(); x.restore();
+  }
+
+  // ===== الانعكاس =====
+  const glossy = st === 'lux' || st === 'marble' || st === 'velvet' || st === 'white';
+  for (const o of items) {
+    if (!glossy) continue;
+    const rh = o.h * 0.42, r = stCanvas(o.w, rh), rx = r.getContext('2d');
+    rx.save(); rx.scale(1, -1); rx.drawImage(o.c, 0, -o.h, o.w, o.h); rx.restore();
+    rx.globalCompositeOperation = 'destination-in'; const g = rx.createLinearGradient(0, 0, 0, rh); g.addColorStop(0, `rgba(0,0,0,${st === 'white' ? 0.14 : st === 'velvet' ? 0.3 : 0.22})`); g.addColorStop(1, 'rgba(0,0,0,0)'); rx.fillStyle = g; rx.fillRect(0, 0, o.w, rh);
+    x.drawImage(stBlur(r, 1.2 * k), o.x, o.yb - 1);
+  }
+
+  // ===== المنتجات (كما هي) + إضاءة جانبية خفيفة =====
+  for (const o of items) {
+    const p = stCanvas(o.w, o.h), pc = p.getContext('2d'); pc.imageSmoothingQuality = 'high'; pc.drawImage(o.c, 0, 0, o.w, o.h);
+    pc.globalCompositeOperation = 'source-atop';
+    const g = pc.createLinearGradient(light > 0 ? o.w : 0, 0, light > 0 ? 0 : o.w, 0);
+    const lc = dark ? [255, 225, 175] : [255, 255, 255];
+    g.addColorStop(0, rgba(lc, 0.09)); g.addColorStop(0.5, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(0,0,0,${dark ? 0.12 : 0.06})`);
+    pc.fillStyle = g; pc.fillRect(0, 0, o.w, o.h);
+    x.drawImage(p, o.x, o.yb - o.h);
+  }
+
+  // ===== عناصر أمامية =====
+  const fr = stCanvas(W, H), fx = fr.getContext('2d');
+  if (st === 'lux' || st === 'eid') {
+    stRibbon(fx, W, H, st === 'eid' ? GOLD : C, rnd, k, light > 0 ? -1 : 1);
+    stConfetti(fx, rnd, st === 'eid' ? 40 : 18, st === 'eid' ? ['#d6b062', '#f3dfa8', rgb2hex(C)] : ['#d6b062', '#f3dfa8'], 0, W, H * 0.88, H, k);
+  } else if (st === 'ramadan') stConfetti(fx, rnd, 14, ['#d6b062', '#f3dfa8'], 0, W, H * 0.9, H, k);
+  if (st !== 'white' && st !== 'marble') stBokeh(fx, rnd, 6, WARM, 0, W, H * 0.9, H * 1.05, 20 * k, 60 * k, 0.08);
+  x.drawImage(stBlur(fr, 2.4 * k), 0, 0);
+
+  // ===== الشعار في الزاوية =====
+  if (job.logo && job.logoPos === 'corner') {
+    const lc = job.logo, s = Math.min(W * 0.14 / lc.width, H * 0.1 / lc.height), lw = lc.width * s, lh = lc.height * s, m = Math.min(W, H) * 0.04;
+    x.save(); x.shadowColor = 'rgba(0,0,0,.3)'; x.shadowBlur = 10 * k; x.drawImage(lc, m, m, lw, lh); x.restore();
+  }
+  // ===== تظليل الأطراف + حبيبات خفيفة =====
+  const vg = x.createRadialGradient(W / 2, H * 0.55, Math.min(W, H) * 0.35, W / 2, H * 0.55, Math.max(W, H) * 0.78);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, `rgba(0,0,0,${st === 'white' ? 0.05 : dark ? 0.42 : 0.16})`); x.fillStyle = vg; x.fillRect(0, 0, W, H);
+  if (st !== 'white') { const id = x.getImageData(0, 0, W, H), d = id.data, r2 = stRand(seed ^ 0x9e3779b9);
+    for (let i = 0; i < d.length; i += 4) { const nz = (r2() - 0.5) * 7; d[i] += nz; d[i + 1] += nz; d[i + 2] += nz; } x.putImageData(id, 0, 0); }
+  return out;
+}
+
+// ---------- الواجهة ----------
+function stStatus(t) { ST.status = t; const s = document.getElementById('stStatus'); if (s) s.textContent = t; }
+function openStudio() { S.detail = null; S.wasteView = false; showView('studio'); renderStudio(); }
+function renderStudio() {
+  const el = $('studio'); if (!el || el.hidden) return;
+  const hasLogo = ST.files.some(f => f.role === 'logo');
+  el.innerHTML = `${backHead('مصمم الصور الاحترافي')}
+  <p class="muted rep-intro">ارفع صور منتجاتك (بوكس مفتوح، مقفل، كيس…) ويزيل البرنامج خلفيتها ويضبط إضاءتها ويضعها في بيئة فخمة مع ظلال وانعكاس. <b>مجاني بالكامل</b> ويعمل داخل جهازك، والمنتج والشعار يبقيان كما هما بالضبط.</p>
+  <div class="calc-grid st-grid">
+    <section class="calc-card">
+      <h3 class="cc-sub" style="margin-top:0;border:0;padding:0">1) صور المنتجات</h3>
+      <label class="st-drop" id="stDrop"><input type="file" id="stFiles" accept="image/png,image/jpeg,image/webp" multiple hidden>
+        <b>اضغط لاختيار الصور</b><small>أو اسحبها هنا · حتى 7 صور منتجات + شعار واحد</small></label>
+      <div class="st-thumbs">${ST.files.map(f => `<div class="st-th${f.role === 'logo' ? ' logo' : ''}${f.cut && f.cutKey === (f.alpha ? 'alpha' : ST.cutMode) + (f.role === 'logo' ? ':L' : '') ? ' cut' : ''}">
+        <img src="${f.cut && f.cutKey === (f.alpha ? 'alpha' : ST.cutMode) + (f.role === 'logo' ? ':L' : '') ? f.cutUrl : f.url}" alt="">
+        <button class="icon-x sm" data-strm="${f.id}" aria-label="حذف الصورة">×</button>
+        <button class="st-role" data-strole="${f.id}">${f.role === 'logo' ? 'شعار' : 'منتج'}</button></div>`).join('')}</div>
+      ${ST.files.length ? '<p class="muted" style="font-size:12px;margin-top:6px">اضغط "منتج/شعار" تحت الصورة لتحديد صورة الشعار (اختياري). بعد التصميم تظهر الصور بدون خلفية لتتأكد من القص.</p>' : ''}
+      <div class="cc-row2" style="margin-top:8px">
+        <label class="field"><span>إزالة الخلفية</span><select id="stCut">
+          <option value="smart"${ST.cutMode === 'smart' ? ' selected' : ''}>ذكية (لأي خلفية)</option>
+          <option value="simple"${ST.cutMode === 'simple' ? ' selected' : ''}>بسيطة (خلفية بيضاء أو سادة)</option>
+          <option value="none"${ST.cutMode === 'none' ? ' selected' : ''}>بدون (الصور مقصوصة مسبقاً)</option></select></label>
+        ${hasLogo ? `<label class="field"><span>مكان الشعار</span><select id="stLogoPos">
+          <option value="wall"${ST.logoPos === 'wall' ? ' selected' : ''}>لوحة مضيئة على الجدار</option>
+          <option value="corner"${ST.logoPos === 'corner' ? ' selected' : ''}>صغير في الزاوية</option>
+          <option value="none"${ST.logoPos === 'none' ? ' selected' : ''}>بدون</option></select></label>` : ''}
+      </div>
+      <p class="muted" style="font-size:12px">الإزالة الذكية تحمّل أداتها مرة واحدة أول استخدام (حوالي 40 ميجا) ثم تعمل بسرعة. صور PNG الشفافة تُستخدم كما هي.</p>
+
+      <h3 class="cc-sub">2) طريقة التصميم</h3>
+      <div class="seg" role="group"><button data-stmode="merge" aria-pressed="${ST.mode === 'merge'}">دمج كل الصور في تصميم واحد</button><button data-stmode="each" aria-pressed="${ST.mode === 'each'}">كل صورة بتصميم مستقل</button></div>
+
+      <h3 class="cc-sub">3) البيئة</h3>
+      <div class="st-styles">${STUDIO_STYLES.map(s => `<button class="rep-t${ST.style === s.id ? ' on' : ''}" data-ststyle="${s.id}"><b>${s.t}</b><small>${s.d}</small></button>`).join('')}</div>
+      ${ST.style === 'lux' || ST.style === 'velvet' || ST.style === 'eid' ? `<div class="st-color"><label class="dd-chk"><input type="checkbox" id="stColorAuto"${ST.colorAuto ? ' checked' : ''}> لون البيئة تلقائي من لون العبوة</label>
+        ${ST.colorAuto ? '' : `<label class="st-pick">اللون <input type="color" id="stColor" value="${ST.color}"></label>`}</div>` : ''}
+
+      <h3 class="cc-sub">4) المقاس والعدد</h3>
+      <div class="cc-row2 st-row3">
+        <label class="field"><span>المقاس</span><select id="stAspect">${STUDIO_ASPECTS.map(([v, l]) => `<option value="${v}"${v === ST.aspect ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+        <label class="field"><span>الجودة</span><select id="stSize"><option value="1K"${ST.size === '1K' ? ' selected' : ''}>عادية 1600</option><option value="2K"${ST.size === '2K' ? ' selected' : ''}>عالية 2400</option></select></label>
+        <label class="field"><span>${ST.mode === 'merge' ? 'عدد التصاميم' : 'تصاميم لكل صورة'}</span><select id="stCount">${[1, 2, 3, 4].map(n => `<option${n === ST.count ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+      </div>
+      <label class="field"><span>حجم المنتجات في التصميم: <b id="stScaleV">${ST.scale}%</b></span><input type="range" id="stScale" min="60" max="130" step="5" value="${ST.scale}"></label>
+      <label class="dd-chk"><input type="checkbox" id="stLight"${ST.autoLight ? ' checked' : ''}> ضبط إضاءة الصور تلقائياً</label>
+      <button class="btn btn-primary btn-block btn-lg" data-stgo="1"${ST.busy ? ' disabled' : ''}>${ST.busy ? 'جارٍ التصميم…' : 'صمّم الصور'}</button>
+      <p class="muted" id="stStatus" style="font-size:12px;margin-top:6px" aria-live="polite">${esc(ST.status)}</p>
+    </section>
+
+    <section class="calc-card cc-list">
+      <div class="cc-h"><h2>التصاميم (${ST.results.filter(r => r.url).length})</h2>
+        ${ST.results.some(r => r.url) ? '<div class="cc-pa"><button class="btn btn-ghost btn-sm" data-stdlall="1">تنزيل الكل</button><button class="btn btn-wa btn-sm" data-stshareall="1">إرسال الكل واتساب</button></div>' : ''}</div>
+      ${ST.results.length ? `<div class="st-res">${ST.results.map((r, i) => r.url ? `<div class="st-r">
+          <img src="${r.url}" alt="تصميم ${i + 1}" data-stzoom="${i}">
+          <div class="st-ra"><button class="btn btn-ghost btn-sm" data-stdl="${i}">تنزيل</button><button class="btn btn-wa btn-sm" data-stshare="${i}">واتساب</button><button class="btn btn-ghost btn-sm" data-stvar="${i}" title="نفس الصور بترتيب وإضاءة مختلفة">تنويع</button><button class="btn btn-ghost btn-sm btn-danger" data-stdel="${i}">حذف</button></div></div>`
+        : r.error ? `<div class="st-r err"><p>${esc(r.error)}</p><button class="btn btn-ghost btn-sm" data-stdel="${i}">إخفاء</button></div>`
+        : `<div class="st-r wait"><div class="st-spin"></div><p>جارٍ تصميم الصورة ${i + 1}…</p></div>`).join('')}</div>`
+        : '<p class="muted">ستظهر التصاميم هنا. احفظ التصاميم التي تعجبك بزر "تنزيل" لأنها لا تُحفظ في البرنامج. زر "تنويع" يعطيك نسخة بترتيب وإضاءة مختلفة.</p>'}
+    </section>
+  </div>`;
+  bindBack();
+}
+const stYield = () => new Promise(r => setTimeout(r, 30));
+async function stMake(slot, job, seed) {
+  await stYield();
+  const c = stRender(job, seed), blob = await new Promise(ok => c.toBlob(ok, 'image/jpeg', 0.92));
+  if (slot.url) URL.revokeObjectURL(slot.url);
+  Object.assign(slot, { blob, url: URL.createObjectURL(blob), mime: 'image/jpeg', job, seed, error: null });
+}
+async function studioGo() {
+  const prods = ST.files.filter(f => f.role !== 'logo'), logo = ST.files.find(f => f.role === 'logo');
+  if (!prods.length) return toast('ارفع صورة منتج واحدة على الأقل', 'err');
+  const jobsN = ST.mode === 'merge' ? ST.count : prods.length * ST.count;
+  if (jobsN > 16) return toast(`عدد التصاميم كبير (${jobsN}). قلّل العدد أو الصور.`, 'err');
+  ST.busy = true; renderStudio();
+  if (innerWidth < 900) { const r = document.querySelector('#studio .cc-list'); if (r) r.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  try {
+    const need = logo && ST.logoPos !== 'none' ? [...prods, logo] : prods;
+    for (let i = 0; i < need.length; i++) { stStatus(`تجهيز الصور وإزالة الخلفية ${i + 1} من ${need.length}…`); await stYield(); await stCut(need[i]); }
+    for (const f of prods) if (ST.autoLight && !f.lit) f.lit = stLight(f.cut);
+    const pc = f => ST.autoLight ? f.lit : f.cut;
+    const color = ST.colorAuto ? stDominant(prods.map(f => f.cut)) : hex2rgb(ST.color);
+    const base = { style: ST.style, aspect: ST.aspect, size: ST.size, scale: ST.scale / 100, color, logo: logo && ST.logoPos !== 'none' ? logo.cut : null, logoPos: ST.logoPos };
+    const jobs = [];
+    if (ST.mode === 'merge') for (let i = 0; i < ST.count; i++) jobs.push({ ...base, prods: prods.map(pc) });
+    else for (const f of prods) for (let i = 0; i < ST.count; i++) jobs.push({ ...base, prods: [pc(f)] });
+    const slots = jobs.map(() => ({})); ST.results = [...slots, ...ST.results]; renderStudio();
+    for (let i = 0; i < jobs.length; i++) {
+      stStatus(`جارٍ تصميم ${i + 1} من ${jobs.length}…`);
+      try { await stMake(slots[i], jobs[i], (Date.now() + i * 7919) ^ (Math.random() * 1e9)); } catch (e) { console.error(e); slots[i].error = 'تعذّر التصميم: ' + errMsg(e); }
+      if (S.view === 'studio') renderStudio();
+    }
+    ST.busy = false; stStatus(''); if (S.view === 'studio') renderStudio();
+    toast(`تم تصميم ${slots.filter(s => s.url).length} صورة`);
+  } catch (e) { ST.busy = false; stStatus(''); renderStudio(); toast(errMsg(e), 'err'); }
+}
+const stFile = (r, i) => new File([r.blob], `تصميم ${i + 1}.jpg`, { type: r.mime });
+function stDownload(list) {
+  list.forEach(([r, i], k) => setTimeout(() => { const a = document.createElement('a'); a.href = r.url; a.download = stFile(r, i).name; document.body.appendChild(a); a.click(); a.remove(); }, k * 400));
+}
+async function stShare(list) {
+  const files = list.map(([r, i]) => stFile(r, i));
+  if (navigator.canShare && navigator.canShare({ files })) {
+    try { await navigator.share({ files, title: 'تصاميم المنتجات' }); return; } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  stDownload(list);
+  const link = S.settings && S.settings.admin_wa_link;
+  toast(link ? 'تم تنزيل الصور. أرفقها في القروب' : 'تم تنزيل الصور. أرسلها على الواتساب');
+  if (link) setTimeout(() => window.open(link, '_blank', 'noopener'), 900);
+}
+function bindStudio() {
+  const el = $('studio');
+  el.addEventListener('change', e => {
+    const t = e.target;
+    if (t.id === 'stFiles') { studioAdd(t.files); t.value = ''; }
+    if (t.id === 'stAspect') ST.aspect = t.value;
+    if (t.id === 'stSize') ST.size = t.value;
+    if (t.id === 'stCount') ST.count = Number(t.value);
+    if (t.id === 'stCut') { ST.cutMode = t.value; renderStudio(); }
+    if (t.id === 'stLogoPos') ST.logoPos = t.value;
+    if (t.id === 'stLight') ST.autoLight = t.checked;
+    if (t.id === 'stColorAuto') { ST.colorAuto = t.checked; renderStudio(); }
+    if (t.id === 'stColor') ST.color = t.value;
+  });
+  el.addEventListener('input', e => { if (e.target.id === 'stScale') { ST.scale = Number(e.target.value); const v = $('stScaleV'); if (v) v.textContent = ST.scale + '%'; } });
+  el.addEventListener('dragover', e => { if (e.target.closest('#stDrop')) { e.preventDefault(); e.target.closest('#stDrop').classList.add('over'); } });
+  el.addEventListener('dragleave', e => { const d = e.target.closest('#stDrop'); if (d) d.classList.remove('over'); });
+  el.addEventListener('drop', e => { if (e.target.closest('#stDrop')) { e.preventDefault(); studioAdd(e.dataTransfer.files); } });
+  el.addEventListener('click', async e => {
+    const b = e.target.closest('button, img[data-stzoom]'); if (!b) return; const d = b.dataset;
+    const done = ST.results.map((r, i) => [r, i]).filter(([r]) => r.url);
+    if (d.strm) { ST.files = ST.files.filter(f => f.id !== Number(d.strm)); return renderStudio(); }
+    if (d.strole) { const f = ST.files.find(x => x.id === Number(d.strole)); if (f.role !== 'logo') ST.files.forEach(x => { if (x.role === 'logo') x.role = 'product'; }); f.role = f.role === 'logo' ? 'product' : 'logo'; return renderStudio(); }
+    if (d.stmode) { ST.mode = d.stmode; return renderStudio(); }
+    if (d.ststyle) { ST.style = d.ststyle; return renderStudio(); }
+    if (d.stgo) return studioGo();
+    if (d.stdl != null) return stDownload([[ST.results[d.stdl], Number(d.stdl)]]);
+    if (d.stshare != null) return stShare([[ST.results[d.stshare], Number(d.stshare)]]);
+    if (d.stvar != null) { const r = ST.results[d.stvar]; b.disabled = true; b.textContent = '…'; await stMake(r, r.job, Math.random() * 4e9); return renderStudio(); }
+    if (d.stdlall) return stDownload(done);
+    if (d.stshareall) return stShare(done);
+    if (d.stdel != null) { const r = ST.results[d.stdel]; if (r.url) URL.revokeObjectURL(r.url); ST.results.splice(Number(d.stdel), 1); return renderStudio(); }
+    if (d.stzoom != null) window.open(ST.results[d.stzoom].url, '_blank', 'noopener');
+  });
+}
+
 // ---------------- إدارة روابط الاطلاع (للإدارة) ----------------
 async function loadViewers() {
   const { data, error } = await sb.from('viewer_links').select('*').order('created_at');
@@ -3187,13 +3844,14 @@ function renderDetail() {
 // الصفحات: اللوحة، تفاصيل فرع، التوالف، حساب التمويلات، الإعدادات
 function showView(v) {
   S.view = v;
-  for (const [id, name] of [['overview', 'overview'], ['detail', 'detail'], ['waste', 'waste'], ['fund', 'fund'], ['settingsView', 'settings'], ['compare', 'compare'], ['reports', 'reports'], ['calc', 'calc']]) $(id).hidden = v !== name;
+  for (const [id, name] of [['overview', 'overview'], ['detail', 'detail'], ['waste', 'waste'], ['fund', 'fund'], ['settingsView', 'settings'], ['compare', 'compare'], ['reports', 'reports'], ['calc', 'calc'], ['studio', 'studio']]) $(id).hidden = v !== name;
+  $('studioBtn').classList.toggle('on', v === 'studio');
   $('calcBtn').classList.toggle('on', v === 'calc');
   $('repBtn').classList.toggle('on', v === 'reports');
   $('cmpBtn').classList.toggle('on', v === 'compare');
   $('settingsBtn').classList.toggle('on', v === 'settings');
   // الفترة وطلبات التعديل تخص اللوحة والتقارير فقط
-  const side = v === 'fund' || v === 'settings' || v === 'compare' || v === 'calc';
+  const side = v === 'fund' || v === 'settings' || v === 'compare' || v === 'calc' || v === 'studio';
   document.querySelector('.period').hidden = side; $('corrections').hidden = side;
   $('resendBox').hidden = side || v === 'reports'; if (v === 'reports') $('corrections').hidden = true;
   scrollTo({ top: 0 });
@@ -4026,6 +4684,8 @@ $('mgSave').onclick = saveMerge; $('mgCancel').onclick = () => $('mergeDlg').clo
 bindCompare();
 bindReports();
 bindCalc();
+bindStudio();
+$('studioBtn').onclick = () => S.view === 'studio' ? closeDetail() : openStudio();
 $('calcBtn').onclick = () => S.view === 'calc' ? closeDetail() : openCalc();
 $('settingsView').addEventListener('click', e => { const b = e.target.closest('[data-ingnew],[data-ingsave],[data-ingtog],[data-ingrm]'); if (b) ingAction(b); const c = e.target.closest('[data-clnew],[data-cltog],[data-cldel]'); if (c) calcLinkAction(c); });
 $('repBtn').onclick = () => S.view === 'reports' ? closeDetail() : openReports();
