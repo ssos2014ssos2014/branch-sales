@@ -601,6 +601,28 @@
   .acc-set-r .in { flex: 1; }
   .acc-set-r.oth { background: #FFF1A8; color: #3d3200; border-radius: 8px; padding: 8px 10px; font-size: 14px; }
   .acc-no { width: 22px; text-align: center; color: var(--muted); font-weight: 700; }
+  /* ---- مشتريات الفروع ---- */
+  .pur-box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg, 16px); padding: 14px 16px; margin: 14px 0; }
+  .pur-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; margin: 8px 0 12px; }
+  @media (max-width: 640px) { .pur-k { padding: 8px 10px; } .pur-k b { font-size: 16px; } .pur-kpis.sm .pur-k b { font-size: 15px; } }
+  .pur-k { background: var(--bg); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .pur-k span { font-size: 12px; color: var(--muted); }
+  .pur-k b { font-size: 20px; }
+  .pur-kpis.sm .pur-k b { font-size: 17px; }
+  .pur-k.ok b { color: var(--ok-c); } .pur-k.due b { color: var(--no-c); }
+  .pur-tabs { flex-wrap: wrap; margin-bottom: 12px; }
+  .pur-tabs small { opacity: .75; font-weight: 400; }
+  .pur-form { border: 1px dashed var(--line); border-radius: 12px; padding: 10px; margin-bottom: 10px; }
+  .pur-list { display: grid; gap: 2px; }
+  .pur-r { display: grid; grid-template-columns: 110px 1fr 1fr; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 8px; font-size: 14px; }
+  .pur-r:nth-child(even):not(.hd) { background: var(--bg); }
+  .pur-r.e { grid-template-columns: 90px 1fr auto 28px; }
+  .pur-r.ft { grid-template-columns: 90px 1fr auto 28px; border-top: 1px solid var(--line); font-weight: 700; border-radius: 0; background: none !important; }
+  .pur-r.hd { font-size: 12px; color: var(--muted); }
+  .pur-r .n { text-align: center; } .pur-r .ok { color: var(--ok-c); }
+  .pur-r small.d { display: block; }
+  .acc-set-r .acc-link { flex: 0 1 230px; font-size: 13px; }
+  @media (max-width: 640px) { .acc-set-r { flex-wrap: wrap; } .acc-set-r .acc-link { flex: 1 1 100%; order: 9; } }
   /* ---- مصمم الصور ---- */
   #studioBtn.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
   .st-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); }
@@ -962,7 +984,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-19 ب</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-19 ج</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -1174,6 +1196,7 @@ async function reload() {
     await loadFin();
     await loadMoves();
     await loadAccounts();
+    await loadPurch();
     await loadCost();
     buildGroups();
     renderAll();
@@ -1205,7 +1228,7 @@ async function reloadViewer() {
   S.pending = data.pending || []; S.recent = data.recent || [];
   setLate(data.late);
   setFin(data.fin);
-  S.moves = data.moves || []; S.merges = data.merges || []; S.accounts = data.accounts || [];
+  S.moves = data.moves || []; S.merges = data.merges || []; S.accounts = data.accounts || []; S.purch = data.purchases || [];
   buildGroups();
   renderAll();
 }
@@ -1919,6 +1942,7 @@ function bindSettingsView() {
     if (t.dataset.bset) return saveBranchField(t);
     if (t.id === 'accBranch') { S.accBranch = Number(t.value); return renderSetAccts(); }
     if (t.dataset.accname) return accRename(t);
+    if (t.dataset.acclink) return accLink(t);
     if (t.closest('#setPanel-commit')) return commitChange(t);
     if (t.closest('#setPanel-fund') && (t.dataset.src || t.dataset.loan)) return fundSetChange(t);
   });
@@ -3950,11 +3974,13 @@ function renderSetAccts() {
   if (!S.accBranch || !S.byId[S.accBranch]) { const withAcc = brs.find(b => accOf(b.id).length); S.accBranch = (withAcc || brs[0] || {}).id; }
   const bid = S.accBranch, list = accOf(bid), off = S.accounts.filter(a => a.branch_id === bid && !a.active);
   el.innerHTML = `<div class="set-card"><h3>توزيع فواتير الفرع على فروع فرعية</h3>
+    <p class="muted set-hint">اربط الفرع الفرعي بفرع في البرنامج (مثل مورا البلد ← حلويات مورا - البلد) لتظهر فواتيره وسداداته تلقائياً في صفحة ذلك الفرع تحت "مشتريات من معمل البازل".</p>
     <p class="muted set-hint">عند إضافة فروع فرعية لأي فرع: يكتب الموظف إجمالي المبيعات ثم قيمة فاتورة كل فرع، والباقي يظهر تلقائياً في "أخرى" (مظلل بالأصفر). وللفروع الآجلة يوزّع التحصيل بنفس الطريقة. الفرع بدون فروع فرعية يبقى كما هو.</p>
     ${S.accErr ? `<p class="st-note">شغّل ملف split.sql في Supabase مرة واحدة لتفعيل هذه الميزة.</p>` : ''}
     <label class="field" style="max-width:360px"><span>الفرع</span><select class="in" id="accBranch">${brs.map(b => `<option value="${b.id}"${b.id === bid ? ' selected' : ''}>${esc(label(b))}${accOf(b.id).length ? ` (${accOf(b.id).length})` : ''}</option>`).join('')}</select></label>
     <div class="acc-set">${list.length ? list.map((a, i) => `<div class="acc-set-r">
         <span class="acc-no">${i + 1}</span><input class="in" data-accname="${a.id}" value="${esc(a.name)}" maxlength="60" aria-label="اسم الفرع الفرعي">
+        <select class="in acc-link" data-acclink="${a.id}" title="تظهر فواتيره كمشتريات في صفحة هذا الفرع" aria-label="الفرع المرتبط"><option value="">غير مرتبط بفرع</option>${activeBranches().filter(x => x.id !== bid).map(x => `<option value="${x.id}"${a.linked_branch_id === x.id ? ' selected' : ''}>مشتريات: ${esc(label(x))}</option>`).join('')}</select>
         <button class="btn btn-ghost btn-sm" data-accmv="${a.id}|-1"${i ? '' : ' disabled'} aria-label="أعلى">▲</button><button class="btn btn-ghost btn-sm" data-accmv="${a.id}|1"${i < list.length - 1 ? '' : ' disabled'} aria-label="أسفل">▼</button>
         <button class="icon-x sm" data-accoff="${a.id}" aria-label="إزالة">×</button></div>`).join('')
       : '<p class="muted" style="font-size:14px">لا توجد فروع فرعية لهذا الفرع (التوزيع غير مفعّل له).</p>'}
@@ -3985,6 +4011,13 @@ async function accAction(t) {
   }
   await loadAccounts(); renderSetAccts();
 }
+async function accLink(sel) {
+  const a = S.accounts.find(x => x.id === Number(sel.dataset.acclink)); if (!a) return;
+  const v = sel.value ? Number(sel.value) : null;
+  const { error } = await sb.from('branch_accounts').update({ linked_branch_id: v }).eq('id', a.id);
+  if (error) { sel.value = a.linked_branch_id || ''; return toast(/linked_branch_id|schema cache/i.test(error.message || '') ? 'شغّل ملف purch.sql أولاً' : errMsg(error), 'err'); }
+  a.linked_branch_id = v; toast(v ? 'تم الربط: فواتيره تظهر كمشتريات في صفحة الفرع' : 'تم إلغاء الربط');
+}
 async function accRename(inp) {
   const n = inp.value.trim(), a = S.accounts.find(x => x.id === Number(inp.dataset.accname)); if (!a) return;
   if (!n) { inp.value = a.name; return; }
@@ -3997,6 +4030,102 @@ function splitLine(sp, total) {
   const parts = Object.keys(sp || {}).filter(k => Number(sp[k])).map(k => `${accName(k)} ${money(sp[k])}`);
   const oth = Math.round((Number(total) - spSum(sp)) * 100) / 100; if (oth > 0.004) parts.push(`أخرى ${money(oth)}`);
   return parts.join(' · ');
+}
+
+// =====================================================================
+//  مشتريات الفروع: من معمل البازل (تلقائي من إدخال البازل) + مشتريات أخرى + سدادات فقط (الإدارة)
+// =====================================================================
+S.purch = []; S.purTab = 'bazel';
+const PM_LBL = { cash: 'نقدي', bank: 'تحويل بنكي', card: 'شبكة' };
+async function loadPurch() {
+  const { data, error } = await sb.from('branch_purchases').select('*').gte('p_date', S.from).lte('p_date', S.to).order('p_date').order('id');
+  S.purch = error ? [] : (data || []); S.purchErr = error ? error.message : '';
+}
+const linkedAccs = bid => S.accounts.filter(a => a.linked_branch_id === bid);
+function bazelPurch(bid) {
+  const accs = linkedAccs(bid); if (!accs.length) return null;
+  const days = {}, d = k => days[k] || (days[k] = { date: k, inv: 0, paid: 0, ret: 0 });
+  for (const a of accs) {
+    for (const s of S.sales) if (s.branch_id === a.branch_id) {
+      const v = Number((s.sales_split || {})[a.id]) || 0, c = Number((s.col_split || {})[a.id]) || 0;
+      if (v) d(s.sale_date).inv += v; if (c) d(s.sale_date).paid += c;
+    }
+    for (const m of S.moves) if (m.branch_id === a.branch_id && m.split && Number(m.split[a.id])) d(m.move_date)[m.kind === 'return' ? 'ret' : 'paid'] += Number(m.split[a.id]);
+  }
+  const list = Object.values(days).sort((x, y) => x.date < y.date ? 1 : -1);
+  const t = k => list.reduce((s, r) => s + r[k], 0), inv = t('inv'), ret = t('ret'), paid = t('paid');
+  return { accs, list, inv, ret, paid, net: inv - ret, rest: inv - ret - paid, src: S.byId[accs[0].branch_id] };
+}
+function purchShow(b) { return linkedAccs(b.id).length > 0 || S.purch.some(p => p.branch_id === b.id); }
+function purchPanel(b) {
+  const bz = bazelPurch(b.id), mine = S.purch.filter(p => p.branch_id === b.id);
+  const oth = mine.filter(p => p.kind === 'purchase'), pay = mine.filter(p => p.kind === 'payment');
+  const sOth = oth.reduce((s, p) => s + Number(p.amount), 0), sPay = pay.reduce((s, p) => s + Number(p.amount), 0);
+  const tBuy = (bz ? bz.net : 0) + sOth, tPaid = (bz ? bz.paid : 0) + sPay, tRest = tBuy - tPaid;
+  const srcName = bz && bz.src ? bz.src.name : 'معمل البازل';
+  const kpi = (l, v, cls = '') => `<div class="pur-k${cls}"><span>${l}</span><b class="num">${v < -0.004 ? negMoney(-v) : money(v)}</b></div>`;
+  const sups = [...new Set(S.purch.map(p => (p.supplier || '').trim()).filter(Boolean))];
+  const tab = S.purTab;
+  let body = '';
+  if (tab === 'bazel') {
+    body = !bz ? `<p class="muted">هذا الفرع غير مرتبط بأي فرع في توزيع البازل. اربطه من الإعدادات ← توزيع الفواتير على الفروع.</p>`
+      : `<p class="muted set-hint" style="margin-top:0">تُسجَّل تلقائياً عندما يُدخل ${esc(srcName)} مبيعاته لهذا الفرع (${bz.accs.map(a => esc(a.name)).join('، ')}).</p>
+        <div class="pur-kpis sm">${kpi('المشتريات', bz.inv)}${bz.ret ? kpi('المردود', bz.ret) : ''}${kpi('المسدد', bz.paid, ' ok')}${kpi('المتبقي', bz.rest, bz.rest > 0.004 ? ' due' : ' ok')}</div>
+        ${bz.list.length ? `<div class="pur-list"><div class="pur-r hd"><span>التاريخ</span><span class="n">الفاتورة</span><span class="n">السداد</span></div>
+          ${bz.list.map(r => `<div class="pur-r"><span>${esc(fmtShort(r.date))}</span><b class="n num">${r.inv ? money(r.inv) : '—'}${r.ret ? ` <small class="muted">(مردود ${money(r.ret)})</small>` : ''}</b><b class="n num ok">${r.paid ? money(r.paid) : '—'}</b></div>`).join('')}</div>`
+          : '<p class="muted">لا توجد مشتريات من البازل في هذه الفترة.</p>'}`;
+  } else {
+    const isPay = tab === 'pay', rows = isPay ? pay : oth;
+    body = `${VIEW ? '' : `<div class="pur-form"><div class="mv-row">
+        <input class="in" type="date" id="puD" max="${S.today}" value="${minISO(S.today, S.to)}" aria-label="التاريخ">
+        <input class="in" id="puS" list="puSups" maxlength="80" placeholder="${isPay ? 'سداد لمن؟ (المورد)' : 'اسم المورد'}" aria-label="المورد">
+        <input class="in mv-amt" id="puA" inputmode="decimal" dir="ltr" placeholder="المبلغ" aria-label="المبلغ">
+        ${isPay ? `<select class="in" id="puM" aria-label="طريقة السداد"><option value="cash">نقدي</option><option value="bank">تحويل بنكي</option><option value="card">شبكة</option></select>` : ''}
+        <input class="in" id="puN" maxlength="120" placeholder="ملاحظة (اختياري)"></div>
+        <datalist id="puSups">${sups.map(x => `<option value="${esc(x)}">`).join('')}</datalist>
+        <button class="btn btn-primary btn-sm" data-puadd="${isPay ? 'payment' : 'purchase'}">${isPay ? '+ إضافة سداد' : '+ إضافة مشتريات'}</button></div>`}
+      ${isPay ? '<p class="muted set-hint">سدادات للموردين بدون شراء جديد (سداد البازل يُحسب تلقائياً من تحصيل البازل).</p>' : ''}
+      ${rows.length ? `<div class="pur-list">${rows.slice().reverse().map(p => `<div class="pur-r e"><span>${esc(fmtShort(p.p_date))}</span>
+          <span>${esc(p.supplier || '—')}${p.method ? ` <small class="muted">· ${PM_LBL[p.method]}</small>` : ''}${p.note ? `<small class="muted d">${esc(p.note)}</small>` : ''}</span>
+          <b class="n num${isPay ? ' ok' : ''}">${money(p.amount)}</b>${VIEW ? '' : `<button class="icon-x sm" data-pudel="${p.id}" aria-label="حذف">×</button>`}</div>`).join('')}
+        <div class="pur-r ft"><span>المجموع</span><span></span><b class="n num">${money(isPay ? sPay : sOth)}</b></div></div>`
+        : `<p class="muted">${isPay ? 'لا توجد سدادات' : 'لا توجد مشتريات أخرى'} في هذه الفترة.</p>`}`;
+  }
+  return `<section class="pur-box" id="purBox">
+    <div class="pay-h"><h3>مشتريات ${esc(b.name)}</h3><span class="muted">خلال الفترة</span></div>
+    ${S.purchErr && !VIEW ? '<p class="st-note">لإدخال المشتريات الأخرى والسدادات شغّل ملف purch.sql في Supabase مرة واحدة.</p>' : ''}
+    <div class="pur-kpis">${kpi('إجمالي المشتريات', tBuy)}${kpi('إجمالي المسدد', tPaid, ' ok')}${kpi('المتبقي', tRest, tRest > 0.004 ? ' due' : ' ok')}</div>
+    <div class="seg pur-tabs" role="tablist">
+      <button data-purtab="bazel" aria-pressed="${tab === 'bazel'}">مشتريات من معمل البازل${bz ? ` <small class="num">${NUMK(bz.net)}</small>` : ''}</button>
+      <button data-purtab="other" aria-pressed="${tab === 'other'}">مشتريات أخرى${sOth ? ` <small class="num">${NUMK(sOth)}</small>` : ''}</button>
+      <button data-purtab="pay" aria-pressed="${tab === 'pay'}">سدادات فقط دون شراء${sPay ? ` <small class="num">${NUMK(sPay)}</small>` : ''}</button>
+    </div>
+    <div class="pur-body">${body}</div>
+  </section>`;
+}
+async function purchAction(t) {
+  if (t.dataset.purtab) { S.purTab = t.dataset.purtab; return renderDetail(); }
+  if (VIEW) return;
+  if (t.dataset.pudel) {
+    const p = S.purch.find(x => x.id === Number(t.dataset.pudel)); if (!p) return;
+    if (!confirm(`حذف ${p.kind === 'payment' ? 'السداد' : 'المشتريات'} (${money(p.amount)} ريال${p.supplier ? ' — ' + p.supplier : ''})؟`)) return;
+    const { error } = await sb.from('branch_purchases').delete().eq('id', p.id); if (error) return toast(errMsg(error), 'err');
+    S.purch = S.purch.filter(x => x !== p); toast('تم الحذف'); return renderDetail();
+  }
+  if (t.dataset.puadd) {
+    const g = S.gmap[S.detail] || (S.mmap || {})[S.detail]; if (!g) return;
+    const b = g.branches[0], kind = t.dataset.puadd, a = parseAmount($('puA').value), d = $('puD').value;
+    if (!d) return toast('اختر التاريخ', 'err');
+    if (isNaN(a) || a <= 0) { $('puA').focus(); return toast('اكتب المبلغ رقماً صحيحاً', 'err'); }
+    const row = { branch_id: b.id, p_date: d, kind, supplier: $('puS').value.trim() || null, amount: Math.round(a * 100) / 100, note: $('puN').value.trim() || null };
+    if (kind === 'payment') row.method = $('puM').value;
+    t.disabled = true;
+    const { data, error } = await sb.from('branch_purchases').insert(row).select().single();
+    t.disabled = false;
+    if (error) return toast(/branch_purchases|schema cache/i.test(error.message || '') ? 'شغّل ملف purch.sql أولاً' : errMsg(error), 'err');
+    if (d >= S.from && d <= S.to && !(data && S.purch.some(x => x.id === data.id))) S.purch.push(data || row);
+    toast(kind === 'payment' ? 'تم تسجيل السداد' : 'تمت إضافة المشتريات'); renderDetail();
+  }
 }
 
 // ---------------- العرض ----------------
@@ -4278,6 +4407,7 @@ function renderDetail() {
       <div class="pill"><span>مرات التأخير (تراكمي)</span><b class="${brs.some(b => lateOf(b.id).count) ? 'no' : ''}">${brs.reduce((a, b) => a + lateOf(b.id).count, 0)}</b></div>
     </div>
     ${!multi ? acctCard(brs[0]) : ''}
+    ${!multi && purchShow(brs[0]) ? purchPanel(brs[0]) : ''}
     ${anyCredit && m.collected ? `<section class="pay-box"><div class="pay-h"><h3>تفصيل التحصيل</h3><span class="muted">المجموع <b class="num">${money(m.collected)}</b> ريال</span></div>${payBreak(m.pay, true)}</section>` : ''}
     ${days.length ? `<div class="tbl-wrap"><table>
       <thead><tr><th>التاريخ</th><th>اليوم</th>${brs.map(colHead).join('')}${multi ? '<th class="n">إجمالي المبيعات</th>' : ''}${multi && anyCredit ? '<th class="n">إجمالي التحصيل</th>' : ''}${anyCredit ? '<th class="n">المردود</th>' : ''}<th class="n">المبيعات التراكمية</th>${anyCredit ? '<th class="n">الآجل المتبقي التراكمي</th>' : ''}</tr></thead>
@@ -5094,8 +5224,9 @@ $('logoFile').onchange = async () => {
 
 // ---------------- الأحداث ----------------
 document.addEventListener('click', async e => {
-  const t = e.target.closest('[data-editday],[data-delday],[data-rscancel],[data-wledit],[data-wldel],[data-wlsave],[data-wlcancel],[data-mvadd],[data-mvdel],[data-unmerge],[data-open-merge],[data-open-compare],[data-profit],[data-open-fund],[data-open-settings],[data-pay],[data-unpay],[data-lpay],[data-unlpay],[data-partopen],[data-partsave],[data-partcancel],[data-detail],[data-approve],[data-reject],[data-copy],[data-add],[data-waste-open],[data-delbatch]');
+  const t = e.target.closest('[data-purtab],[data-puadd],[data-pudel],[data-editday],[data-delday],[data-rscancel],[data-wledit],[data-wldel],[data-wlsave],[data-wlcancel],[data-mvadd],[data-mvdel],[data-unmerge],[data-open-merge],[data-open-compare],[data-profit],[data-open-fund],[data-open-settings],[data-pay],[data-unpay],[data-lpay],[data-unlpay],[data-partopen],[data-partsave],[data-partcancel],[data-detail],[data-approve],[data-reject],[data-copy],[data-add],[data-waste-open],[data-delbatch]');
   if (!t) return;
+  if (t.dataset.purtab || t.dataset.puadd || t.dataset.pudel) return purchAction(t);
   if (t.dataset.editday) { if (VIEW) return; const [b, d] = t.dataset.editday.split('|'); return openSaleEdit(Number(b), d); }
   if (t.dataset.delday) { if (VIEW) return; const [k, b, d] = t.dataset.delday.split('|'); return openDelDlg(k, Number(b), d); }
   if (t.dataset.rscancel) return cancelResend(Number(t.dataset.rscancel));
