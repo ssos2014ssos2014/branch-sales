@@ -586,6 +586,17 @@
   .st-pick { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
   .st-pick input { width: 44px; height: 32px; border: 1px solid var(--line); border-radius: 8px; padding: 2px; background: #fff; }
   #studio input[type=range] { width: 100%; accent-color: var(--ink); }
+  .st-bgh { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .st-bgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+  .st-bg { border: 2px solid var(--line); border-radius: 12px; overflow: hidden; padding: 0; background: var(--bg); cursor: pointer; font: inherit; color: var(--ink); text-align: center; }
+  .st-bg img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+  .st-bg span { display: block; font-size: 12px; padding: 4px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .st-bg.on { border-color: var(--ink); box-shadow: 0 0 0 2px var(--ink) inset; }
+  .st-bged { margin-top: 10px; border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px; background: var(--bg); }
+  .st-bged canvas { width: 100%; display: block; border-radius: 10px; background: #eee; }
+  .st-bged .field input:not([type]) { width: 100%; }
+  .st-rng input { margin-top: 4px; }
+  .st-note { font-size: 12px; color: var(--no-c); background: color-mix(in srgb, var(--no-c) 8%, transparent); border-radius: 8px; padding: 8px 10px; }
   .st-styles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
   .calc-card textarea { border: 1.5px solid var(--line); border-radius: var(--r-sm); background: var(--bg); padding: 10px 12px; font: inherit; color: var(--ink); width: 100%; resize: vertical; }
   .st-row3 { grid-template-columns: 1fr 1fr 1fr !important; }
@@ -917,7 +928,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-18 ب</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-19 أ</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -2847,7 +2858,8 @@ const STUDIO_STYLES = [
 ];
 const STUDIO_ASPECTS = [['3:2', 'عرضي 3:2'], ['1:1', 'مربع 1:1'], ['4:5', 'إنستقرام 4:5'], ['9:16', 'ستوري 9:16'], ['16:9', 'عريض 16:9']];
 const ST = { files: [], style: 'lux', aspect: '3:2', size: '1K', count: 2, mode: 'merge', logoPos: 'wall', cutMode: 'smart',
-  autoLight: true, scale: 100, colorAuto: true, color: '#5b2a52', results: [], busy: false, seq: 0, status: '' };
+  autoLight: true, scale: 100, colorAuto: true, color: '#5b2a52', results: [], busy: false, seq: 0, status: '', fx: 'choco', bgs: null, bgErr: '' };
+const ST_FX = [['choco', 'شوكولاتة شهية ولامعة'], ['lux', 'فاخر وأنيق'], ['natural', 'طبيعي'], ['none', 'بدون فلتر']];
 
 // ---------- أدوات الرسم ----------
 const stCanvas = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h)); return c; };
@@ -2952,7 +2964,14 @@ function stCutSimple(src, global) {
     if (x > 0) { s += a[i - 1]; n++; } if (x < w - 1) { s += a[i + 1]; n++; }
     if (y > 0) { s += a[i - w]; n++; } if (y < h - 1) { s += a[i + w]; n++; }
     const al = a[i] ? s / n : 0; if (al > 0.5) fg++;
-    o[i * 4] = p[i * 4]; o[i * 4 + 1] = p[i * 4 + 1]; o[i * 4 + 2] = p[i * 4 + 2]; o[i * 4 + 3] = Math.round(al * 255);
+    let cr = p[i * 4], cg = p[i * 4 + 1], cb = p[i * 4 + 2];
+    if (a[i] && a[i] < 1) { // لون الحافة من الداخل لمنع الهالة البيضاء
+      let t = 0, rr = 0, gg = 0, bb2 = 0;
+      for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const xx = x + dx, yy = y + dy; if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue; const j = yy * w + xx;
+        if (a[j] === 1) { t++; rr += p[j * 4]; gg += p[j * 4 + 1]; bb2 += p[j * 4 + 2]; } }
+      if (t) { cr = rr / t; cg = gg / t; cb = bb2 / t; }
+    }
+    o[i * 4] = cr; o[i * 4 + 1] = cg; o[i * 4 + 2] = cb; o[i * 4 + 3] = Math.round(al * 255);
   }
   if (fg < w * h * 0.01) return null;
   ox.putImageData(od, 0, 0); return out;
@@ -2978,7 +2997,7 @@ async function stCut(f) {
     if (!c) throw new Error(`خلفية الصورة "${f.name}" ليست سادة. استخدم الإزالة الذكية، أو ارفع الصورة على خلفية بيضاء، أو PNG بدون خلفية`);
   }
   const t = stTrim(c); if (!t) throw new Error(`لم يُعثر على منتج في الصورة "${f.name}"`);
-  f.cut = t; f.cutKey = key; f.cutUsed = used; f.lit = null; f.cutUrl = t.toDataURL('image/png');
+  f.cut = t; f.cutKey = key; f.cutUsed = used; f.lit = null; f.fxc = {}; f.cutUrl = t.toDataURL('image/png');
   return t;
 }
 
@@ -3156,8 +3175,9 @@ function stLayout(cs, W, H, y0, top, scale, rnd) {
 const stSil = (c, col) => { const s = stCanvas(c.width, c.height), x = s.getContext('2d'); x.drawImage(c, 0, 0); x.globalCompositeOperation = 'source-in'; x.fillStyle = col; x.fillRect(0, 0, s.width, s.height); return s; };
 
 // ---------- رسم التصميم ----------
-function stDims(aspect, size) { const [a, b] = aspect.split(':').map(Number), L = size === '2K' ? 2400 : 1600; return a >= b ? [L, Math.round(L * b / a)] : [Math.round(L * a / b), L]; }
+function stDims(aspect, size) { const [a, b] = aspect.split(':').map(Number), L = size === '2K' ? 2400 : size === 'prev' ? 760 : 1600; return a >= b ? [L, Math.round(L * b / a)] : [Math.round(L * a / b), L]; }
 function stRender(job, seed) {
+  if (job.bg) return stRenderBg(job, seed);
   const [W, H] = stDims(job.aspect, job.size), k = Math.max(W, H) / 1600, rnd = stRand(seed);
   const st = job.style, C = job.color, light = rnd() > 0.5 ? 1 : -1;
   const out = stCanvas(W, H), x = out.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
@@ -3250,11 +3270,32 @@ function stRender(job, seed) {
   }
   x.drawImage(stBlur(props, 1.6 * k), 0, 0);
 
+  stDrawItems(x, items, W, H, k, st, light, dark, {});
+
+  // ===== عناصر أمامية =====
+  const fr = stCanvas(W, H), fx = fr.getContext('2d');
+  if (st === 'lux' || st === 'eid') {
+    stRibbon(fx, W, H, st === 'eid' ? GOLD : C, rnd, k, light > 0 ? -1 : 1);
+    stConfetti(fx, rnd, st === 'eid' ? 40 : 18, st === 'eid' ? ['#d6b062', '#f3dfa8', rgb2hex(C)] : ['#d6b062', '#f3dfa8'], 0, W, H * 0.88, H, k);
+  } else if (st === 'ramadan') stConfetti(fx, rnd, 14, ['#d6b062', '#f3dfa8'], 0, W, H * 0.9, H, k);
+  if (st !== 'white' && st !== 'marble') stBokeh(fx, rnd, 6, WARM, 0, W, H * 0.9, H * 1.05, 20 * k, 60 * k, 0.08);
+  x.drawImage(stBlur(fr, 2.4 * k), 0, 0);
+
+  // ===== الشعار في الزاوية =====
+  if (job.logo && job.logoPos === 'corner') {
+    const lc = job.logo, s = Math.min(W * 0.14 / lc.width, H * 0.1 / lc.height), lw = lc.width * s, lh = lc.height * s, m = Math.min(W, H) * 0.04;
+    x.save(); x.shadowColor = 'rgba(0,0,0,.3)'; x.shadowBlur = 10 * k; x.drawImage(lc, m, m, lw, lh); x.restore();
+  }
+  stFinish(x, W, H, k, st, dark, seed, job.fx);
+  return out;
+}
+
+function stDrawItems(x, items, W, H, k, st, light, dark, opt) {
   // ===== الظلال =====
   const sh = stCanvas(W, H), sx = sh.getContext('2d');
   for (const o of items) {
     const sil = stSil(o.c, '#000');
-    sx.save(); sx.translate(o.x, o.yb); sx.transform(1, 0, -light * 0.9, 0.22, 0, 0); sx.globalAlpha = st === 'white' ? 0.22 : 0.42; sx.drawImage(sil, 0, -o.h, o.w, o.h); sx.restore();
+    sx.save(); sx.translate(o.x, o.yb); sx.transform(1, 0, light * 0.9, 0.22, 0, 0); sx.globalAlpha = st === 'white' ? 0.22 : 0.42; sx.drawImage(sil, 0, -o.h, o.w, o.h); sx.restore();
   }
   x.drawImage(stBlur(sh, 9 * k), 0, 0);
   for (const o of items) { // ظل التلامس
@@ -3265,7 +3306,7 @@ function stRender(job, seed) {
   }
 
   // ===== الانعكاس =====
-  const glossy = st === 'lux' || st === 'marble' || st === 'velvet' || st === 'white';
+  const glossy = opt.reflect != null ? opt.reflect : (st === 'lux' || st === 'marble' || st === 'velvet' || st === 'white');
   for (const o of items) {
     if (!glossy) continue;
     const rh = o.h * 0.42, r = stCanvas(o.w, rh), rx = r.getContext('2d');
@@ -3282,39 +3323,181 @@ function stRender(job, seed) {
     const lc = dark ? [255, 225, 175] : [255, 255, 255];
     g.addColorStop(0, rgba(lc, 0.09)); g.addColorStop(0.5, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(0,0,0,${dark ? 0.12 : 0.06})`);
     pc.fillStyle = g; pc.fillRect(0, 0, o.w, o.h);
+    if (opt.amb) { pc.fillStyle = rgba(opt.amb, 0.07); pc.fillRect(0, 0, o.w, o.h); }
     x.drawImage(p, o.x, o.yb - o.h);
   }
 
-  // ===== عناصر أمامية =====
-  const fr = stCanvas(W, H), fx = fr.getContext('2d');
-  if (st === 'lux' || st === 'eid') {
-    stRibbon(fx, W, H, st === 'eid' ? GOLD : C, rnd, k, light > 0 ? -1 : 1);
-    stConfetti(fx, rnd, st === 'eid' ? 40 : 18, st === 'eid' ? ['#d6b062', '#f3dfa8', rgb2hex(C)] : ['#d6b062', '#f3dfa8'], 0, W, H * 0.88, H, k);
-  } else if (st === 'ramadan') stConfetti(fx, rnd, 14, ['#d6b062', '#f3dfa8'], 0, W, H * 0.9, H, k);
-  if (st !== 'white' && st !== 'marble') stBokeh(fx, rnd, 6, WARM, 0, W, H * 0.9, H * 1.05, 20 * k, 60 * k, 0.08);
-  x.drawImage(stBlur(fr, 2.4 * k), 0, 0);
-
-  // ===== الشعار في الزاوية =====
-  if (job.logo && job.logoPos === 'corner') {
-    const lc = job.logo, s = Math.min(W * 0.14 / lc.width, H * 0.1 / lc.height), lw = lc.width * s, lh = lc.height * s, m = Math.min(W, H) * 0.04;
-    x.save(); x.shadowColor = 'rgba(0,0,0,.3)'; x.shadowBlur = 10 * k; x.drawImage(lc, m, m, lw, lh); x.restore();
-  }
+}
+function stFinish(x, W, H, k, st, dark, seed, fx) {
   // ===== تظليل الأطراف + حبيبات خفيفة =====
   const vg = x.createRadialGradient(W / 2, H * 0.55, Math.min(W, H) * 0.35, W / 2, H * 0.55, Math.max(W, H) * 0.78);
   vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, `rgba(0,0,0,${st === 'white' ? 0.05 : dark ? 0.42 : 0.16})`); x.fillStyle = vg; x.fillRect(0, 0, W, H);
-  if (st !== 'white') { const id = x.getImageData(0, 0, W, H), d = id.data, r2 = stRand(seed ^ 0x9e3779b9);
-    for (let i = 0; i < d.length; i += 4) { const nz = (r2() - 0.5) * 7; d[i] += nz; d[i + 1] += nz; d[i + 2] += nz; } x.putImageData(id, 0, 0); }
+  stGrade(x, W, H, k, fx, st !== 'white', seed);
+}
+// ---------- فلاتر الكاميرا الاحترافية ----------
+const ST_FXP = { choco: { clar: 0.38, sharp: 0.75, hi: 0.42, sc: 0.13, vib: 0.14, warm: 0.018 }, lux: { clar: 0.3, sharp: 0.6, hi: 0.25, sc: 0.17, vib: 0.06, warm: -0.005 },
+  natural: { clar: 0.15, sharp: 0.45, hi: 0.1, sc: 0.06, vib: 0.06, warm: 0 } };
+// على المنتج: حدة + تفاصيل (clarity) + منحنى تباين + لمعة في المناطق المضيئة + حيوية الألوان
+function stFxProduct(c, fx) {
+  const P = ST_FXP[fx]; if (!P) return c;
+  const w = c.width, h = c.height, o = stCanvas(w, h), ox = o.getContext('2d'); ox.drawImage(c, 0, 0);
+  const id = ox.getImageData(0, 0, w, h), p = id.data;
+  const bs = stBlur(c, 1.3).getContext('2d').getImageData(0, 0, w, h).data;
+  const bb = stBlur(c, Math.max(6, Math.max(w, h) * 0.018)).getContext('2d').getImageData(0, 0, w, h).data;
+  const TAU = Math.PI * 2;
+  for (let i = 0; i < p.length; i += 4) {
+    if (!p[i + 3]) continue;
+    const ea = Math.min(1, bb[i + 3] / 255) ** 2, es = Math.min(1, bs[i + 3] / 255);
+    let r = p[i], g = p[i + 1], b = p[i + 2];
+    r += (r - bs[i]) * P.sharp * es; g += (g - bs[i + 1]) * P.sharp * es; b += (b - bs[i + 2]) * P.sharp * es;
+    r += (r - bb[i]) * P.clar * ea; g += (g - bb[i + 1]) * P.clar * ea; b += (b - bb[i + 2]) * P.clar * ea;
+    let L = Math.max(0.001, Math.min(1, (r * 0.2126 + g * 0.7152 + b * 0.0722) / 255));
+    const L2 = Math.max(0, Math.min(1, L - P.sc * Math.sin(TAU * L) / TAU)), m = L2 / L; r *= m; g *= m; b *= m; L = L2;
+    if (L > 0.58) { const add = P.hi * ((L - 0.58) / 0.42) ** 2 * 255 * 0.45; r += add; g += add; b += add; }
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), sat = mx > 0 ? (mx - mn) / mx : 0, avg = (r + g + b) / 3, f = 1 + P.vib * (1 - sat);
+    r = avg + (r - avg) * f; g = avg + (g - avg) * f; b = avg + (b - avg) * f;
+    r += P.warm * 255; b -= P.warm * 255;
+    p[i] = r; p[i + 1] = g; p[i + 2] = b;
+  }
+  ox.putImageData(id, 0, 0); return o;
+}
+// على الصورة كاملة: توهج الإضاءات (bloom) + تدرج ألوان سينمائي + حبيبات كاميرا
+function stGrade(x, W, H, k, fx, grain, seed) {
+  const bl = { choco: 0.32, lux: 0.24, natural: 0.12 }[fx] || 0;
+  if (bl) {
+    const s = stCanvas(W / 4, H / 4), sx = s.getContext('2d'); sx.drawImage(x.canvas, 0, 0, s.width, s.height);
+    const id = sx.getImageData(0, 0, s.width, s.height), d = id.data;
+    for (let i = 0; i < d.length; i += 4) { const L = (d[i] * 0.2126 + d[i + 1] * 0.7152 + d[i + 2] * 0.0722) / 255, t = Math.max(0, (L - 0.7) / 0.3); d[i] *= t; d[i + 1] *= t; d[i + 2] *= t; }
+    sx.putImageData(id, 0, 0);
+    x.save(); x.globalCompositeOperation = 'screen'; x.globalAlpha = bl; x.drawImage(stBlur(s, 5), 0, 0, W, H); x.restore();
+  }
+  const G = { choco: { sc: 0.1, r: 1.025, g: 1, b: 0.95, sh: [0, 0, 0], hl: [4, 2, -3] }, lux: { sc: 0.14, r: 1, g: 1, b: 1, sh: [-3, 1, 5], hl: [6, 3, -4] },
+    natural: { sc: 0.05, r: 1, g: 1, b: 1, sh: [0, 0, 0], hl: [0, 0, 0] } }[fx] || { sc: 0, r: 1, g: 1, b: 1, sh: [0, 0, 0], hl: [0, 0, 0] };
+  const TAU = Math.PI * 2, lut = [new Uint8ClampedArray(256), new Uint8ClampedArray(256), new Uint8ClampedArray(256)], mul = [G.r, G.g, G.b];
+  for (let v = 0; v < 256; v++) { const t = v / 255, c = t - G.sc * Math.sin(TAU * t) / TAU;
+    for (let ch = 0; ch < 3; ch++) lut[ch][v] = c * 255 * mul[ch] + G.sh[ch] * (1 - t) ** 2 + G.hl[ch] * t * t; }
+  if (!grain && fx === 'none') return;
+  const id = x.getImageData(0, 0, W, H), d = id.data, r2 = stRand(seed ^ 0x9e3779b9), gn = grain ? 7 : 0;
+  for (let i = 0; i < d.length; i += 4) { const nz = gn ? (r2() - 0.5) * gn : 0; d[i] = lut[0][d[i]] + nz; d[i + 1] = lut[1][d[i + 1]] + nz; d[i + 2] = lut[2][d[i + 2]] + nz; }
+  x.putImageData(id, 0, 0);
+}
+function stProc(f) { // المنتج بعد الإضاءة والفلتر (مع حفظ مؤقت)
+  const key = (ST.autoLight ? 'L' : '') + ST.fx; f.fxc = f.fxc || {};
+  if (!f.fxc[key]) { let c = f.cut; if (ST.autoLight) c = f.lit || (f.lit = stLight(f.cut)); f.fxc[key] = stFxProduct(c, ST.fx); }
+  return f.fxc[key];
+}
+
+// ---------- التصميم على خلفية معتمدة (صورة يرفعها المدير) ----------
+function stRenderBg(job, seed) {
+  const [W, H] = stDims(job.aspect, job.size), k = Math.max(W, H) / 1600, rnd = stRand(seed), bg = job.bg, img = bg.canvas;
+  const out = stCanvas(W, H), x = out.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
+  const s = Math.max(W / img.width, H / img.height), dw = img.width * s, dh = img.height * s;
+  const dx = Math.min(0, Math.max(W - dw, W / 2 - bg.cx * dw)), dy = Math.min(0, Math.max(H - dh, H * 0.68 - bg.floor * dh));
+  const t = stCanvas(W, H), tx = t.getContext('2d'); tx.imageSmoothingQuality = 'high'; tx.drawImage(img, dx, dy, dw, dh);
+  x.drawImage(t, 0, 0); if (bg.blur > 0) x.drawImage(stBlur(t, bg.blur * k), 0, 0);
+  // تحليل الخلفية: الإضاءة واللون العام
+  const sm = stCanvas(16, 16), smx = sm.getContext('2d'); smx.drawImage(t, 0, 0, 16, 16); const d = smx.getImageData(0, 0, 16, 16).data;
+  let tot = [0, 0, 0], lL = 0, rL = 0;
+  for (let i = 0; i < d.length; i += 4) { const L = d[i] * 0.2126 + d[i + 1] * 0.7152 + d[i + 2] * 0.0722; tot[0] += d[i]; tot[1] += d[i + 1]; tot[2] += d[i + 2]; ((i / 4) % 16 < 8 ? (lL += L) : (rL += L)); }
+  const avg = tot.map(v => v / 256), lum = (avg[0] * 0.2126 + avg[1] * 0.7152 + avg[2] * 0.0722) / 255, dark = lum < 0.42;
+  const light = bg.light || (rL >= lL ? 1 : -1);
+  // الشعار
+  let topLimit = H * 0.06;
+  if (job.logo && job.logoPos === 'wall') {
+    const lc = job.logo, ss = Math.min(W * 0.22 / lc.width, H * 0.14 / lc.height), lw = lc.width * ss, lh = lc.height * ss, lxp = (W - lw) / 2, lyp = H * 0.05;
+    if (dark) { const sil = stSil(lc, '#ffe2a6'), big = stCanvas(lw * 1.6, lh * 1.6); big.getContext('2d').drawImage(sil, lw * 0.3, lh * 0.3, lw, lh);
+      x.save(); x.globalCompositeOperation = 'lighter'; x.globalAlpha = 0.8; x.drawImage(stBlur(big, 14 * k), lxp - lw * 0.3, lyp - lh * 0.3); x.restore(); }
+    else { x.save(); x.shadowColor = 'rgba(0,0,0,.25)'; x.shadowBlur = 12 * k; x.shadowOffsetY = 5 * k; x.drawImage(lc, lxp, lyp, lw, lh); x.restore(); }
+    x.drawImage(lc, lxp, lyp, lw, lh); topLimit = lyp + lh + H * 0.04;
+  }
+  const yf = dy + bg.floor * dh, cxp = dx + bg.cx * dw;
+  const items = stLayout(job.prods, W, H, 2 * yf - H, Math.min(topLimit, yf - H * 0.12), job.scale * bg.scale, rnd);
+  const minX = Math.min(...items.map(o => o.x)), maxX = Math.max(...items.map(o => o.x + o.w));
+  const shift = Math.max(W * 0.02 - minX, Math.min(W * 0.98 - maxX, cxp - (minX + maxX) / 2));
+  items.forEach(o => { o.x += shift; });
+  stDrawItems(x, items, W, H, k, 'custom', light, dark, { reflect: !!bg.reflect, amb: avg });
+  if (job.logo && job.logoPos === 'corner') {
+    const lc = job.logo, ss = Math.min(W * 0.14 / lc.width, H * 0.1 / lc.height), m = Math.min(W, H) * 0.04;
+    x.save(); x.shadowColor = 'rgba(0,0,0,.3)'; x.shadowBlur = 10 * k; x.drawImage(lc, m, m, lc.width * ss, lc.height * ss); x.restore();
+  }
+  const vg = x.createRadialGradient(W / 2, H * 0.55, Math.min(W, H) * 0.4, W / 2, H * 0.55, Math.max(W, H) * 0.8);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, `rgba(0,0,0,${dark ? 0.26 : 0.1})`); x.fillStyle = vg; x.fillRect(0, 0, W, H);
+  stGrade(x, W, H, k, job.fx, true, seed);
   return out;
 }
 
+// ---------- الخلفيات المعتمدة (جدول studio_bgs) ----------
+async function stLoadBgs() {
+  const { data, error } = await sb.from('studio_bgs').select('id,name,thumb,floor,cx,scale,blur,reflect,light,sort_order').order('sort_order').order('id');
+  if (error) { ST.bgs = []; ST.bgErr = /studio_bgs|schema cache|does not exist/i.test(error.message || '') ? 'لاستخدام خلفياتك المعتمدة شغّل ملف studiobg.sql في Supabase مرة واحدة.' : errMsg(error); return; }
+  ST.bgErr = ''; ST.bgs = (data || []).map(b => ({ ...b, floor: Number(b.floor), cx: Number(b.cx), scale: Number(b.scale), blur: Number(b.blur), light: Number(b.light) || 0 }));
+}
+async function stBgImage(b) {
+  if (b.canvas) return b.canvas;
+  const { data, error } = await sb.from('studio_bgs').select('image').eq('id', b.id).single(); if (error) throw error;
+  const img = await stImg(data.image), c = stCanvas(img.naturalWidth, img.naturalHeight); c.getContext('2d').drawImage(img, 0, 0); return (b.canvas = c);
+}
+async function stAddBg(list) {
+  for (const file of [...list].filter(f => /^image\//.test(f.type))) {
+    try {
+      const u = await new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = bad; r.readAsDataURL(file); });
+      const img = await stImg(u), kk = Math.min(1, 2400 / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = stCanvas(img.naturalWidth * kk, img.naturalHeight * kk), cx = c.getContext('2d'); cx.imageSmoothingQuality = 'high'; cx.drawImage(img, 0, 0, c.width, c.height);
+      const tk = 360 / Math.max(c.width, c.height), th = stCanvas(c.width * tk, c.height * tk); th.getContext('2d').drawImage(c, 0, 0, th.width, th.height);
+      const row = { name: file.name.replace(/\.[^.]+$/, '').slice(0, 60), image: c.toDataURL('image/jpeg', 0.86), thumb: th.toDataURL('image/jpeg', 0.75),
+        floor: 0.75, cx: 0.5, scale: 1, blur: 0, reflect: false, light: 0, sort_order: (ST.bgs || []).length + 1 };
+      const { data, error } = await sb.from('studio_bgs').insert(row).select('id,name,thumb,floor,cx,scale,blur,reflect,light,sort_order').single();
+      if (error) throw error;
+      const b = { ...row, ...data, canvas: c }; delete b.image; ST.bgs.push(b); ST.style = 'bg:' + b.id;
+      toast('أُضيفت الخلفية. اضبط مستوى وقوف المنتجات ثم احفظ');
+    } catch (e) { toast(/studio_bgs|schema cache/i.test(e.message || '') ? 'شغّل ملف studiobg.sql أولاً' : errMsg(e), 'err'); }
+  }
+  renderStudio();
+}
+const stCurBg = () => ST.style.startsWith('bg:') && (ST.bgs || []).find(b => 'bg:' + b.id === ST.style);
+let ST_PH = null, stPrevT = 0;
+function stPlaceholder() { // منتج تجريبي للمعاينة قبل رفع الصور
+  if (ST_PH) return ST_PH; const c = stCanvas(300, 380), x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 300, 0); g.addColorStop(0, '#5a3a2a'); g.addColorStop(0.5, '#8a5a40'); g.addColorStop(1, '#4a2e20');
+  x.fillStyle = g; x.fillRect(20, 40, 260, 340); x.fillStyle = '#d6b062'; x.fillRect(135, 40, 30, 340); x.fillRect(20, 40, 260, 26);
+  return (ST_PH = c);
+}
+function stBgPreview() {
+  clearTimeout(stPrevT);
+  stPrevT = setTimeout(async () => {
+    const b = stCurBg(), cv = document.getElementById('stBgPrev'); if (!b || !cv) return;
+    try {
+      await stBgImage(b);
+      const ready = ST.files.filter(f => f.role !== 'logo' && f.cut);
+      const job = { bg: b, prods: ready.length ? (ST.mode === 'merge' ? ready : ready.slice(0, 1)).map(f => f.lit || f.cut) : [stPlaceholder()],
+        aspect: ST.aspect, size: 'prev', scale: ST.scale / 100, logo: null, logoPos: 'none', fx: 'none' };
+      const r = stRenderBg(job, 12345); cv.width = r.width; cv.height = r.height; cv.getContext('2d').drawImage(r, 0, 0);
+    } catch (e) { toast(errMsg(e), 'err'); }
+  }, 120);
+}
+function stBgEditor(b) {
+  const rng = (id, lab, min, max, val, unit = '%') => `<label class="field st-rng"><span>${lab}: <b id="${id}V">${val}${unit}</b></span><input type="range" dir="ltr" id="${id}" min="${min}" max="${max}" value="${val}"></label>`;
+  return `<div class="st-bged">
+    <canvas id="stBgPrev" aria-label="معاينة الخلفية"></canvas>
+    <p class="muted" style="font-size:12px;margin:4px 0 8px">${ST.files.some(f => f.cut) ? 'المعاينة بصورك' : 'المعاينة بمنتج تجريبي. بعد أول تصميم تظهر بصورك.'} اضبط المكان الذي تقف عليه المنتجات (سطح الطاولة) ثم احفظ.</p>
+    <label class="field"><span>اسم الخلفية</span><input id="stBgName" maxlength="60" value="${esc(b.name || '')}"></label>
+    ${rng('stBgFloor', 'مستوى وقوف المنتجات (أعلى ← أسفل)', 25, 98, Math.round(b.floor * 100))}
+    ${rng('stBgCx', 'مكان المنتجات (يسار ← يمين)', 10, 90, Math.round(b.cx * 100))}
+    ${rng('stBgScale', 'حجم المنتجات على هذه الخلفية', 40, 180, Math.round(b.scale * 100))}
+    ${rng('stBgBlur', 'تمويه الخلفية (عمق عدسة الكاميرا)', 0, 12, b.blur, '')}
+    <div class="cc-row2"><label class="field"><span>اتجاه الضوء</span><select id="stBgLight"><option value="0"${!b.light ? ' selected' : ''}>تلقائي من الصورة</option><option value="1"${b.light === 1 ? ' selected' : ''}>من اليمين</option><option value="-1"${b.light === -1 ? ' selected' : ''}>من اليسار</option></select></label>
+      <label class="dd-chk" style="align-self:end"><input type="checkbox" id="stBgRefl"${b.reflect ? ' checked' : ''}> انعكاس (سطح لامع)</label></div>
+    <div class="st-ra" style="padding:0"><button class="btn btn-primary btn-sm" data-stbgsave="1">حفظ إعدادات الخلفية</button><button class="btn btn-ghost btn-sm btn-danger" data-stbgdel="1">حذف الخلفية</button></div>
+  </div>`;
+}
 // ---------- الواجهة ----------
 function stStatus(t) { ST.status = t; const s = document.getElementById('stStatus'); if (s) s.textContent = t; }
-function openStudio() { S.detail = null; S.wasteView = false; showView('studio'); renderStudio(); }
+async function openStudio() { S.detail = null; S.wasteView = false; showView('studio'); renderStudio(); if (ST.bgs === null) { await stLoadBgs(); renderStudio(); } }
 function renderStudio() {
   const el = $('studio'); if (!el || el.hidden) return;
   const hasLogo = ST.files.some(f => f.role === 'logo');
   el.innerHTML = `${backHead('مصمم الصور الاحترافي')}
-  <p class="muted rep-intro">ارفع صور منتجاتك (بوكس مفتوح، مقفل، كيس…) ويزيل البرنامج خلفيتها ويضبط إضاءتها ويضعها في بيئة فخمة مع ظلال وانعكاس. <b>مجاني بالكامل</b> ويعمل داخل جهازك، والمنتج والشعار يبقيان كما هما بالضبط.</p>
+  <p class="muted rep-intro">ارفع صور منتجاتك (بوكس مفتوح، مقفل، كيس…) ويزيل البرنامج خلفيتها ويضعها على خلفياتك المعتمدة أو بيئة جاهزة، مع ظلال وانعكاس وفلتر كاميرا احترافية يجعل الشوكولاتة لامعة وشهية. <b>مجاني بالكامل</b> ويعمل داخل جهازك، والمنتج والشعار يبقيان كما هما بالضبط.</p>
   <div class="calc-grid st-grid">
     <section class="calc-card">
       <h3 class="cc-sub" style="margin-top:0;border:0;padding:0">1) صور المنتجات</h3>
@@ -3340,7 +3523,12 @@ function renderStudio() {
       <h3 class="cc-sub">2) طريقة التصميم</h3>
       <div class="seg" role="group"><button data-stmode="merge" aria-pressed="${ST.mode === 'merge'}">دمج كل الصور في تصميم واحد</button><button data-stmode="each" aria-pressed="${ST.mode === 'each'}">كل صورة بتصميم مستقل</button></div>
 
-      <h3 class="cc-sub">3) البيئة</h3>
+      <h3 class="cc-sub">3) الخلفية</h3>
+      <div class="st-bgh"><b>خلفياتي المعتمدة</b><label class="btn btn-ghost btn-sm">+ إضافة خلفية<input type="file" id="stBgFile" accept="image/png,image/jpeg,image/webp" multiple hidden></label></div>
+      ${ST.bgErr ? `<p class="st-note">${esc(ST.bgErr)}</p>` : ST.bgs === null ? '<p class="muted" style="font-size:12px">جارٍ التحميل…</p>' : !ST.bgs.length ? '<p class="muted" style="font-size:12px">ارفع صور الخلفيات التي اعتمدتها (طاولة، رخام، ديكور…) لتنزل المنتجات عليها.</p>' : ''}
+      ${(ST.bgs || []).length ? `<div class="st-bgs">${ST.bgs.map(b => `<button class="st-bg${ST.style === 'bg:' + b.id ? ' on' : ''}" data-stbg="${b.id}"><img src="${b.thumb}" alt=""><span>${esc(b.name || 'خلفية')}</span></button>`).join('')}</div>` : ''}
+      ${stCurBg() ? stBgEditor(stCurBg()) : ''}
+      <p class="muted" style="font-size:12px;margin:10px 0 6px">أو بيئة جاهزة مرسومة:</p>
       <div class="st-styles">${STUDIO_STYLES.map(s => `<button class="rep-t${ST.style === s.id ? ' on' : ''}" data-ststyle="${s.id}"><b>${s.t}</b><small>${s.d}</small></button>`).join('')}</div>
       ${ST.style === 'lux' || ST.style === 'velvet' || ST.style === 'eid' ? `<div class="st-color"><label class="dd-chk"><input type="checkbox" id="stColorAuto"${ST.colorAuto ? ' checked' : ''}> لون البيئة تلقائي من لون العبوة</label>
         ${ST.colorAuto ? '' : `<label class="st-pick">اللون <input type="color" id="stColor" value="${ST.color}"></label>`}</div>` : ''}
@@ -3352,6 +3540,7 @@ function renderStudio() {
         <label class="field"><span>${ST.mode === 'merge' ? 'عدد التصاميم' : 'تصاميم لكل صورة'}</span><select id="stCount">${[1, 2, 3, 4].map(n => `<option${n === ST.count ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
       </div>
       <label class="field"><span>حجم المنتجات في التصميم: <b id="stScaleV">${ST.scale}%</b></span><input type="range" id="stScale" min="60" max="130" step="5" value="${ST.scale}"></label>
+      <label class="field"><span>فلتر الكاميرا الاحترافية</span><select id="stFx">${ST_FX.map(([v, l]) => `<option value="${v}"${ST.fx === v ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
       <label class="dd-chk"><input type="checkbox" id="stLight"${ST.autoLight ? ' checked' : ''}> ضبط إضاءة الصور تلقائياً</label>
       <button class="btn btn-primary btn-block btn-lg" data-stgo="1"${ST.busy ? ' disabled' : ''}>${ST.busy ? 'جارٍ التصميم…' : 'صمّم الصور'}</button>
       <p class="muted" id="stStatus" style="font-size:12px;margin-top:6px" aria-live="polite">${esc(ST.status)}</p>
@@ -3369,6 +3558,7 @@ function renderStudio() {
     </section>
   </div>`;
   bindBack();
+  if (stCurBg()) stBgPreview();
 }
 const stYield = () => new Promise(r => setTimeout(r, 30));
 async function stMake(slot, job, seed) {
@@ -3387,10 +3577,12 @@ async function studioGo() {
   try {
     const need = logo && ST.logoPos !== 'none' ? [...prods, logo] : prods;
     for (let i = 0; i < need.length; i++) { stStatus(`تجهيز الصور وإزالة الخلفية ${i + 1} من ${need.length}…`); await stYield(); await stCut(need[i]); }
-    for (const f of prods) if (ST.autoLight && !f.lit) f.lit = stLight(f.cut);
-    const pc = f => ST.autoLight ? f.lit : f.cut;
+    stStatus('تطبيق فلتر الكاميرا…'); await stYield();
+    const pc = f => stProc(f);
+    const cb = stCurBg(); if (ST.style.startsWith('bg:') && !cb) throw new Error('اختر خلفية');
+    if (cb) await stBgImage(cb);
     const color = ST.colorAuto ? stDominant(prods.map(f => f.cut)) : hex2rgb(ST.color);
-    const base = { style: ST.style, aspect: ST.aspect, size: ST.size, scale: ST.scale / 100, color, logo: logo && ST.logoPos !== 'none' ? logo.cut : null, logoPos: ST.logoPos };
+    const base = { style: ST.style, aspect: ST.aspect, size: ST.size, scale: ST.scale / 100, color, logo: logo && ST.logoPos !== 'none' ? logo.cut : null, logoPos: ST.logoPos, fx: ST.fx, bg: cb || null };
     const jobs = [];
     if (ST.mode === 'merge') for (let i = 0; i < ST.count; i++) jobs.push({ ...base, prods: prods.map(pc) });
     else for (const f of prods) for (let i = 0; i < ST.count; i++) jobs.push({ ...base, prods: [pc(f)] });
@@ -3431,8 +3623,20 @@ function bindStudio() {
     if (t.id === 'stLight') ST.autoLight = t.checked;
     if (t.id === 'stColorAuto') { ST.colorAuto = t.checked; renderStudio(); }
     if (t.id === 'stColor') ST.color = t.value;
+    if (t.id === 'stFx') ST.fx = t.value;
+    if (t.id === 'stBgFile') { stAddBg(t.files); t.value = ''; }
+    if (t.id === 'stAspect' || t.id === 'stMode') stBgPreview();
+    const b = stCurBg();
+    if (b && t.id === 'stBgLight') { b.light = Number(t.value); stBgPreview(); }
+    if (b && t.id === 'stBgRefl') { b.reflect = t.checked; stBgPreview(); }
   });
-  el.addEventListener('input', e => { if (e.target.id === 'stScale') { ST.scale = Number(e.target.value); const v = $('stScaleV'); if (v) v.textContent = ST.scale + '%'; } });
+  el.addEventListener('input', e => {
+    const t = e.target, b = stCurBg();
+    if (t.id === 'stScale') { ST.scale = Number(t.value); const v = $('stScaleV'); if (v) v.textContent = ST.scale + '%'; if (b) stBgPreview(); }
+    const map = { stBgFloor: 'floor', stBgCx: 'cx', stBgScale: 'scale', stBgBlur: 'blur' };
+    if (b && map[t.id]) { const v = Number(t.value); b[map[t.id]] = t.id === 'stBgBlur' ? v : v / 100; $(t.id + 'V').textContent = v + (t.id === 'stBgBlur' ? '' : '%'); stBgPreview(); }
+    if (b && t.id === 'stBgName') b.name = t.value;
+  });
   el.addEventListener('dragover', e => { if (e.target.closest('#stDrop')) { e.preventDefault(); e.target.closest('#stDrop').classList.add('over'); } });
   el.addEventListener('dragleave', e => { const d = e.target.closest('#stDrop'); if (d) d.classList.remove('over'); });
   el.addEventListener('drop', e => { if (e.target.closest('#stDrop')) { e.preventDefault(); studioAdd(e.dataTransfer.files); } });
@@ -3443,6 +3647,13 @@ function bindStudio() {
     if (d.strole) { const f = ST.files.find(x => x.id === Number(d.strole)); if (f.role !== 'logo') ST.files.forEach(x => { if (x.role === 'logo') x.role = 'product'; }); f.role = f.role === 'logo' ? 'product' : 'logo'; return renderStudio(); }
     if (d.stmode) { ST.mode = d.stmode; return renderStudio(); }
     if (d.ststyle) { ST.style = d.ststyle; return renderStudio(); }
+    if (d.stbg) { ST.style = 'bg:' + d.stbg; return renderStudio(); }
+    if (d.stbgsave) { const bb = stCurBg(); b.disabled = true;
+      const { error } = await sb.from('studio_bgs').update({ name: (bb.name || '').trim() || 'خلفية', floor: bb.floor, cx: bb.cx, scale: bb.scale, blur: bb.blur, reflect: bb.reflect, light: bb.light }).eq('id', bb.id);
+      b.disabled = false; if (error) return toast(errMsg(error), 'err'); toast('تم حفظ إعدادات الخلفية'); return renderStudio(); }
+    if (d.stbgdel) { const bb = stCurBg(); if (!confirm(`حذف الخلفية "${bb.name || ''}"؟`)) return;
+      const { error } = await sb.from('studio_bgs').delete().eq('id', bb.id); if (error) return toast(errMsg(error), 'err');
+      ST.bgs = ST.bgs.filter(x => x !== bb); ST.style = 'lux'; toast('تم حذف الخلفية'); return renderStudio(); }
     if (d.stgo) return studioGo();
     if (d.stdl != null) return stDownload([[ST.results[d.stdl], Number(d.stdl)]]);
     if (d.stshare != null) return stShare([[ST.results[d.stshare], Number(d.stshare)]]);
