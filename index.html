@@ -601,6 +601,9 @@
   .acc-set-r .in { flex: 1; }
   .acc-set-r.oth { background: #FFF1A8; color: #3d3200; border-radius: 8px; padding: 8px 10px; font-size: 14px; }
   .acc-no { width: 22px; text-align: center; color: var(--muted); font-weight: 700; }
+  .sp2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .in.auto { background: var(--bg); border-style: dashed; font-weight: 700; }
+  .sp-set { display: flex; flex-wrap: wrap; gap: 8px 18px; }
   /* ---- مشتريات الفروع ---- */
   .pur-box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg, 16px); padding: 14px 16px; margin: 14px 0; }
   .pur-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; margin: 8px 0 12px; }
@@ -984,7 +987,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-19 ج</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-19 د</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -1024,6 +1027,8 @@
     <h2 style="font-size:20px">إدخال مبيعات من الإدارة</h2>
     <label class="field"><span>الفرع</span><select id="eBranch" required></select></label>
     <label class="field"><span>التاريخ</span><input type="date" id="eDate" required></label>
+    <div class="sp2" id="eSP" hidden><label class="field"><span>صافي المبيعات النقدية</span><input class="in" id="eAC" data-sp2="e" inputmode="decimal" dir="ltr" autocomplete="off"></label>
+      <label class="field"><span>صافي المبيعات البنكية</span><input class="in" id="eAB" data-sp2="e" inputmode="decimal" dir="ltr" autocomplete="off"></label></div>
     <label class="field"><span id="eAmountLbl">إجمالي المبيعات (ريال)</span><input id="eAmount" inputmode="decimal" autocomplete="off" dir="ltr" required></label>
     <div id="eSplitS"></div>
     <div class="field" id="eColWrap" hidden><span>التحصيل (ريال)</span><div id="ePay"></div><div id="eSplitC"></div></div>
@@ -1132,7 +1137,9 @@ async function start() {
 
 // ---------------- البيانات ----------------
 async function loadBranches() {
-  const { data, error } = await sb.from('branches').select('id,name,group_name,sort_order,token,active,credit,waste,logo,is_rep,whatsapp,track_from,late_exempt,monthly_target,profit_margin,sales_wa_link,waste_wa_link').order('sort_order').order('id');
+  const cols = 'id,name,group_name,sort_order,token,active,credit,waste,logo,is_rep,whatsapp,track_from,late_exempt,monthly_target,profit_margin,sales_wa_link,waste_wa_link';
+  let { data, error } = await sb.from('branches').select(cols + ',sales_pay').order('sort_order').order('id');
+  if (error && /sales_pay/.test(error.message || '')) ({ data, error } = await sb.from('branches').select(cols).order('sort_order').order('id'));
   if (error) { toast(errMsg(error), 'err'); return; }
   S.allBranches = data; S.byId = {};
   for (const b of data) S.byId[b.id] = b;
@@ -1182,8 +1189,9 @@ async function reload() {
     S.cmp.cache = {};
     if (VIEW) { await reloadViewer(); return; }
     const [sales, pend, rec] = await Promise.all([
-      fetchAll(() => sb.from('sales').select(S.noSplitCols ? 'id,branch_id,sale_date,amount,collected,col_cash,col_bank,col_card,entered_by' : 'id,branch_id,sale_date,amount,collected,col_cash,col_bank,col_card,entered_by,sales_split,col_split').gte('sale_date', S.from).lte('sale_date', S.to).order('sale_date').order('id'))
-        .catch(e => { if (!S.noSplitCols && /sales_split|col_split/.test(e.message || '')) { S.noSplitCols = true; return fetchAll(() => sb.from('sales').select('id,branch_id,sale_date,amount,collected,col_cash,col_bank,col_card,entered_by').gte('sale_date', S.from).lte('sale_date', S.to).order('sale_date').order('id')); } throw e; }),
+      fetchAll(() => sb.from('sales').select(S.noSplitCols ? 'id,branch_id,sale_date,amount,collected,col_cash,col_bank,col_card,entered_by' : S.noAmtCols ? 'id,branch_id,sale_date,amount,collected,col_cash,col_bank,col_card,entered_by,sales_split,col_split' : 'id,branch_id,sale_date,amount,collected,col_cash,col_bank,col_card,entered_by,sales_split,col_split,amt_cash,amt_bank').gte('sale_date', S.from).lte('sale_date', S.to).order('sale_date').order('id'))
+        .catch(e => { if (!S.noAmtCols && /amt_cash|amt_bank/.test(e.message || '')) { S.noAmtCols = true; return fetchAll(() => sb.from('sales').select('id,branch_id,sale_date,amount,collected,col_cash,col_bank,col_card,entered_by,sales_split,col_split').gte('sale_date', S.from).lte('sale_date', S.to).order('sale_date').order('id')).catch(e2 => { S.noSplitCols = true; return fetchAll(() => sb.from('sales').select('id,branch_id,sale_date,amount,collected,col_cash,col_bank,col_card,entered_by').gte('sale_date', S.from).lte('sale_date', S.to).order('sale_date').order('id')); }); }
+          if (!S.noSplitCols && /sales_split|col_split/.test(e.message || '')) { S.noSplitCols = true; return fetchAll(() => sb.from('sales').select('id,branch_id,sale_date,amount,collected,col_cash,col_bank,col_card,entered_by').gte('sale_date', S.from).lte('sale_date', S.to).order('sale_date').order('id')); } throw e; }),
       sb.from('correction_requests').select('*').eq('status', 'pending').order('created_at'),
       sb.from('correction_requests').select('*').neq('status', 'pending').order('decided_at', { ascending: false }).limit(12)
     ]);
@@ -1943,6 +1951,10 @@ function bindSettingsView() {
     if (t.id === 'accBranch') { S.accBranch = Number(t.value); return renderSetAccts(); }
     if (t.dataset.accname) return accRename(t);
     if (t.dataset.acclink) return accLink(t);
+    if (t.dataset.salespay) return (async () => { const id = Number(t.dataset.salespay), v = t.checked;
+      const { error } = await sb.from('branches').update({ sales_pay: v }).eq('id', id);
+      if (error) { t.checked = !v; return toast(/sales_pay|schema cache/i.test(error.message || '') ? 'شغّل ملف salespay.sql أولاً' : errMsg(error), 'err'); }
+      S.byId[id].sales_pay = v; toast(v ? 'تم التفعيل: نقدي + بنكي' : 'تم الإلغاء: مبلغ واحد'); })();
     if (t.closest('#setPanel-commit')) return commitChange(t);
     if (t.closest('#setPanel-fund') && (t.dataset.src || t.dataset.loan)) return fundSetChange(t);
   });
@@ -3820,6 +3832,19 @@ function colPayOf(brs) {
   return r;
 }
 // سطر صغير بالتفصيل، أو بطاقات صغيرة (big)
+const isSP = b => !!(b && b.sales_pay && !b.credit);
+// تفصيل المبيعات النقدية/البنكية لفروع "نقدي + بنكي"
+function salesPayBox(brs) {
+  const ids = brs.filter(isSP).map(b => b.id); if (!ids.length) return '';
+  let c = 0, k = 0, u = 0, t = 0;
+  for (const x of S.sales) if (ids.includes(x.branch_id)) { const a = Number(x.amount); t += a; if (x.amt_cash != null || x.amt_bank != null) { c += Number(x.amt_cash) || 0; k += Number(x.amt_bank) || 0; } else u += a; }
+  if (!t) return '';
+  const pc = v => t ? Math.round(v / t * 100) : 0;
+  return `<section class="pay-box"><div class="pay-h"><h3>تفصيل المبيعات</h3><span class="muted">المجموع <b class="num">${money(t)}</b> ريال</span></div>
+    <div class="pay-strip"><div class="pay-chip cash"><span>صافي المبيعات النقدية <small dir="ltr">${pc(c)}%</small></span><b class="num">${money(c)}</b></div>
+    <div class="pay-chip bank"><span>صافي المبيعات البنكية <small dir="ltr">${pc(k)}%</small></span><b class="num">${money(k)}</b></div>
+    ${u > 0.004 ? `<div class="pay-chip other"><span>بدون تفصيل (قديم)</span><b class="num">${money(u)}</b></div>` : ''}</div></section>`;
+}
 function payBreak(p, big) {
   const keys = PAY_KEYS.concat(p.other > 0.004 ? ['other'] : []);
   if (big) return `<div class="pay-strip">${keys.map(k => `<div class="pay-chip ${k}"><span>${PAY_TTL[k]}</span><b class="num">${money(p[k])}</b></div>`).join('')}</div>`;
@@ -3943,7 +3968,10 @@ function openSaleEdit(bid, d) {
   const amt = () => parseAmount($('seAmount').value), colT = () => b.credit ? payRead('sep').sum : 0;
   $('seTitle').textContent = `تعديل ${label(b)} — ${fmtLong(d)}`;
   $('seBody').innerHTML = `
-    <label class="field"><span>${b.credit ? 'المبيعات الآجلة (ريال)' : 'إجمالي المبيعات (ريال)'}</span><input class="in" id="seAmount" inputmode="decimal" dir="ltr" value="${Number(s.amount)}"></label>
+    ${isSP(b) ? `<div class="sp2"><label class="field"><span>صافي المبيعات النقدية</span><input class="in" id="seAC" data-sp2="se" inputmode="decimal" dir="ltr" value="${s.amt_cash != null ? Number(s.amt_cash) : ''}"></label>
+      <label class="field"><span>صافي المبيعات البنكية</span><input class="in" id="seAB" data-sp2="se" inputmode="decimal" dir="ltr" value="${s.amt_bank != null ? Number(s.amt_bank) : ''}"></label></div>
+      ${s.amt_cash == null && s.amt_bank == null ? `<p class="muted" style="font-size:12px">هذا اليوم مسجل بدون تفصيل (${money(s.amount)}). اكتب النقدي والبنكي ليُحسب المجموع منهما.</p>` : ''}` : ''}
+    <label class="field"><span>${b.credit ? 'المبيعات الآجلة (ريال)' : isSP(b) ? 'مجموع المبيعات (تلقائي)' : 'إجمالي المبيعات (ريال)'}</span><input class="in${isSP(b) ? ' auto' : ''}" id="seAmount" inputmode="decimal" dir="ltr" value="${Number(s.amount)}"${isSP(b) ? ' readonly' : ''}></label>
     ${aSplitHtml('ses', bid, 'توزيع المبيعات على الفروع', s.sales_split, amt, 'المبيعات')}
     ${b.credit ? `<div class="field"><span>التحصيل (ريال)</span>${payFields('sep')}</div>
       ${unsplit > 0.004 ? `<p class="muted" style="font-size:12px">التحصيل القديم بدون تفصيل (${money(unsplit)}) وُضع في خانة النقدي، عدّله إذا لزم.</p>` : ''}
@@ -3958,6 +3986,11 @@ async function saveSaleEdit(ev) {
   const s = seRow, b = S.byId[s.branch_id], st = $('seStatus'), a = parseAmount($('seAmount').value);
   if (isNaN(a) || a < 0) { st.textContent = 'اكتب المبيعات رقماً صحيحاً'; return; }
   const args = { p_id: s.id, p_amount: a };
+  if (isSP(b) && ($('seAC').value.trim() || $('seAB').value.trim())) {
+    const c = payNum($('seAC').value), k = payNum($('seAB').value);
+    if (isNaN(c) || isNaN(k)) { st.textContent = 'اكتب صافي المبيعات النقدية والبنكية أرقاماً فقط'; return; }
+    args.p_amt_cash = c; args.p_amt_bank = k; args.p_amount = c + k;
+  }
   if (b.credit) { const pr = payRead('sep'); if (pr.bad) { st.textContent = `اكتب مبلغ ${PAY_TTL[pr.bad]} رقماً فقط`; return; } args.p_cash = pr.v.cash; args.p_bank = pr.v.bank; args.p_card = pr.v.card; }
   const x = aSplitCalc('ses'); if (!x.ok) { st.textContent = x.msg; return; }
   if (!x.none) args.p_split = x.vals; else args.p_split = s.sales_split || null;
@@ -3973,7 +4006,11 @@ function renderSetAccts() {
   const el = $('setPanel-accts'), brs = activeBranches();
   if (!S.accBranch || !S.byId[S.accBranch]) { const withAcc = brs.find(b => accOf(b.id).length); S.accBranch = (withAcc || brs[0] || {}).id; }
   const bid = S.accBranch, list = accOf(bid), off = S.accounts.filter(a => a.branch_id === bid && !a.active);
-  el.innerHTML = `<div class="set-card"><h3>توزيع فواتير الفرع على فروع فرعية</h3>
+  const np = brs.filter(x => !x.credit);
+  el.innerHTML = `<div class="set-card"><h3>طريقة إدخال المبيعات</h3>
+    <p class="muted set-hint">الفرع المفعّل يكتب الموظف فيه: صافي المبيعات النقدية + صافي المبيعات البنكية، ومجموع المبيعات يُحسب تلقائياً ولا يُعدَّل.</p>
+    <div class="sp-set">${np.map(x => `<label class="dd-chk"><input type="checkbox" data-salespay="${x.id}"${x.sales_pay ? ' checked' : ''}> ${esc(label(x))}</label>`).join('')}</div></div>
+  <div class="set-card"><h3>توزيع فواتير الفرع على فروع فرعية</h3>
     <p class="muted set-hint">اربط الفرع الفرعي بفرع في البرنامج (مثل مورا البلد ← حلويات مورا - البلد) لتظهر فواتيره وسداداته تلقائياً في صفحة ذلك الفرع تحت "مشتريات من معمل البازل".</p>
     <p class="muted set-hint">عند إضافة فروع فرعية لأي فرع: يكتب الموظف إجمالي المبيعات ثم قيمة فاتورة كل فرع، والباقي يظهر تلقائياً في "أخرى" (مظلل بالأصفر). وللفروع الآجلة يوزّع التحصيل بنفس الطريقة. الفرع بدون فروع فرعية يبقى كما هو.</p>
     ${S.accErr ? `<p class="st-note">شغّل ملف split.sql في Supabase مرة واحدة لتفعيل هذه الميزة.</p>` : ''}
@@ -4314,7 +4351,7 @@ function renderCorrections() {
       const body = hasCol
         ? `كانت المبيعات <b class="num">${money(r.old_amount)}</b> والتحصيل <b class="num">${money(r.old_collected)}</b> ريال${r.new_cash != null ? split(r.old_cash, r.old_bank, r.old_card) : ''}،
            والتعديل: المبيعات <b class="num">${money(r.new_amount)}</b> والتحصيل <b class="num">${money(r.new_collected)}</b> ريال${split(r.new_cash, r.new_bank, r.new_card)}.`
-        : `كان المبلغ المرسل <b class="num">${money(r.old_amount)}</b> ريال، ومبلغ التعديل <b class="num">${money(r.new_amount)}</b> ريال.`;
+        : `كان المبلغ المرسل <b class="num">${money(r.old_amount)}</b> ريال${r.old_amt_cash != null ? ` <small class="muted">(نقدي ${money(r.old_amt_cash)} · بنكي ${money(r.old_amt_bank)})</small>` : ''}، ومبلغ التعديل <b class="num">${money(r.new_amount)}</b> ريال${r.new_amt_cash != null ? ` <small class="muted">(نقدي ${money(r.new_amt_cash)} · بنكي ${money(r.new_amt_bank)})</small>` : ''}.`;
       return `<div class="corr">
         <p>تم طلب تعديل من فرع <b>${esc(b ? label(b) : '')}</b> للمبلغ المرسل سابقاً بتاريخ <b>${esc(fmtLong(r.sale_date))}</b>.
         ${body}</p>
@@ -4408,6 +4445,7 @@ function renderDetail() {
     </div>
     ${!multi ? acctCard(brs[0]) : ''}
     ${!multi && purchShow(brs[0]) ? purchPanel(brs[0]) : ''}
+    ${salesPayBox(brs)}
     ${anyCredit && m.collected ? `<section class="pay-box"><div class="pay-h"><h3>تفصيل التحصيل</h3><span class="muted">المجموع <b class="num">${money(m.collected)}</b> ريال</span></div>${payBreak(m.pay, true)}</section>` : ''}
     ${days.length ? `<div class="tbl-wrap"><table>
       <thead><tr><th>التاريخ</th><th>اليوم</th>${brs.map(colHead).join('')}${multi ? '<th class="n">إجمالي المبيعات</th>' : ''}${multi && anyCredit ? '<th class="n">إجمالي التحصيل</th>' : ''}${anyCredit ? '<th class="n">المردود</th>' : ''}<th class="n">المبيعات التراكمية</th>${anyCredit ? '<th class="n">الآجل المتبقي التراكمي</th>' : ''}</tr></thead>
@@ -5333,8 +5371,17 @@ function syncEntryCredit() {
   $('eSplitC').innerHTML = b && c ? aSplitHtml('ec', b.id, 'توزيع التحصيل على الفروع', {}, () => payRead('ep').sum, 'التحصيل') : '';
   if (!b) { delete ASPL.es; delete ASPL.ec; } else if (!c) delete ASPL.ec;
   $('eColWrap').hidden = !c;
-  $('eAmountLbl').textContent = c ? 'المبيعات الآجلة (ريال)' : 'إجمالي المبيعات (ريال)';
+  const sp = isSP(b); $('eSP').hidden = !sp; $('eAmount').readOnly = sp; $('eAmount').classList.toggle('auto', sp);
+  if (sp) { $('eAC').value = ''; $('eAB').value = ''; $('eAmount').value = ''; }
+  $('eAmountLbl').textContent = c ? 'المبيعات الآجلة (ريال)' : sp ? 'مجموع المبيعات (تلقائي)' : 'إجمالي المبيعات (ريال)';
 }
+// نقدي + بنكي ← المجموع تلقائياً
+document.addEventListener('input', e => {
+  const pre = e.target.dataset && e.target.dataset.sp2; if (!pre) return;
+  const c = payNum($(pre + 'AC').value), k = payNum($(pre + 'AB').value), amt = $(pre === 'se' ? 'seAmount' : 'eAmount');
+  amt.value = String(Math.round(((isNaN(c) ? 0 : c) + (isNaN(k) ? 0 : k)) * 100) / 100);
+  for (const p in ASPL) if ($(p + '-asp')) aSplitCalc(p);
+});
 $('eBranch').onchange = () => { syncEntryCredit(); checkEntry(); };
 $('eDate').onchange = checkEntry;
 $('eCancel').onclick = () => eDlg.close();
@@ -5352,6 +5399,11 @@ $('entryForm').onsubmit = async ev => {
   if (eTaken) return;
   $('eSave').disabled = true; $('eSave').textContent = 'جارٍ الحفظ…';
   const args = { p_branch_id: bid, p_date: d, p_amount: a, p_collected: c };
+  if (isSP(S.byId[bid])) {
+    const sc = payNum($('eAC').value), sk = payNum($('eAB').value);
+    if (isNaN(sc) || isNaN(sk) || (!$('eAC').value.trim() && !$('eAB').value.trim())) { $('eSave').disabled = false; $('eSave').textContent = 'حفظ المبيعات'; st.className = 'entry-status bad'; st.textContent = 'اكتب صافي المبيعات النقدية والبنكية أرقاماً'; return; }
+    args.p_amt_cash = sc; args.p_amt_bank = sk; args.p_amount = sc + sk;
+  }
   if (isCr) { args.p_cash = pr.v.cash; args.p_bank = pr.v.bank; args.p_card = pr.v.card; }
   if (ASPL.es && $('es-asp')) { const x = aSplitCalc('es'); if (!x.ok) { st.className = 'entry-status bad'; st.textContent = x.msg; return; } args.p_split = x.vals;
     if (isCr && ASPL.ec && $('ec-asp')) { const y = aSplitCalc('ec'); if (!y.ok) { st.className = 'entry-status bad'; st.textContent = y.msg; return; } args.p_col_split = y.vals; } }
