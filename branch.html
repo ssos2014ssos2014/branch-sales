@@ -72,6 +72,29 @@
   .amount-wrap.auto input { color: var(--ink); cursor: default; }
   #corrAmount.auto { background: var(--bg); border-style: dashed; font-weight: 700; }
   .csp { grid-template-columns: 1fr 1fr; gap: 8px; }
+  /* المصروفات النقدية */
+  .exp { margin-top: 14px; }
+  .exp-rows { display: grid; gap: 8px; margin-top: 6px; }
+  .exp-r { display: grid; grid-template-columns: 34% 1fr 36px; gap: 6px; align-items: center; }
+  .exp-r input { width: 100%; font: inherit; font-size: 16px; padding: 10px 8px; border: 1.5px solid var(--line); border-radius: var(--r-sm); background: var(--bg); color: var(--ink); }
+  .exp-r input.exp-a { text-align: center; font-family: var(--font-head); font-size: 18px; }
+  .exp-r input:focus { outline: none; border-color: var(--ink); background: var(--surface); }
+  .exp-x { width: 36px; height: 40px; border: 0; border-radius: var(--r-sm); background: var(--rose-soft); color: var(--rose); font-size: 20px; cursor: pointer; }
+  .exp-add { margin-top: 8px; width: 100%; border-style: dashed; }
+  .exp-tot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 15px; }
+  .exp-tot b { font-family: var(--font-head); font-size: 18px; }
+  .exp-hr { border: 0; border-top: 2px solid var(--ink); opacity: .55; margin: 12px 0; }
+  .net-box { display: flex; align-items: center; gap: 8px; justify-content: space-between; flex-wrap: wrap; background: #E3F4E6; color: #14532D; border: 2px solid #2E8B47; border-radius: var(--r-md); padding: 12px 14px; }
+  .net-box span { font-weight: 700; font-size: 15px; white-space: nowrap; }
+  .net-box b { font-family: var(--font-head); font-size: 26px; margin-inline-start: auto; }
+  .net-box small { font-size: 13px; }
+  .net-box.bad { background: var(--rose-soft); color: var(--rose); border-color: var(--rose); }
+  .net-box.sm { margin-top: 10px; } .net-box.sm b { font-size: 22px; }
+  @media (prefers-color-scheme: dark) { .net-box { background: #123d22; color: #c9f2d4; border-color: #3fae62; } }
+  .exp-conf { margin-top: 10px; font-size: 14px; border: 1px dashed var(--line); border-radius: var(--r-sm); padding: 6px 10px; text-align: start; }
+  .exp-conf div { display: flex; justify-content: space-between; padding: 2px 0; }
+  .exp-conf .t { border-top: 1px solid var(--line); margin-top: 4px; padding-top: 4px; font-weight: 700; }
+  #corrExp .exp-r input { font-size: 15px; padding: 8px 6px; }
   /* توزيع الفواتير على الفروع */
   .spl { margin-top: 12px; border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px 12px; background: var(--surface); }
   .spl-h { font-weight: 700; font-size: 14px; margin-bottom: 6px; display: flex; justify-content: space-between; gap: 8px; }
@@ -329,6 +352,7 @@
     <h2 style="font-size:20px">طلب تعديل المبلغ</h2>
     <div class="muted" id="corrInfo" style="margin-top:6px"></div>
     <div id="corrSP"></div>
+    <div id="corrExp"></div>
     <label class="field"><span id="corrAmountLbl">المبلغ الصحيح</span><input id="corrAmount" inputmode="decimal" autocomplete="off" required dir="ltr"></label>
     <div id="corrSpS"></div>
     <div class="field" id="corrColWrap" hidden><span>التحصيل الصحيح</span><div id="corrPay"></div><div id="corrSpC"></div></div>
@@ -348,6 +372,7 @@
 const token = new URLSearchParams(location.search).get('t');
 const root = document.getElementById('root');
 let SPL = { s: {}, c: {} }, CSPL = { s: {}, c: {} }, SP2 = { cash: '', bank: '' }, CSP2 = { cash: '', bank: '' };
+let EXP = [{ a: '', t: '' }], CEXP = [];
 const salesPay = () => !!(info && info.sales_pay && !info.credit);
 let info = null, map = {}, viewMonth = null, selected = null, amountStr = '', colStr = '', PAY = { cash: '', bank: '', card: '' }, step = 'form', firstLoad = true, busy = false, lastDone = null;
 const DOW = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
@@ -619,7 +644,9 @@ function renderForm() {
       ${info.credit
         ? `<div class="pair"><div><span>المبيعات (آجل)</span><b class="num">${money(amt)}</b></div><div><span>مجموع التحصيل</span><b class="num">${money(col)}</b></div></div>
            ${col ? `<div class="pay-sum">${payLine(payVals())}</div>` : ''}`
-        : `<p class="big num">${money(amt)} <span class="cur">ريال</span></p>${salesPay() ? `<div class="pay-sum">نقدي <b class="num">${money(payNum(SP2.cash) || 0)}</b> · بنكي <b class="num">${money(payNum(SP2.bank) || 0)}</b></div>` : ''}`}
+        : `<p class="big num">${money(amt)} <span class="cur">ريال</span></p>${salesPay() ? (() => { const ex = expCalc(null, '', EXP, payNum(SP2.cash) || 0); return `<div class="pay-sum">نقدي <b class="num">${money(payNum(SP2.cash) || 0)}</b> · بنكي <b class="num">${money(payNum(SP2.bank) || 0)}</b></div>
+          ${ex.items.length ? `<div class="exp-conf">${ex.items.map(x => `<div><span>${esc(x.t)}</span><b class="num">${money(x.a)}</b></div>`).join('')}<div class="t"><span>إجمالي المصروفات</span><b class="num">${money(ex.sum)}</b></div></div>` : ''}
+          <div class="net-box sm"><span>صافي المبلغ النقدي المسلم</span><b class="num">${money(ex.net)}</b><small>ريال</small></div>`; })() : ''}`}
       ${hasAcc() ? `<div class="spl-sum"><span>فواتير الفروع:</span> ${esc(splitText(splitArg(splitCalc(null, 'sp', amt, SPL.s, '').vals), amt)) || '—'}</div>
         ${info.credit && col ? `<div class="spl-sum"><span>تحصيل الفروع:</span> ${esc(splitText(splitArg(splitCalc(null, 'sc', col, SPL.c, '').vals), col)) || '—'}</div>` : ''}` : ''}
       <p class="warn">بعد الإرسال لا يمكن إدخال هذا التاريخ مرة أخرى، والتصحيح يكون بطلب تعديل للإدارة.</p>
@@ -640,7 +667,8 @@ function renderForm() {
     <label class="amt-lbl" for="sBank">صافي المبيعات البنكية <small>(شبكة وتحويل)</small></label>
     <label class="amount-wrap"><input id="sBank" inputmode="decimal" autocomplete="off" placeholder="0" value="${esc(SP2.bank)}"><span class="cur">ريال</span></label>
     <label class="amt-lbl" for="amount">مجموع المبيعات <small>(يُحسب تلقائياً)</small></label>
-    <label class="amount-wrap auto"><input id="amount" readonly tabindex="-1" aria-readonly="true" value="${esc(amountStr ? money(parseAmount(amountStr)) : '0')}"><span class="cur">ريال</span></label>`
+    <label class="amount-wrap auto"><input id="amount" readonly tabindex="-1" aria-readonly="true" value="${esc(amountStr ? money(parseAmount(amountStr)) : '0')}"><span class="cur">ريال</span></label>
+    <div id="fExp"></div>`
     : `${info.credit ? `<label class="amt-lbl" for="amount">المبيعات <small>(كلها آجلة)</small></label>` : ''}
     <label class="amount-wrap"><span class="sr">${info.credit ? 'المبيعات الآجلة' : 'إجمالي المبيعات'}</span>
       <input id="amount" inputmode="decimal" autocomplete="off" placeholder="0" value="${esc(amountStr)}">
@@ -662,10 +690,12 @@ function renderForm() {
       amountStr = (SP2.cash.trim() || SP2.bank.trim()) ? String(r2(t)) : '';
       inp.value = money(t); el.querySelector('#formErr').textContent = '';
       if (firstSp) splitCalc(el, 'sp', totS(), SPL.s, 'المبيعات');
+      expCalc(el, 'fe', EXP, payNum(SP2.cash));
     };
+    mountExp(el.querySelector('#fExp'), 'fe', EXP, () => payNum(SP2.cash), () => (firstSp ? firstSp.focus() : el.querySelector('#nextBtn').click()));
     sc.oninput = () => { SP2.cash = sc.value; upd(); }; sbk.oninput = () => { SP2.bank = sbk.value; upd(); };
     sc.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); sbk.focus(); } };
-    sbk.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); firstSp ? firstSp.focus() : el.querySelector('#nextBtn').click(); } };
+    sbk.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); const f = el.querySelector('#fExp .exp-a'); f ? f.focus() : firstSp ? firstSp.focus() : el.querySelector('#nextBtn').click(); } };
   }
   if (firstSp) bindSplit(el, 'sp', SPL.s, totS, 'المبيعات', () => (cinp ? cinp.focus() : el.querySelector('#nextBtn').click()));
   if (cinp) bindPay(el, 'p', PAY, () => { el.querySelector('#formErr').textContent = ''; if (firstSc) splitCalc(el, 'sc', totC(), SPL.c, 'التحصيل'); }, () => (firstSc ? firstSc.focus() : el.querySelector('#nextBtn').click()));
@@ -678,6 +708,7 @@ function renderForm() {
       if (isNaN(c)) { errEl.textContent = 'اكتب صافي المبيعات النقدية رقماً فقط'; el.querySelector('#sCash').focus(); return; }
       if (isNaN(k)) { errEl.textContent = 'اكتب صافي المبيعات البنكية رقماً فقط'; el.querySelector('#sBank').focus(); return; }
       if (!SP2.cash.trim() && !SP2.bank.trim()) { errEl.textContent = 'اكتب صافي المبيعات النقدية والبنكية (اكتب 0 إذا لا يوجد)'; el.querySelector('#sCash').focus(); return; }
+      const ex = expCalc(el, 'fe', EXP, c); if (!ex.ok) { errEl.textContent = ex.msg; return; }
     }
     const amt = parseAmount(amountStr);
     if (isNaN(amt)) { errEl.textContent = info.credit ? 'اكتب المبيعات رقماً فقط، مثل 12500 (اكتب 0 إذا لا توجد مبيعات)' : 'اكتب إجمالي المبيعات رقماً فقط، مثل 12500'; inp.focus(); return; }
@@ -715,6 +746,50 @@ function entryPay(e) {
   const other = Math.round((Number(e.collected) - paySum(v)) * 100) / 100;
   return PAY_KEYS.filter(k => v[k]).map(k => `${PAY_TTL[k]} ${money(v[k])}`).concat(other > 0 ? [`بدون تفصيل ${money(other)}`] : []).join(' · ');
 }
+
+// ---------- المصروفات النقدية وصافي النقد المسلم ----------
+function expHtml(pre, list) {
+  return `<div class="exp" id="${pre}-exp"><div class="amt-lbl">مصروفات نقدية <small>(اختياري، يمكن إضافة أكثر من مصروف)</small></div>
+    <div class="exp-rows">${list.map((x, i) => `<div class="exp-r">
+      <input class="exp-a" data-ei="${i}" data-ek="a" inputmode="decimal" autocomplete="off" dir="ltr" placeholder="المبلغ" aria-label="مبلغ المصروف ${i + 1}" value="${esc(x.a)}">
+      <input class="exp-t" data-ei="${i}" data-ek="t" maxlength="120" autocomplete="off" placeholder="وصف المصروف، مثل: خضار" aria-label="وصف المصروف ${i + 1}" value="${esc(x.t)}">
+      <button type="button" class="exp-x" data-edel="${i}" aria-label="حذف المصروف ${i + 1}">×</button></div>`).join('')}</div>
+    <button type="button" class="btn btn-ghost exp-add" data-eadd="1">+ إضافة مصروف</button>
+    <div class="exp-tot"><span>إجمالي المصروفات النقدية</span><b class="num" id="${pre}-etot">0</b></div>
+    <hr class="exp-hr">
+    <div class="net-box" id="${pre}-netbox"><span>صافي المبلغ النقدي المسلم</span><b class="num" id="${pre}-net">0</b><small>ريال</small></div>
+    <small class="spl-e" id="${pre}-eerr" role="alert"></small></div>`;
+}
+// يرجع { ok, msg, items, sum, net }
+function expCalc(root, pre, list, cash) {
+  let sum = 0, msg = ''; const items = [];
+  list.forEach((x, i) => {
+    const a = payNum(x.a), t = String(x.t || '').trim();
+    if (isNaN(a) || a < 0) { msg = msg || `اكتب مبلغ المصروف ${i + 1} رقماً فقط`; return; }
+    if (!a) { if (t && !msg) msg = `اكتب مبلغ المصروف "${t}"`; return; }
+    if (!t) { msg = msg || `اكتب وصف المصروف ${i + 1} (${money(a)} ريال)`; }
+    sum += a; items.push({ a: r2(a), t });
+  });
+  const c = isNaN(cash) ? 0 : cash, net = r2(c - sum);
+  if (!msg && net < -0.004) msg = `المصروفات النقدية (${money(sum)}) أكبر من صافي المبيعات النقدية (${money(c)})`;
+  const q = id => root && root.querySelector('#' + id);
+  if (q(pre + '-etot')) { q(pre + '-etot').textContent = money(sum); q(pre + '-net').textContent = net < 0 ? '−' + money(-net) : money(net); q(pre + '-netbox').classList.toggle('bad', net < -0.004); q(pre + '-eerr').textContent = msg; }
+  return { ok: !msg, msg, items, sum: r2(sum), net };
+}
+function mountExp(box, pre, list, getCash, onEnterLast) {
+  box.innerHTML = expHtml(pre, list);
+  const root = box.querySelector('#' + pre + '-exp');
+  root.oninput = e => { const t = e.target; if (t.dataset.ei == null) return; list[t.dataset.ei][t.dataset.ek] = t.value; expCalc(box, pre, list, getCash()); };
+  root.onkeydown = e => { const t = e.target; if (e.key !== 'Enter' || t.dataset.ei == null) return; e.preventDefault();
+    const ins = [...root.querySelectorAll('[data-ei]')], i = ins.indexOf(t); ins[i + 1] ? ins[i + 1].focus() : onEnterLast && onEnterLast(); };
+  root.onclick = e => {
+    const b = e.target.closest('[data-eadd],[data-edel]'); if (!b) return;
+    if (b.dataset.eadd) { list.push({ a: '', t: '' }); mountExp(box, pre, list, getCash, onEnterLast); const ins = box.querySelectorAll('.exp-a'); ins[ins.length - 1].focus(); }
+    else { list.splice(Number(b.dataset.edel), 1); mountExp(box, pre, list, getCash, onEnterLast); }
+  };
+  expCalc(box, pre, list, getCash());
+}
+const expMini = e => e.expenses && e.expenses.length ? `مصروفات ${money(e.expenses.reduce((a, x) => a + Number(x.a), 0))} · صافي نقدي ${money(Number(e.amt_cash) - e.expenses.reduce((a, x) => a + Number(x.a), 0))}` : '';
 
 // ---------- توزيع الفواتير والتحصيل على الفروع ----------
 const hasAcc = () => !!(info && info.accounts && info.accounts.length);
@@ -770,13 +845,13 @@ async function submit() {
   const amt = parseAmount(amountStr), col = info.credit ? colValue() : 0, pv = payVals();
   const args = { p_token: token, p_date: selected, p_amount: amt, p_collected: col };
   if (info.credit) { args.p_cash = pv.cash; args.p_bank = pv.bank; args.p_card = pv.card; }
-  if (salesPay()) { args.p_amt_cash = r2(payNum(SP2.cash) || 0); args.p_amt_bank = r2(payNum(SP2.bank) || 0); }
+  if (salesPay()) { args.p_amt_cash = r2(payNum(SP2.cash) || 0); args.p_amt_bank = r2(payNum(SP2.bank) || 0); args.p_expenses = expCalc(null, '', EXP, args.p_amt_cash).items; }
   if (hasAcc()) { args.p_split = splitArg(splitCalc(null, 'sp', amt, SPL.s, '').vals); if (info.credit) args.p_col_split = splitArg(splitCalc(null, 'sc', col, SPL.c, '').vals); }
   const { error } = await sb.rpc('submit_sale', args);
   busy = false;
   if (error) { toast(errMsg(error), 'err'); step = 'form'; await load(); return; }
   lastDone = { date: selected, amount: amt, collected: col, pay: pv };
-  selected = null; amountStr = ''; colStr = ''; PAY = { cash: '', bank: '', card: '' }; SPL = { s: {}, c: {} }; SP2 = { cash: '', bank: '' }; step = 'done';
+  selected = null; amountStr = ''; colStr = ''; PAY = { cash: '', bank: '', card: '' }; SPL = { s: {}, c: {} }; SP2 = { cash: '', bank: '' }; EXP = [{ a: '', t: '' }]; step = 'done';
   await load();
 }
 
@@ -787,7 +862,7 @@ function renderList() {
   el.innerHTML = `<h2>إدخالاتك السابقة</h2>` + items.map(e => `
     <div class="entry">
       <div class="d"><b>${esc(fmtShort(e.date))}</b><small>${esc(fmtDayName(e.date))}</small>${e.by === 'admin' ? '<span class="by-adm">أدخلته الإدارة</span>' : ''}</div>
-      <div class="a num">${money(e.amount)}${info.credit ? `<small>تحصيل ${money(e.collected)}</small>${Number(e.collected) ? `<small class="pay-mini">${esc(entryPay(e))}</small>` : ''}` : ''}${e.amt_cash != null && !info.credit ? `<small class="pay-mini">نقدي ${money(e.amt_cash)} · بنكي ${money(e.amt_bank)}</small>` : ''}${hasAcc() && e.split ? `<small class="spl-mini">${esc(splitText(e.split, e.amount))}</small>` : ''}</div>
+      <div class="a num">${money(e.amount)}${info.credit ? `<small>تحصيل ${money(e.collected)}</small>${Number(e.collected) ? `<small class="pay-mini">${esc(entryPay(e))}</small>` : ''}` : ''}${e.amt_cash != null && !info.credit ? `<small class="pay-mini">نقدي ${money(e.amt_cash)} · بنكي ${money(e.amt_bank)}</small>${expMini(e) ? `<small class="pay-mini">${esc(expMini(e))}</small>` : ''}` : ''}${hasAcc() && e.split ? `<small class="spl-mini">${esc(splitText(e.split, e.amount))}</small>` : ''}</div>
       <div class="e-acts">${info.sales_link ? `<button class="btn btn-ghost btn-sm e-rep" data-srep="${e.date}" title="إرسال تقرير مبيعات هذا اليوم على القروب">تقرير</button>` : ''}
       ${e.pending ? `<span class="tag">التعديل قيد المراجعة</span>` : `<button class="btn btn-ghost btn-sm" data-c="${e.date}">طلب تعديل</button>`}</div>
     </div>`).join('');
@@ -829,14 +904,17 @@ function openCorr(d) {
   } else document.getElementById('corrAmount').oninput = null;
   document.getElementById('corrAmountLbl').textContent = info.credit ? 'المبيعات الصحيحة (آجل)' : 'المبلغ الصحيح';
   const cSP = document.getElementById('corrSP'), cAmt = document.getElementById('corrAmount');
-  cAmt.readOnly = false; cAmt.classList.remove('auto'); cSP.innerHTML = '';
+  cAmt.readOnly = false; cAmt.classList.remove('auto'); cSP.innerHTML = ''; document.getElementById('corrExp').innerHTML = '';
   if (salesPay()) {
     CSP2 = { cash: e.amt_cash != null ? String(Number(e.amt_cash)) : '', bank: e.amt_bank != null ? String(Number(e.amt_bank)) : '' };
     cSP.innerHTML = `<div class="row2 csp"><label class="field"><span>صافي المبيعات النقدية</span><input id="cspCash" inputmode="decimal" dir="ltr" autocomplete="off" value="${esc(CSP2.cash)}"></label>
       <label class="field"><span>صافي المبيعات البنكية</span><input id="cspBank" inputmode="decimal" dir="ltr" autocomplete="off" value="${esc(CSP2.bank)}"></label></div>`;
     document.getElementById('corrAmountLbl').textContent = 'مجموع المبيعات (يُحسب تلقائياً)';
     cAmt.readOnly = true; cAmt.classList.add('auto');
-    const upd = () => { const c = payNum(CSP2.cash), k = payNum(CSP2.bank); cAmt.value = String(r2((isNaN(c) ? 0 : c) + (isNaN(k) ? 0 : k))); if (cAmt.oninput) cAmt.oninput(); };
+    CEXP = (e.expenses || []).map(x => ({ a: String(Number(x.a)), t: x.t })); if (!CEXP.length) CEXP.push({ a: '', t: '' });
+    const ceBox = document.getElementById('corrExp');
+    mountExp(ceBox, 'ce', CEXP, () => payNum(CSP2.cash));
+    const upd = () => { const c = payNum(CSP2.cash), k = payNum(CSP2.bank); cAmt.value = String(r2((isNaN(c) ? 0 : c) + (isNaN(k) ? 0 : k))); if (cAmt.oninput) cAmt.oninput(); expCalc(ceBox, 'ce', CEXP, c); };
     const ic = document.getElementById('cspCash'), ib = document.getElementById('cspBank');
     ic.oninput = () => { CSP2.cash = ic.value; upd(); }; ib.oninput = () => { CSP2.bank = ib.value; upd(); };
     upd();
@@ -846,7 +924,7 @@ function openCorr(d) {
   const admNote = e.by === 'admin' ? '<p class="adm-note">تم إدخال مبيعات هذا اليوم من قبل الإدارة.</p>' : '';
   const recorded = info.credit
     ? `المبيعات المسجلة: <b class="num">${money(e.amount)}</b> ريال<br>التحصيل المسجل: <b class="num">${money(e.collected)}</b> ريال${Number(e.collected) ? `<br><small>${esc(entryPay(e))}</small>` : ''}`
-    : `المبلغ المسجل: <b class="num">${money(e.amount)}</b> ريال${e.amt_cash != null ? `<br><small>نقدي ${money(e.amt_cash)} · بنكي ${money(e.amt_bank)}</small>` : ''}`;
+    : `المبلغ المسجل: <b class="num">${money(e.amount)}</b> ريال${e.amt_cash != null ? `<br><small>نقدي ${money(e.amt_cash)} · بنكي ${money(e.amt_bank)}${expMini(e) ? ' · ' + esc(expMini(e)) : ''}</small>` : ''}`;
   if (e.pending) {
     document.getElementById('corrInfo').innerHTML = `${esc(fmtLong(d))}<br>يوجد طلب تعديل لهذا اليوم بانتظار الإدارة.${admNote}`;
     send.disabled = true;
@@ -869,6 +947,8 @@ document.getElementById('corrForm').onsubmit = async ev => {
     if (isNaN(c) || isNaN(k)) { errEl.textContent = 'اكتب صافي المبيعات النقدية والبنكية أرقاماً فقط'; return; }
     if (!CSP2.cash.trim() && !CSP2.bank.trim()) { errEl.textContent = 'اكتب صافي المبيعات النقدية والبنكية'; return; }
     args.p_new_amt_cash = r2(c || 0); args.p_new_amt_bank = r2(k || 0);
+    const ex = expCalc(document.getElementById('corrExp'), 'ce', CEXP, args.p_new_amt_cash); if (!ex.ok) { errEl.textContent = ex.msg; return; }
+    args.p_new_expenses = ex.items;
   }
   if (info.credit) {
     const v = payVals(CORR), bad = PAY_KEYS.find(k => isNaN(v[k]));
@@ -1421,7 +1501,12 @@ function salesReportText(d) {
   const e = map[d]; if (!e) return '';
   const L = [`📊 *تقرير المبيعات اليومي*`, `🏪 *${branchLabel()}*`, `📅 ${fmtLong(d)}`, '━━━━━━━━━━━━',
     `💰 المبيعات: *${money(e.amount)}* ريال`];
-  if (e.amt_cash != null && !info.credit) L.push(`     • صافي النقدي: ${money(e.amt_cash)}`, `     • صافي البنكي: ${money(e.amt_bank)}`);
+  if (e.amt_cash != null && !info.credit) {
+    L.push(`     • صافي النقدي: ${money(e.amt_cash)}`, `     • صافي البنكي: ${money(e.amt_bank)}`);
+    const ex = e.expenses || [], es = ex.reduce((a, x) => a + Number(x.a), 0);
+    if (ex.length) { L.push('━━━━━━━━━━━━', '🧾 *مصروفات نقدية*', ...ex.map(x => `     • ${x.t}: ${money(x.a)}`), `     • الإجمالي: ${money(es)}`); }
+    L.push(`✅ *صافي النقد المسلم: ${money(Number(e.amt_cash) - es)} ريال*`);
+  }
   if (info.credit) {
     const col = Number(e.collected) || 0;
     L.push(`💵 التحصيل: *${money(col)}* ريال`);
@@ -1468,6 +1553,6 @@ else {
   }, 300000);
 }
 </script>
-<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-19 ج</p>
+<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-19 د</p>
 </body>
 </html>
