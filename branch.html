@@ -68,6 +68,24 @@
   .entry .btn { white-space: nowrap; flex: none; }
   .entry .d b { white-space: nowrap; }
   #corrPay .pay-f input { font-size: 17px; padding: 9px 6px; }
+  /* توزيع الفواتير على الفروع */
+  .spl { margin-top: 12px; border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px 12px; background: var(--surface); }
+  .spl-h { font-weight: 700; font-size: 14px; margin-bottom: 6px; display: flex; justify-content: space-between; gap: 8px; }
+  .spl-h small { font-weight: 400; color: var(--muted); }
+  .spl-r { display: grid; grid-template-columns: 1fr 42%; align-items: center; gap: 4px 10px; padding: 5px 0; border-top: 1px dashed var(--line); }
+  .spl-r:first-of-type { border-top: 0; }
+  .spl-r > span { font-size: 15px; font-weight: 600; }
+  .spl-r input { width: 100%; font: inherit; font-size: 18px; font-family: var(--font-head); text-align: center; padding: 8px 6px; border: 1.5px solid var(--line); border-radius: var(--r-sm); background: var(--bg); color: var(--ink); }
+  .spl-r input:focus { outline: none; border-color: var(--ink); background: var(--surface); }
+  .spl-r input.bad { border-color: var(--rose); background: var(--rose-soft); }
+  .spl-e { grid-column: 1 / -1; font-size: 13px; color: var(--rose); font-weight: 600; }
+  .spl-e:empty { display: none; }
+  .spl-r.other { background: #FFF1A8; color: #3d3200; border: 0; border-radius: var(--r-sm); padding: 8px 10px; margin-top: 6px; }
+  .spl-r.other b { font-family: var(--font-head); font-size: 20px; text-align: center; }
+  @media (prefers-color-scheme: dark) { .spl-r.other { background: #5a4a0c; color: #fff4c2; } }
+  .spl-sum { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: center; font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .spl-sum b { color: var(--ink); }
+  .entry .spl-mini { font-size: 11px !important; color: var(--muted); }
   .confirm .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
   .confirm .pair div { background: var(--bg); border-radius: var(--r-md); padding: 10px; }
   .confirm .pair span { display: block; font-size: 13px; color: var(--muted); }
@@ -307,7 +325,8 @@
     <h2 style="font-size:20px">طلب تعديل المبلغ</h2>
     <div class="muted" id="corrInfo" style="margin-top:6px"></div>
     <label class="field"><span id="corrAmountLbl">المبلغ الصحيح</span><input id="corrAmount" inputmode="decimal" autocomplete="off" required dir="ltr"></label>
-    <div class="field" id="corrColWrap" hidden><span>التحصيل الصحيح</span><div id="corrPay"></div></div>
+    <div id="corrSpS"></div>
+    <div class="field" id="corrColWrap" hidden><span>التحصيل الصحيح</span><div id="corrPay"></div><div id="corrSpC"></div></div>
     <label class="field"><span>ملاحظة للإدارة (اختياري)</span><textarea id="corrNote" rows="2"></textarea></label>
     <p class="err" id="corrErr" role="alert"></p>
     <div class="row2" style="margin-top:6px">
@@ -323,6 +342,7 @@
 <script>
 const token = new URLSearchParams(location.search).get('t');
 const root = document.getElementById('root');
+let SPL = { s: {}, c: {} }, CSPL = { s: {}, c: {} };
 let info = null, map = {}, viewMonth = null, selected = null, amountStr = '', colStr = '', PAY = { cash: '', bank: '', card: '' }, step = 'form', firstLoad = true, busy = false, lastDone = null;
 const DOW = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
 
@@ -594,6 +614,8 @@ function renderForm() {
         ? `<div class="pair"><div><span>المبيعات (آجل)</span><b class="num">${money(amt)}</b></div><div><span>مجموع التحصيل</span><b class="num">${money(col)}</b></div></div>
            ${col ? `<div class="pay-sum">${payLine(payVals())}</div>` : ''}`
         : `<p class="big num">${money(amt)} <span class="cur">ريال</span></p>`}
+      ${hasAcc() ? `<div class="spl-sum"><span>فواتير الفروع:</span> ${esc(splitText(splitArg(splitCalc(null, 'sp', amt, SPL.s, '').vals), amt)) || '—'}</div>
+        ${info.credit && col ? `<div class="spl-sum"><span>تحصيل الفروع:</span> ${esc(splitText(splitArg(splitCalc(null, 'sc', col, SPL.c, '').vals), col)) || '—'}</div>` : ''}` : ''}
       <p class="warn">بعد الإرسال لا يمكن إدخال هذا التاريخ مرة أخرى، والتصحيح يكون بطلب تعديل للإدارة.</p>
       <div class="row2">
         <button class="btn btn-accent btn-lg" id="sendBtn">تأكيد الإرسال</button>
@@ -611,20 +633,29 @@ function renderForm() {
     <label class="amount-wrap"><span class="sr">${info.credit ? 'المبيعات الآجلة' : 'إجمالي المبيعات'}</span>
       <input id="amount" inputmode="decimal" autocomplete="off" placeholder="0" value="${esc(amountStr)}">
       <span class="cur">ريال</span></label>
+    ${hasAcc() ? splitHtml('sp', SPL.s, 'توزيع المبيعات على الفروع', 'قيمة فاتورة كل فرع') : ''}
     ${info.credit ? `<div class="amt-lbl">التحصيل <small>(المبالغ المستلمة اليوم، اترك الفارغ إذا لا يوجد)</small></div>
-    ${payFields('p', PAY)}` : ''}
+    ${payFields('p', PAY)}${hasAcc() ? splitHtml('sc', SPL.c, 'توزيع التحصيل على الفروع', 'المبلغ المحصّل من كل فرع') : ''}` : ''}
     <p class="err" id="formErr" role="alert"></p>
     <button class="btn btn-primary btn-block btn-lg" id="nextBtn" style="margin-top:12px">إرسال المبيعات</button>`;
   const inp = el.querySelector('#amount'), cinp = el.querySelector('#p-cash');
-  inp.oninput = () => { amountStr = inp.value; el.querySelector('#formErr').textContent = ''; };
-  inp.onkeydown = e => { if (e.key === 'Enter') (cinp ? cinp.focus() : el.querySelector('#nextBtn').click()); };
-  if (cinp) bindPay(el, 'p', PAY, () => { el.querySelector('#formErr').textContent = ''; }, () => el.querySelector('#nextBtn').click());
+  const firstSp = hasAcc() ? el.querySelector('#sp-spl input') : null, firstSc = hasAcc() ? el.querySelector('#sc-spl input') : null;
+  const totS = () => parseAmount(amountStr), totC = () => colValue();
+  inp.oninput = () => { amountStr = inp.value; el.querySelector('#formErr').textContent = ''; if (firstSp) splitCalc(el, 'sp', totS(), SPL.s, 'المبيعات'); };
+  inp.onkeydown = e => { if (e.key === 'Enter') ((firstSp || cinp) ? (firstSp || cinp).focus() : el.querySelector('#nextBtn').click()); };
+  if (firstSp) bindSplit(el, 'sp', SPL.s, totS, 'المبيعات', () => (cinp ? cinp.focus() : el.querySelector('#nextBtn').click()));
+  if (cinp) bindPay(el, 'p', PAY, () => { el.querySelector('#formErr').textContent = ''; if (firstSc) splitCalc(el, 'sc', totC(), SPL.c, 'التحصيل'); }, () => (firstSc ? firstSc.focus() : el.querySelector('#nextBtn').click()));
+  if (firstSc) bindSplit(el, 'sc', SPL.c, totC, 'التحصيل', () => el.querySelector('#nextBtn').click());
   el.querySelector('#nextBtn').onclick = () => {
     const errEl = el.querySelector('#formErr');
     if (!selected) { errEl.textContent = 'اختر التاريخ من التقويم أولاً'; return; }
     const amt = parseAmount(amountStr);
     if (isNaN(amt)) { errEl.textContent = info.credit ? 'اكتب المبيعات رقماً فقط، مثل 12500 (اكتب 0 إذا لا توجد مبيعات)' : 'اكتب إجمالي المبيعات رقماً فقط، مثل 12500'; inp.focus(); return; }
     if (info.credit) { const bad = PAY_KEYS.find(k => isNaN(payNum(PAY[k]))); if (bad) { errEl.textContent = `اكتب مبلغ ${PAY_LBL[bad]} رقماً فقط، أو اتركه فارغاً`; el.querySelector('#p-' + bad).focus(); return; } }
+    if (hasAcc()) {
+      const a = splitCalc(el, 'sp', amt, SPL.s, 'المبيعات'); if (!a.ok) { errEl.textContent = a.msg; return; }
+      if (info.credit) { const c = splitCalc(el, 'sc', colValue(), SPL.c, 'التحصيل'); if (!c.ok) { errEl.textContent = c.msg; return; } }
+    }
     step = 'confirm'; renderForm();
   };
 }
@@ -655,17 +686,66 @@ function entryPay(e) {
   return PAY_KEYS.filter(k => v[k]).map(k => `${PAY_TTL[k]} ${money(v[k])}`).concat(other > 0 ? [`بدون تفصيل ${money(other)}`] : []).join(' · ');
 }
 
+// ---------- توزيع الفواتير والتحصيل على الفروع ----------
+const hasAcc = () => !!(info && info.accounts && info.accounts.length);
+function splitHtml(pre, o, title, sub) {
+  return `<div class="spl" id="${pre}-spl"><div class="spl-h"><span>${title}</span><small>${sub}</small></div>
+    ${info.accounts.map(a => `<label class="spl-r"><span>${esc(a.name)}</span>
+      <input id="${pre}-a${a.id}" data-acc="${a.id}" inputmode="decimal" autocomplete="off" placeholder="0" dir="ltr" value="${esc(o[a.id] || '')}">
+      <small class="spl-e" id="${pre}-e${a.id}" role="alert"></small></label>`).join('')}
+    <div class="spl-r other" aria-live="polite"><span>أخرى <small style="font-weight:400">(المتبقي تلقائياً)</small></span><b class="num" id="${pre}-oth">0</b></div>
+    <small class="spl-e" id="${pre}-err" role="alert"></small></div>`;
+}
+// يحسب "أخرى" ويعرض الحد الأقصى عند التجاوز. يرجع { ok, vals, other, msg }
+function splitCalc(root, pre, total, o, what) {
+  const vals = {}; let sum = 0, bad = null;
+  for (const a of info.accounts) { const v = payNum(o[a.id]); vals[a.id] = v; if (isNaN(v) || v < 0) bad = bad || a; else sum += v; }
+  const t = isNaN(total) ? 0 : total, other = r2(t - sum), over = other < -0.004;
+  const q = id => root && root.querySelector('#' + id);
+  for (const a of info.accounts) {
+    const inp = q(`${pre}-a${a.id}`), er = q(`${pre}-e${a.id}`); if (!inp) continue;
+    let m = '';
+    if (bad === a) m = 'اكتب المبلغ رقماً فقط';
+    else if (over && String(o._last) === String(a.id)) m = `الحد الأقصى لهذه الفاتورة هو ${money(Math.max(0, r2(t - (sum - vals[a.id]))))} ريال ليطابق إجمالي ${what}`;
+    inp.classList.toggle('bad', !!m); er.textContent = m;
+  }
+  const oth = q(`${pre}-oth`); if (oth) oth.textContent = money(Math.max(0, other));
+  const ge = q(`${pre}-err`);
+  const lastOk = info.accounts.some(a => String(o._last) === String(a.id));
+  const msg = bad ? `اكتب مبلغ ${bad.name} رقماً فقط` : over ? `مجموع مبالغ الفروع (${money(sum)}) أكبر من إجمالي ${what} (${money(t)}). الحد الأقصى ${money(t)} ريال` : '';
+  if (ge) ge.textContent = over && !lastOk ? msg : '';
+  return { ok: !msg, vals, other: Math.max(0, other), msg };
+}
+function bindSplit(root, pre, o, getTotal, what, onEnter) {
+  const ins = info.accounts.map(a => root.querySelector(`#${pre}-a${a.id}`));
+  ins.forEach((f, i) => {
+    f.oninput = () => { o[f.dataset.acc] = f.value; o._last = f.dataset.acc; splitCalc(root, pre, getTotal(), o, what); };
+    f.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); ins[i + 1] ? ins[i + 1].focus() : onEnter && onEnter(); } };
+  });
+  splitCalc(root, pre, getTotal(), o, what);
+}
+const splitArg = vals => { const r = {}; for (const k in vals) if (vals[k] > 0) r[k] = r2(vals[k]); return r; };
+function splitText(split, total) { // سطر مختصر: مورا البلد 300 · ... · أخرى 200
+  if (!hasAcc()) return '';
+  const sp = split || {}; let sum = 0;
+  const parts = info.accounts.filter(a => Number(sp[a.id])).map(a => { sum += Number(sp[a.id]); return `${a.name} ${money(sp[a.id])}`; });
+  const oth = r2(Number(total) - sum); if (oth > 0.004) parts.push(`أخرى ${money(oth)}`);
+  return parts.join(' · ');
+}
+function splitObj(sp) { const o = {}; if (sp) for (const k in sp) o[k] = String(Number(sp[k])); return o; }
+
 async function submit() {
   if (busy) return; busy = true;
   const btn = document.getElementById('sendBtn'); btn.disabled = true; btn.textContent = 'جارٍ الإرسال…';
   const amt = parseAmount(amountStr), col = info.credit ? colValue() : 0, pv = payVals();
   const args = { p_token: token, p_date: selected, p_amount: amt, p_collected: col };
   if (info.credit) { args.p_cash = pv.cash; args.p_bank = pv.bank; args.p_card = pv.card; }
+  if (hasAcc()) { args.p_split = splitArg(splitCalc(null, 'sp', amt, SPL.s, '').vals); if (info.credit) args.p_col_split = splitArg(splitCalc(null, 'sc', col, SPL.c, '').vals); }
   const { error } = await sb.rpc('submit_sale', args);
   busy = false;
   if (error) { toast(errMsg(error), 'err'); step = 'form'; await load(); return; }
   lastDone = { date: selected, amount: amt, collected: col, pay: pv };
-  selected = null; amountStr = ''; colStr = ''; PAY = { cash: '', bank: '', card: '' }; step = 'done';
+  selected = null; amountStr = ''; colStr = ''; PAY = { cash: '', bank: '', card: '' }; SPL = { s: {}, c: {} }; step = 'done';
   await load();
 }
 
@@ -676,7 +756,7 @@ function renderList() {
   el.innerHTML = `<h2>إدخالاتك السابقة</h2>` + items.map(e => `
     <div class="entry">
       <div class="d"><b>${esc(fmtShort(e.date))}</b><small>${esc(fmtDayName(e.date))}</small>${e.by === 'admin' ? '<span class="by-adm">أدخلته الإدارة</span>' : ''}</div>
-      <div class="a num">${money(e.amount)}${info.credit ? `<small>تحصيل ${money(e.collected)}</small>${Number(e.collected) ? `<small class="pay-mini">${esc(entryPay(e))}</small>` : ''}` : ''}</div>
+      <div class="a num">${money(e.amount)}${info.credit ? `<small>تحصيل ${money(e.collected)}</small>${Number(e.collected) ? `<small class="pay-mini">${esc(entryPay(e))}</small>` : ''}` : ''}${hasAcc() && e.split ? `<small class="spl-mini">${esc(splitText(e.split, e.amount))}</small>` : ''}</div>
       <div class="e-acts">${info.sales_link ? `<button class="btn btn-ghost btn-sm e-rep" data-srep="${e.date}" title="إرسال تقرير مبيعات هذا اليوم على القروب">تقرير</button>` : ''}
       ${e.pending ? `<span class="tag">التعديل قيد المراجعة</span>` : `<button class="btn btn-ghost btn-sm" data-c="${e.date}">طلب تعديل</button>`}</div>
     </div>`).join('');
@@ -701,6 +781,21 @@ function openCorr(d) {
     const box = document.getElementById('corrPay'); box.innerHTML = payFields('c', CORR); bindPay(box, 'c', CORR);
   }
   document.getElementById('corrColWrap').hidden = !info.credit;
+  const spS = document.getElementById('corrSpS'), spC = document.getElementById('corrSpC');
+  spS.innerHTML = ''; spC.innerHTML = '';
+  if (hasAcc()) {
+    if (!info.credit) document.getElementById('corrAmount').value = String(Number(e.amount));
+    CSPL = { s: splitObj(e.split), c: splitObj(e.col_split) };
+    const ca = () => parseAmount(document.getElementById('corrAmount').value), cc = () => paySum(payVals(CORR));
+    spS.innerHTML = splitHtml('cs', CSPL.s, 'توزيع المبيعات على الفروع', 'قيمة فاتورة كل فرع');
+    bindSplit(spS, 'cs', CSPL.s, ca, 'المبيعات');
+    document.getElementById('corrAmount').oninput = () => splitCalc(spS, 'cs', ca(), CSPL.s, 'المبيعات');
+    if (info.credit) {
+      spC.innerHTML = splitHtml('cc', CSPL.c, 'توزيع التحصيل على الفروع', 'المبلغ المحصّل من كل فرع');
+      bindSplit(spC, 'cc', CSPL.c, cc, 'التحصيل');
+      const box = document.getElementById('corrPay'); bindPay(box, 'c', CORR, () => splitCalc(spC, 'cc', cc(), CSPL.c, 'التحصيل'));
+    }
+  } else document.getElementById('corrAmount').oninput = null;
   document.getElementById('corrAmountLbl').textContent = info.credit ? 'المبيعات الصحيحة (آجل)' : 'المبلغ الصحيح';
   document.getElementById('corrNote').value = '';
   const send = document.getElementById('corrSend');
@@ -729,6 +824,11 @@ document.getElementById('corrForm').onsubmit = async ev => {
     const v = payVals(CORR), bad = PAY_KEYS.find(k => isNaN(v[k]));
     if (bad) { errEl.textContent = `اكتب مبلغ ${PAY_LBL[bad]} رقماً فقط`; return; }
     args.p_new_collected = paySum(v); args.p_new_cash = v.cash; args.p_new_bank = v.bank; args.p_new_card = v.card;
+  }
+  if (hasAcc()) {
+    const a = splitCalc(document.getElementById('corrSpS'), 'cs', amt, CSPL.s, 'المبيعات'); if (!a.ok) { errEl.textContent = a.msg; return; }
+    args.p_new_split = splitArg(a.vals);
+    if (info.credit) { const c = splitCalc(document.getElementById('corrSpC'), 'cc', args.p_new_collected, CSPL.c, 'التحصيل'); if (!c.ok) { errEl.textContent = c.msg; return; } args.p_new_col_split = splitArg(c.vals); }
   }
   const send = document.getElementById('corrSend'); send.disabled = true; send.textContent = 'جارٍ الإرسال…';
   const { error } = await sb.rpc('request_correction', args);
@@ -1280,6 +1380,12 @@ function salesReportText(d) {
       const other = col - paySum(v); if (other > 0.004) L.push(`     • بدون تفصيل: ${money(other)}`);
     }
   }
+  if (hasAcc()) {
+    const lines = (sp, tot) => { const o = sp || {}; let sum = 0; const r = info.accounts.filter(a => Number(o[a.id])).map(a => { sum += Number(o[a.id]); return `     • ${a.name}: ${money(o[a.id])}`; });
+      const oth = r2(Number(tot) - sum); if (oth > 0.004) r.push(`     • أخرى: ${money(oth)}`); return r; };
+    L.push('━━━━━━━━━━━━', '🧾 *فواتير الفروع*', ...lines(e.split, e.amount));
+    if (info.credit && Number(e.collected)) L.push('💳 *تحصيل الفروع*', ...lines(e.col_split, e.collected));
+  }
   return L.join('\n');
 }
 async function shareSalesReport(d, btn) {
@@ -1311,6 +1417,6 @@ else {
   }, 300000);
 }
 </script>
-<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-17 و</p>
+<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-19 ب</p>
 </body>
 </html>
