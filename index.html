@@ -668,8 +668,10 @@
   .t-bar.thin { height: 7px; }
   @media (max-width: 900px) { .fund-cols { grid-template-columns: 1fr; } .fund-kpis { grid-template-columns: 1fr; } .fk-v { font-size: 26px; } }
   /* ---- المساعد الصوتي ---- */
-  .voice-btn svg { width: 16px; height: 16px; vertical-align: -3px; }
-  .voice-btn.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+  .voice-btn { background: #C62828; color: #fff; border: 1px solid #C62828; font-weight: 700; box-shadow: 0 4px 14px rgba(198,40,40,.35); }
+  .voice-btn:hover { background: #A61F1F; border-color: #A61F1F; color: #fff; }
+  .voice-btn svg { width: 17px; height: 17px; vertical-align: -3px; }
+  .voice-btn.on { background: #7f1414; border-color: #7f1414; color: #fff; box-shadow: 0 0 0 3px rgba(198,40,40,.3); }
   .voice-pop { position: fixed; z-index: 60; inset-inline-end: 16px; bottom: 16px; width: min(380px, calc(100vw - 24px)); max-height: calc(100vh - 32px); overflow: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 18px 50px rgba(0,0,0,.22); padding: 14px; text-align: center; }
   .v-head { display: flex; align-items: center; gap: 10px; text-align: start; }
   .v-head b { flex: 1; font-size: 16px; }
@@ -1028,6 +1030,7 @@
       <span id="viewTag" class="view-tag view-only"></span>
     </div>
     <div class="top-actions">
+      <button id="voiceBtn" class="btn btn-sm voice-btn" title="أمر صوتي: تكلم والبرنامج ينفذ" aria-label="أمر صوتي"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg> أمر صوتي</button>
       <button id="addBtn" class="btn btn-primary btn-sm edit-only">إدخال مبيعات</button>
       <button id="repBtn" class="btn btn-ghost btn-sm">تقارير إدارية</button>
       <button id="calcBtn" class="btn btn-ghost btn-sm edit-only">حاسبة التكلفة</button>
@@ -1037,14 +1040,13 @@
       <button id="wasteBtn" class="btn btn-ghost btn-sm">التوالف</button>
       <button id="lateBtn" class="bell-btn" aria-expanded="false" aria-haspopup="true" aria-label="تنبيهات التأخير" title="تنبيهات التأخير"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span id="lateDot" class="bell-dot" hidden></span></button>
       <button id="bellBtn" class="btn btn-ghost btn-sm">طلبات التعديل <span id="bellCount" class="badge zero">0</span></button>
-      <button id="voiceBtn" class="btn btn-ghost btn-sm voice-btn" title="المساعد الصوتي: تكلم وأنا أنفذ" aria-label="المساعد الصوتي"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg> المساعد</button>
       <button id="settingsBtn" class="btn btn-ghost btn-sm edit-only">الإعدادات</button>
       <button id="logoutBtn" class="btn btn-ghost btn-sm edit-only">خروج</button>
     </div>
   </div></header>
   <section id="latePanel" class="late-pop" hidden role="dialog" aria-label="تنبيهات التأخير"></section>
-  <section id="voicePanel" class="voice-pop" hidden role="dialog" aria-label="المساعد الصوتي">
-    <div class="v-head"><b>المساعد الصوتي</b><label class="v-spk"><input type="checkbox" id="vSpeak" checked> رد بالصوت</label><button class="icon-x sm" id="vClose" aria-label="إغلاق">×</button></div>
+  <section id="voicePanel" class="voice-pop" hidden role="dialog" aria-label="أمر صوتي">
+    <div class="v-head"><b>أمر صوتي</b><label class="v-spk"><input type="checkbox" id="vSpeak" checked> رد بالصوت</label><button class="icon-x sm" id="vClose" aria-label="إغلاق">×</button></div>
     <button id="vMic" class="v-mic" aria-pressed="false" aria-label="اضغط وتكلم"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg></button>
     <p class="v-heard" id="vHeard">اضغط المايكروفون وتكلم</p>
     <p class="v-nosr" id="vNoSR" hidden>هذا المتصفح لا يدعم التحدث (استخدم Chrome أو Safari)، ويمكنك كتابة الأمر.</p>
@@ -1097,7 +1099,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-20 ج</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-20 د</p>
     </div>
 
     <section id="detail" hidden></section>
