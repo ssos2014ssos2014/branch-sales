@@ -647,8 +647,8 @@ function renderForm() {
         : `<p class="big num">${money(amt)} <span class="cur">ريال</span></p>${salesPay() ? (() => { const ex = expCalc(null, '', EXP, payNum(SP2.cash) || 0); return `<div class="pay-sum">نقدي <b class="num">${money(payNum(SP2.cash) || 0)}</b> · بنكي <b class="num">${money(payNum(SP2.bank) || 0)}</b></div>
           ${ex.items.length ? `<div class="exp-conf">${ex.items.map(x => `<div><span>${esc(x.t)}</span><b class="num">${money(x.a)}</b></div>`).join('')}<div class="t"><span>إجمالي المصروفات</span><b class="num">${money(ex.sum)}</b></div></div>` : ''}
           <div class="net-box sm"><span>صافي المبلغ النقدي المسلم</span><b class="num">${money(ex.net)}</b><small>ريال</small></div>`; })() : ''}`}
-      ${hasAcc() ? `<div class="spl-sum"><span>فواتير الفروع:</span> ${esc(splitText(splitArg(splitCalc(null, 'sp', amt, SPL.s, '').vals), amt)) || '—'}</div>
-        ${info.credit && col ? `<div class="spl-sum"><span>تحصيل الفروع:</span> ${esc(splitText(splitArg(splitCalc(null, 'sc', col, SPL.c, '').vals), col)) || '—'}</div>` : ''}` : ''}
+      ${hasAcc() ? `${colOnly() ? '' : `<div class="spl-sum"><span>فواتير الفروع:</span> ${esc(splitText(splitArg(splitCalc(null, 'sp', amt, SPL.s, '').vals), amt)) || '—'}</div>`}
+        ${info.credit && col ? `<div class="spl-sum"><span>${colOnly() ? 'مصدر التحصيل' : 'تحصيل الفروع'}:</span> ${esc(splitText(splitArg(splitCalc(null, 'sc', col, SPL.c, '').vals), col)) || '—'}</div>` : ''}` : ''}
       <p class="warn">بعد الإرسال لا يمكن إدخال هذا التاريخ مرة أخرى، والتصحيح يكون بطلب تعديل للإدارة.</p>
       <div class="row2">
         <button class="btn btn-accent btn-lg" id="sendBtn">تأكيد الإرسال</button>
@@ -673,9 +673,9 @@ function renderForm() {
     <label class="amount-wrap"><span class="sr">${info.credit ? 'المبيعات الآجلة' : 'إجمالي المبيعات'}</span>
       <input id="amount" inputmode="decimal" autocomplete="off" placeholder="0" value="${esc(amountStr)}">
       <span class="cur">ريال</span></label>`}
-    ${hasAcc() ? splitHtml('sp', SPL.s, 'توزيع المبيعات على الفروع', 'قيمة فاتورة كل فرع') : ''}
+    ${hasAcc() && !colOnly() ? splitHtml('sp', SPL.s, 'توزيع المبيعات على الفروع', 'قيمة فاتورة كل فرع') : ''}
     ${info.credit ? `<div class="amt-lbl">التحصيل <small>(المبالغ المستلمة اليوم، اترك الفارغ إذا لا يوجد)</small></div>
-    ${payFields('p', PAY)}${hasAcc() ? splitHtml('sc', SPL.c, 'توزيع التحصيل على الفروع', 'المبلغ المحصّل من كل فرع') : ''}` : ''}
+    ${payFields('p', PAY)}${hasAcc() ? splitHtml('sc', SPL.c, COL_T(), 'المبلغ المحصّل من كل فرع') : ''}` : ''}
     <p class="err" id="formErr" role="alert"></p>
     <button class="btn btn-primary btn-block btn-lg" id="nextBtn" style="margin-top:12px">إرسال المبيعات</button>`;
   const inp = el.querySelector('#amount'), cinp = el.querySelector('#p-cash');
@@ -792,6 +792,8 @@ function mountExp(box, pre, list, getCash, onEnterLast) {
 const expMini = e => e.expenses && e.expenses.length ? `مصروفات ${money(e.expenses.reduce((a, x) => a + Number(x.a), 0))} · صافي نقدي ${money(Number(e.amt_cash) - e.expenses.reduce((a, x) => a + Number(x.a), 0))}` : '';
 
 // ---------- توزيع الفواتير والتحصيل على الفروع ----------
+const colOnly = () => !!(info && info.split_mode === 'col');
+const COL_T = () => colOnly() ? 'مصدر التحصيل' : 'توزيع التحصيل على الفروع';
 const hasAcc = () => !!(info && info.accounts && info.accounts.length);
 function splitHtml(pre, o, title, sub) {
   return `<div class="spl" id="${pre}-spl"><div class="spl-h"><span>${title}</span><small>${sub}</small></div>
@@ -862,7 +864,7 @@ function renderList() {
   el.innerHTML = `<h2>إدخالاتك السابقة</h2>` + items.map(e => `
     <div class="entry">
       <div class="d"><b>${esc(fmtShort(e.date))}</b><small>${esc(fmtDayName(e.date))}</small>${e.by === 'admin' ? '<span class="by-adm">أدخلته الإدارة</span>' : ''}</div>
-      <div class="a num">${money(e.amount)}${info.credit ? `<small>تحصيل ${money(e.collected)}</small>${Number(e.collected) ? `<small class="pay-mini">${esc(entryPay(e))}</small>` : ''}` : ''}${e.amt_cash != null && !info.credit ? `<small class="pay-mini">نقدي ${money(e.amt_cash)} · بنكي ${money(e.amt_bank)}</small>${expMini(e) ? `<small class="pay-mini">${esc(expMini(e))}</small>` : ''}` : ''}${hasAcc() && e.split ? `<small class="spl-mini">${esc(splitText(e.split, e.amount))}</small>` : ''}</div>
+      <div class="a num">${money(e.amount)}${info.credit ? `<small>تحصيل ${money(e.collected)}</small>${Number(e.collected) ? `<small class="pay-mini">${esc(entryPay(e))}</small>` : ''}` : ''}${e.amt_cash != null && !info.credit ? `<small class="pay-mini">نقدي ${money(e.amt_cash)} · بنكي ${money(e.amt_bank)}</small>${expMini(e) ? `<small class="pay-mini">${esc(expMini(e))}</small>` : ''}` : ''}${hasAcc() && e.split && !colOnly() ? `<small class="spl-mini">${esc(splitText(e.split, e.amount))}</small>` : ''}${hasAcc() && colOnly() && e.col_split ? `<small class="spl-mini">من: ${esc(splitText(e.col_split, e.collected))}</small>` : ''}</div>
       <div class="e-acts">${info.sales_link ? `<button class="btn btn-ghost btn-sm e-rep" data-srep="${e.date}" title="إرسال تقرير مبيعات هذا اليوم على القروب">تقرير</button>` : ''}
       ${e.pending ? `<span class="tag">التعديل قيد المراجعة</span>` : `<button class="btn btn-ghost btn-sm" data-c="${e.date}">طلب تعديل</button>`}</div>
     </div>`).join('');
@@ -893,11 +895,13 @@ function openCorr(d) {
     if (!info.credit) document.getElementById('corrAmount').value = String(Number(e.amount));
     CSPL = { s: splitObj(e.split), c: splitObj(e.col_split) };
     const ca = () => parseAmount(document.getElementById('corrAmount').value), cc = () => paySum(payVals(CORR));
-    spS.innerHTML = splitHtml('cs', CSPL.s, 'توزيع المبيعات على الفروع', 'قيمة فاتورة كل فرع');
-    bindSplit(spS, 'cs', CSPL.s, ca, 'المبيعات');
-    document.getElementById('corrAmount').oninput = () => splitCalc(spS, 'cs', ca(), CSPL.s, 'المبيعات');
+    if (!colOnly()) {
+      spS.innerHTML = splitHtml('cs', CSPL.s, 'توزيع المبيعات على الفروع', 'قيمة فاتورة كل فرع');
+      bindSplit(spS, 'cs', CSPL.s, ca, 'المبيعات');
+      document.getElementById('corrAmount').oninput = () => splitCalc(spS, 'cs', ca(), CSPL.s, 'المبيعات');
+    } else document.getElementById('corrAmount').oninput = null;
     if (info.credit) {
-      spC.innerHTML = splitHtml('cc', CSPL.c, 'توزيع التحصيل على الفروع', 'المبلغ المحصّل من كل فرع');
+      spC.innerHTML = splitHtml('cc', CSPL.c, COL_T(), 'المبلغ المحصّل من كل فرع');
       bindSplit(spC, 'cc', CSPL.c, cc, 'التحصيل');
       const box = document.getElementById('corrPay'); bindPay(box, 'c', CORR, () => splitCalc(spC, 'cc', cc(), CSPL.c, 'التحصيل'));
     }
@@ -1519,8 +1523,8 @@ function salesReportText(d) {
   if (hasAcc()) {
     const lines = (sp, tot) => { const o = sp || {}; let sum = 0; const r = info.accounts.filter(a => Number(o[a.id])).map(a => { sum += Number(o[a.id]); return `     • ${a.name}: ${money(o[a.id])}`; });
       const oth = r2(Number(tot) - sum); if (oth > 0.004) r.push(`     • أخرى: ${money(oth)}`); return r; };
-    L.push('━━━━━━━━━━━━', '🧾 *فواتير الفروع*', ...lines(e.split, e.amount));
-    if (info.credit && Number(e.collected)) L.push('💳 *تحصيل الفروع*', ...lines(e.col_split, e.collected));
+    if (!colOnly()) L.push('━━━━━━━━━━━━', '🧾 *فواتير الفروع*', ...lines(e.split, e.amount));
+    if (info.credit && Number(e.collected)) L.push(...(colOnly() ? ['━━━━━━━━━━━━'] : []), `💳 *${colOnly() ? 'مصدر التحصيل' : 'تحصيل الفروع'}*`, ...lines(e.col_split, e.collected));
   }
   return L.join('\n');
 }
@@ -1553,6 +1557,6 @@ else {
   }, 300000);
 }
 </script>
-<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-19 د</p>
+<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-20 أ</p>
 </body>
 </html>

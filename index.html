@@ -593,6 +593,8 @@
   .acc-r.oth { background: #FFF6C9; }
   @media (prefers-color-scheme: dark) { .acc-r.oth { background: #3d340d; } }
   .acc-n { font-weight: 600; }
+  .col-src .acc-r { grid-template-columns: minmax(110px, 1.2fr) minmax(80px, 1.8fr) repeat(2, minmax(64px, .7fr)); }
+  @media (max-width: 640px) { .col-src .acc-r { grid-template-columns: 1fr repeat(2, minmax(56px, .7fr)); } }
   .acc-bar { position: relative; height: 14px; }
   .acc-bar i { position: absolute; inset-inline-start: 0; top: 0; height: 100%; border-radius: 0 4px 4px 0; }
   [dir=rtl] .acc-bar i { border-radius: 4px 0 0 4px; }
@@ -623,6 +625,29 @@
   .aex-net { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; background: #E3F4E6; color: #14532D; border: 2px solid #2E8B47; border-radius: 10px; padding: 8px 10px; font-weight: 700; }
   .aex-net b { font-size: 18px; }
   @media (prefers-color-scheme: dark) { .aex-net { background: #123d22; color: #c9f2d4; } }
+  /* ---- المساعد الصوتي ---- */
+  .voice-btn svg { width: 16px; height: 16px; vertical-align: -3px; }
+  .voice-btn.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+  .voice-pop { position: fixed; z-index: 60; inset-inline-end: 16px; bottom: 16px; width: min(380px, calc(100vw - 24px)); max-height: calc(100vh - 32px); overflow: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 18px 50px rgba(0,0,0,.22); padding: 14px; text-align: center; }
+  .v-head { display: flex; align-items: center; gap: 10px; text-align: start; }
+  .v-head b { flex: 1; font-size: 16px; }
+  .v-spk { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 4px; }
+  .v-mic { width: 84px; height: 84px; border-radius: 50%; border: 0; margin: 14px auto 6px; display: grid; place-items: center; background: var(--ink); color: var(--on-ink); cursor: pointer; transition: transform .15s; }
+  .v-mic svg { width: 38px; height: 38px; }
+  .v-mic.rec { background: #c62828; animation: vpulse 1.2s infinite; }
+  @keyframes vpulse { 0% { box-shadow: 0 0 0 0 rgba(198,40,40,.5); } 70% { box-shadow: 0 0 0 18px rgba(198,40,40,0); } 100% { box-shadow: 0 0 0 0 rgba(198,40,40,0); } }
+  @media (prefers-reduced-motion: reduce) { .v-mic.rec { animation: none; } }
+  .v-heard { min-height: 22px; font-size: 15px; font-weight: 600; margin: 4px 0 8px; }
+  .v-nosr { font-size: 12px; color: var(--no-c); }
+  .v-form { display: flex; gap: 6px; } .v-form .in { flex: 1; }
+  .v-log { margin-top: 10px; display: grid; gap: 6px; text-align: start; }
+  .v-msg { margin: 0; background: color-mix(in srgb, var(--ok-c) 10%, var(--bg)); border-radius: 12px; padding: 9px 11px; font-size: 14px; line-height: 1.6; }
+  .v-msg.err { background: color-mix(in srgb, var(--no-c) 10%, var(--bg)); }
+  .v-msg.old { opacity: .55; font-size: 13px; }
+  .v-ex { margin-top: 10px; text-align: start; font-size: 13px; } .v-ex summary { cursor: pointer; color: var(--muted); }
+  .v-ex div { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .v-ex button { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 5px 10px; font: inherit; font-size: 12px; cursor: pointer; color: var(--ink); }
+  .v-note { font-size: 11px; margin: 8px 0 0; }
   /* ---- مشتريات الفروع ---- */
   .pur-box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg, 16px); padding: 14px 16px; margin: 14px 0; }
   .pur-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; margin: 8px 0 12px; }
@@ -969,11 +994,34 @@
       <button id="wasteBtn" class="btn btn-ghost btn-sm">التوالف</button>
       <button id="lateBtn" class="bell-btn" aria-expanded="false" aria-haspopup="true" aria-label="تنبيهات التأخير" title="تنبيهات التأخير"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span id="lateDot" class="bell-dot" hidden></span></button>
       <button id="bellBtn" class="btn btn-ghost btn-sm">طلبات التعديل <span id="bellCount" class="badge zero">0</span></button>
+      <button id="voiceBtn" class="btn btn-ghost btn-sm voice-btn" title="المساعد الصوتي: تكلم وأنا أنفذ" aria-label="المساعد الصوتي"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg> المساعد</button>
       <button id="settingsBtn" class="btn btn-ghost btn-sm edit-only">الإعدادات</button>
       <button id="logoutBtn" class="btn btn-ghost btn-sm edit-only">خروج</button>
     </div>
   </div></header>
   <section id="latePanel" class="late-pop" hidden role="dialog" aria-label="تنبيهات التأخير"></section>
+  <section id="voicePanel" class="voice-pop" hidden role="dialog" aria-label="المساعد الصوتي">
+    <div class="v-head"><b>المساعد الصوتي</b><label class="v-spk"><input type="checkbox" id="vSpeak" checked> رد بالصوت</label><button class="icon-x sm" id="vClose" aria-label="إغلاق">×</button></div>
+    <button id="vMic" class="v-mic" aria-pressed="false" aria-label="اضغط وتكلم"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg></button>
+    <p class="v-heard" id="vHeard">اضغط المايكروفون وتكلم</p>
+    <p class="v-nosr" id="vNoSR" hidden>هذا المتصفح لا يدعم التحدث (استخدم Chrome أو Safari)، ويمكنك كتابة الأمر.</p>
+    <form id="vForm" class="v-form"><input class="in" id="vText" placeholder="أو اكتب الأمر هنا…" autocomplete="off"><button class="btn btn-primary btn-sm" type="submit">نفّذ</button></form>
+    <div id="vLog" class="v-log" aria-live="polite"></div>
+    <details class="v-ex"><summary>أمثلة على الأوامر</summary>
+      <div>
+        <button data-vex="كم مبيعات اليوم">كم مبيعات اليوم</button>
+        <button data-vex="كم مبيعات البازل هذا الشهر">كم مبيعات البازل هذا الشهر</button>
+        <button data-vex="كم المتبقي على أفق النكهات">كم المتبقي على أفق النكهات</button>
+        <button data-vex="سجل مبيعات أفنون نقدي ألفين بنكي ألف وخمسمية">سجل مبيعات أفنون نقدي ألفين بنكي ألف وخمسمية</button>
+        <button data-vex="مبيعات البازل أمس خمسة آلاف">مبيعات البازل أمس خمسة آلاف</button>
+        <button data-vex="تحصيل أفق النكهات ثلاثة آلاف تحويل من مورا البلد">تحصيل أفق النكهات ثلاثة آلاف تحويل من مورا البلد</button>
+        <button data-vex="مردود البازل خمسمية">مردود البازل خمسمية</button>
+        <button data-vex="افتح بلانيت">افتح بلانيت</button>
+        <button data-vex="افتح التقارير">افتح التقارير</button>
+        <button data-vex="اعرض الشهر الماضي">اعرض الشهر الماضي</button>
+      </div></details>
+    <p class="muted v-note">أوامر الإدخال تفتح النموذج معبّأً، وأنت تراجع وتضغط حفظ.</p>
+  </section>
 
   <main class="shell">
     <section class="period">
@@ -1006,7 +1054,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-19 هـ</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-20 أ</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -1168,7 +1216,8 @@ async function loadSalesRows() {
 }
 async function loadBranches() {
   const cols = 'id,name,group_name,sort_order,token,active,credit,waste,logo,is_rep,whatsapp,track_from,late_exempt,monthly_target,profit_margin,sales_wa_link,waste_wa_link';
-  let { data, error } = await sb.from('branches').select(cols + ',sales_pay').order('sort_order').order('id');
+  let { data, error } = await sb.from('branches').select(cols + ',sales_pay,split_mode').order('sort_order').order('id');
+  if (error && /split_mode/.test(error.message || '')) ({ data, error } = await sb.from('branches').select(cols + ',sales_pay').order('sort_order').order('id'));
   if (error && /sales_pay/.test(error.message || '')) ({ data, error } = await sb.from('branches').select(cols).order('sort_order').order('id'));
   if (error) { toast(errMsg(error), 'err'); return; }
   S.allBranches = data; S.byId = {};
@@ -1977,6 +2026,10 @@ function bindSettingsView() {
     const t = e.target;
     if (t.dataset.bset) return saveBranchField(t);
     if (t.id === 'accBranch') { S.accBranch = Number(t.value); return renderSetAccts(); }
+    if (t.id === 'accMode') return (async () => { const b = S.byId[S.accBranch], v = t.value;
+      const { error } = await sb.from('branches').update({ split_mode: v }).eq('id', b.id);
+      if (error) { t.value = b.split_mode || 'both'; return toast(/split_mode|schema cache/i.test(error.message || '') ? 'شغّل ملف colsrc.sql أولاً' : errMsg(error), 'err'); }
+      b.split_mode = v; toast(v === 'col' ? 'تم: توزيع التحصيل فقط (مصدر التحصيل)' : 'تم: توزيع المبيعات والتحصيل'); })();
     if (t.dataset.accname) return accRename(t);
     if (t.dataset.acclink) return accLink(t);
     if (t.dataset.salespay) return (async () => { const id = Number(t.dataset.salespay), v = t.checked;
@@ -2011,7 +2064,7 @@ function movesPanel(brs) {
         ${kind === 'return' ? `<input class="in mv-amt" id="mvA-${kind}" inputmode="decimal" dir="ltr" placeholder="المبلغ" aria-label="المبلغ">` : ''}
         <input class="in" id="mvN-${kind}" placeholder="ملاحظة (اختياري)" maxlength="120"></div>
       ${kind === 'collect' ? payFields('mvp') : ''}
-      ${!multi ? aSplitHtml(kind === 'collect' ? 'mvsc' : 'mvsr', brs[0].id, kind === 'collect' ? 'توزيع التحصيل على الفروع' : 'المردود من أي فرع؟', {}, kind === 'collect' ? () => payRead('mvp').sum : () => parseAmount($('mvA-return').value), kind === 'collect' ? 'التحصيل' : 'المردود') : ''}
+      ${!multi && (kind === 'collect' || !isCol(brs[0])) ? aSplitHtml(kind === 'collect' ? 'mvsc' : 'mvsr', brs[0].id, kind === 'collect' ? colTitle(brs[0]) : 'المردود من أي فرع؟', {}, kind === 'collect' ? () => payRead('mvp').sum : () => parseAmount($('mvA-return').value), kind === 'collect' ? 'التحصيل' : 'المردود') : ''}
       <button class="btn btn-sm ${kind === 'return' ? 'btn-ret' : 'btn-primary'}" data-mvadd="${kind}">${btn}</button></div>`;
   return `<section class="moves">
     <div class="sec-h"><h2>التحصيل ومردود المبيعات</h2><span class="muted">${list.length} حركة في الفترة</span></div>
@@ -4027,8 +4080,27 @@ function acctStats(bid) {
   for (const r of list) { r.inv = Math.round(r.inv * 100) / 100; r.paid = Math.round(r.paid * 100) / 100; r.rest = Math.round((r.inv - r.paid) * 100) / 100; }
   return list;
 }
+const isCol = b => !!(b && b.split_mode === 'col');
+const colTitle = b => isCol(b) ? 'مصدر التحصيل' : 'توزيع التحصيل على الفروع';
+// مصدر التحصيل (توزيع التحصيل فقط): كم حصّلنا من كل فرع
+function colSrcCard(b, list) {
+  const tot = list.reduce((a, r) => a + r.paid, 0), max = Math.max(1, ...list.map(r => r.paid));
+  const rows = list.filter(r => r.paid > 0.004 || !r.other || true);
+  return `<section class="acc-box">
+    <div class="pay-h"><h3>مصدر تحصيل ${esc(b.name)}</h3><span class="muted">إجمالي التحصيل <b class="num">${money(tot)}</b> ريال</span></div>
+    <div class="acc-tbl col-src" role="table">
+      <div class="acc-r acc-hd" role="row"><span>المصدر</span><span></span><span class="n">المحصّل</span><span class="n">النسبة</span></div>
+      ${rows.map(r => `<div class="acc-r${r.other ? ' oth' : ''}" role="row"><span class="acc-n">${esc(r.name)}</span>
+        <span class="acc-bar"><i class="paid" style="width:${Math.max(0, r.paid) / max * 100}%"></i></span>
+        <b class="n num ok">${money(r.paid)}</b><b class="n num" dir="ltr">${tot ? Math.round(r.paid / tot * 100) : 0}%</b></div>`).join('')}
+      <div class="acc-r acc-ft" role="row"><span>المجموع</span><span></span><b class="n num ok">${money(tot)}</b><b class="n num" dir="ltr">100%</b></div>
+    </div>
+    <p class="muted set-hint">"أخرى" = تحصيل لم يُحدَّد مصدره (ومنه التحصيل القديم). عدّل أي يوم بزر ✎ في الجدول بالأسفل.</p>
+  </section>`;
+}
 function acctCard(b) {
   const list = acctStats(b.id); if (!list) return '';
+  if (isCol(b)) return colSrcCard(b, list);
   const tInv = list.reduce((a, r) => a + r.inv, 0), tPaid = list.reduce((a, r) => a + r.paid, 0);
   const max = Math.max(1, ...list.map(r => Math.max(r.inv, r.paid)));
   return `<section class="acc-box">
@@ -4061,10 +4133,10 @@ function openSaleEdit(bid, d) {
       ${aExpHtml('se', s.expenses)}
       ${s.amt_cash == null && s.amt_bank == null ? `<p class="muted" style="font-size:12px">هذا اليوم مسجل بدون تفصيل (${money(s.amount)}). اكتب النقدي والبنكي ليُحسب المجموع منهما.</p>` : ''}` : ''}
     <label class="field"><span>${b.credit ? 'المبيعات الآجلة (ريال)' : isSP(b) ? 'مجموع المبيعات (تلقائي)' : 'إجمالي المبيعات (ريال)'}</span><input class="in${isSP(b) ? ' auto' : ''}" id="seAmount" inputmode="decimal" dir="ltr" value="${Number(s.amount)}"${isSP(b) ? ' readonly' : ''}></label>
-    ${aSplitHtml('ses', bid, 'توزيع المبيعات على الفروع', s.sales_split, amt, 'المبيعات')}
+    ${isCol(b) ? '' : aSplitHtml('ses', bid, 'توزيع المبيعات على الفروع', s.sales_split, amt, 'المبيعات')}
     ${b.credit ? `<div class="field"><span>التحصيل (ريال)</span>${payFields('sep')}</div>
       ${unsplit > 0.004 ? `<p class="muted" style="font-size:12px">التحصيل القديم بدون تفصيل (${money(unsplit)}) وُضع في خانة النقدي، عدّله إذا لزم.</p>` : ''}
-      ${aSplitHtml('sec', bid, 'توزيع التحصيل على الفروع', s.col_split, colT, 'التحصيل')}` : ''}`;
+      ${aSplitHtml('sec', bid, colTitle(b), s.col_split, colT, 'التحصيل')}` : ''}`;
   if (b.credit) { for (const k of PAY_KEYS) $('sep-' + k).value = v[k] ? Math.round(v[k] * 100) / 100 : ''; $('sep-tot').textContent = money(payRead('sep').sum); }
   aSplitCalc('ses'); aSplitCalc('sec'); if ($('se-aex')) aExpRead('se');
   $('seStatus').textContent = ''; $('seSave').disabled = false;
@@ -4112,13 +4184,23 @@ function renderSetAccts() {
         <button class="icon-x sm" data-accoff="${a.id}" aria-label="إزالة">×</button></div>`).join('')
       : '<p class="muted" style="font-size:14px">لا توجد فروع فرعية لهذا الفرع (التوزيع غير مفعّل له).</p>'}
       ${list.length ? '<div class="acc-set-r oth"><span class="acc-no">•</span><span>أخرى (المتبقي تلقائياً، ثابت في الآخر)</span></div>' : ''}</div>
-    <div class="mv-row" style="margin-top:10px"><input class="in" id="accNew" maxlength="60" placeholder="اسم فرع فرعي جديد، مثل: نكهة بيت"><button class="btn btn-primary btn-sm" data-accadd="1">+ إضافة</button></div>
+    <div class="mv-row" style="margin-top:10px"><input class="in" id="accNew" maxlength="60" placeholder="اسم فرع فرعي جديد، مثل: نكهة بيت"><button class="btn btn-primary btn-sm" data-accadd="1">+ إضافة</button><button class="btn btn-ghost btn-sm" data-accall="1" title="يضيف أسماء كل فروعنا غير المضافة">+ إضافة كل فروعنا</button></div>
+    ${S.byId[bid] ? `<label class="field" style="max-width:420px;margin-top:12px"><span>ماذا يُوزَّع على هذه الفروع؟</span><select class="in" id="accMode">
+      <option value="both"${!isCol(S.byId[bid]) ? ' selected' : ''}>المبيعات والتحصيل (مثل البازل)</option>
+      <option value="col"${isCol(S.byId[bid]) ? ' selected' : ''}>التحصيل فقط: "مصدر التحصيل" (مثل أفق النكهات)</option></select></label>` : ''}
     ${off.length ? `<p class="muted" style="font-size:13px;margin-top:12px">فروع أُزيلت (تبقى أرقامها السابقة في الإحصائيات): ${off.map(a => `<button class="btn btn-ghost btn-sm" data-accon="${a.id}">↺ ${esc(a.name)}</button>`).join(' ')}</p>` : ''}
   </div>`;
 }
 async function accAction(t) {
   const bid = S.accBranch;
-  if (t.dataset.accadd) {
+  if (t.dataset.accall) {
+    const have = new Set(S.accounts.filter(a => a.branch_id === bid).map(a => a.name));
+    const add = activeBranches().filter(x => x.id !== bid && !have.has(x.name));
+    if (!add.length) return toast('كل الفروع مضافة');
+    const n0 = accOf(bid).length;
+    const { error } = await sb.from('branch_accounts').insert(add.map((x, i) => ({ branch_id: bid, name: x.name, sort_order: n0 + i + 1, active: true })));
+    if (error) return toast(errMsg(error), 'err'); toast(`أُضيف ${add.length} فرع`);
+  } else if (t.dataset.accadd) {
     const n = $('accNew').value.trim(); if (!n) { $('accNew').focus(); return toast('اكتب اسم الفرع الفرعي', 'err'); }
     if (accOf(bid).some(a => a.name === n)) return toast('الاسم موجود', 'err');
     const { error } = await sb.from('branch_accounts').insert({ branch_id: bid, name: n, sort_order: accOf(bid).length + 1, active: true });
@@ -4255,6 +4337,208 @@ async function purchAction(t) {
   }
 }
 
+// =====================================================================
+//  المساعد الصوتي (مجاني: التعرف على الكلام من المتصفح نفسه + فهم الأوامر داخل البرنامج)
+//  أوامر الإدخال تفتح النموذج معبّأ والمدير يراجع ويضغط حفظ — لا يُحفظ شيء تلقائياً
+// =====================================================================
+const VSR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const VC = { rec: null, on: false, log: [] };
+const vNorm = t => String(t || '').replace(/[ً-ٰٟـ]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/ؤ/g, 'و').replace(/ئ/g, 'ي')
+  .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/٫/g, '.').replace(/[،؛؟!?:"'()\-_/]/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+const vStrip = w => w.length > 3 && w.startsWith('ال') ? w.slice(2) : (w.length > 4 && /^(بال|وال|فال|لل)/.test(w) ? w.slice(w.startsWith('لل') ? 2 : 3) : w);
+// ---- الأرقام بالكلمات ----
+const V_UNITS = { صفر: 0, واحد: 1, وحده: 1, واحده: 1, اثنين: 2, اثنان: 2, ثنين: 2, اتنين: 2, ثلاث: 3, ثلاثه: 3, تلات: 3, تلاته: 3, اربع: 4, اربعه: 4, خمس: 5, خمسه: 5, ست: 6, سته: 6, سبع: 7, سبعه: 7, ثمان: 8, ثماني: 8, ثمانيه: 8, ثمنيه: 8, تمنيه: 8, تسع: 9, تسعه: 9, عشر: 10, عشره: 10,
+  احدعش: 11, احدعشر: 11, اثنعش: 12, اطنعش: 12, اثنعشر: 12, ثلطعش: 13, تلتاشر: 13, اربعطعش: 14, اربعتاشر: 14, خمسطعش: 15, خمستاشر: 15, ستطعش: 16, سطعش: 16, سبعطعش: 17, سبعتاشر: 17, ثمنطعش: 18, تمنتاشر: 18, تسعطعش: 19, تسعتاشر: 19,
+  عشرين: 20, ثلاثين: 30, تلاتين: 30, اربعين: 40, خمسين: 50, ستين: 60, سبعين: 70, ثمانين: 80, تمانين: 80, تسعين: 90 };
+const V_HUND = { ميه: 100, مايه: 100, مئه: 100, ميتين: 200, مئتين: 200, مايتين: 200, ثلاثميه: 300, ثلثميه: 300, تلتميه: 300, اربعميه: 400, اربعمايه: 400, خمسميه: 500, خمسمايه: 500, ستميه: 600, ستمايه: 600, سبعميه: 700, سبعمايه: 700, ثمانميه: 800, ثمنميه: 800, تمنميه: 800, تسعميه: 900, تسعمايه: 900 };
+const V_ALL = { ...V_UNITS, ...V_HUND, الف: 1, الفين: 1, الاف: 1, الوف: 1, مليون: 1, ملايين: 1, نص: 1, نصف: 1, ربع: 1 };
+const vIsNumW = w => { const x = w.startsWith('و') && V_ALL[w.slice(1)] != null ? w.slice(1) : w; return V_ALL[x] != null ? x : null; };
+// يرجع كل الأرقام في النص مع موقعها (كلمات أو أرقام)
+function vNumbers(t) {
+  const toks = t.split(' '), out = [];
+  for (let i = 0; i < toks.length; i++) {
+    const d = toks[i].replace(/,/g, '');
+    if (/^\d+(\.\d+)?$/.test(d)) {
+      let v = Number(d), j = i + 1; // 5 الاف / 2 مليون
+      if (toks[j] && /^(الف|الاف|الوف)$/.test(toks[j])) { v *= 1000; j++; } else if (toks[j] && /^(مليون|ملايين)$/.test(toks[j])) { v *= 1e6; j++; }
+      if (toks[j] && /^(ونص|ونصف)$/.test(toks[j])) { v += v >= 1000 ? 500 : 0.5; j++; }
+      out.push({ v, i, end: j }); i = j - 1; continue;
+    }
+    if (!vIsNumW(toks[i])) continue;
+    let total = 0, cur = 0, j = i, last = '';
+    for (; j < toks.length; j++) {
+      const w = vIsNumW(toks[j]); if (!w) break;
+      if (V_UNITS[w] != null) cur += V_UNITS[w];
+      else if (V_HUND[w] != null) cur = (w === 'ميه' || w === 'مايه' || w === 'مئه') && cur > 0 && cur < 10 ? cur * 100 : cur + V_HUND[w];
+      else if (w === 'الف' || w === 'الاف' || w === 'الوف') { total += (cur || 1) * 1000; cur = 0; }
+      else if (w === 'الفين') { total += 2000; cur = 0; }
+      else if (w === 'مليون' || w === 'ملايين') { total += (cur || 1) * 1e6; cur = 0; }
+      else if (w === 'نص' || w === 'نصف') { if (last === 'الف' || last === 'الفين' || last === 'الاف') total += 500; else if (V_HUND[last] != null) cur += 50; else break; }
+      else if (w === 'ربع') { if (last === 'الف' || last === 'الفين') total += 250; else break; }
+      last = w;
+    }
+    const v = total + cur; if (v > 0) out.push({ v, i, end: j }); i = j - 1;
+  }
+  return out;
+}
+const vNumAfter = (t, re) => { const toks = t.split(' '), k = toks.findIndex(w => re.test(w)); if (k < 0) return null; const n = vNumbers(t).find(x => x.i > k); return n ? n.v : null; };
+// ---- التاريخ ----
+const V_DAYS = { الاحد: 0, احد: 0, الاثنين: 1, اثنين: 1, الثلاثاء: 2, ثلاثاء: 2, الثلاثا: 2, الاربعاء: 3, اربعاء: 3, الاربعا: 3, الخميس: 4, خميس: 4, الجمعه: 5, جمعه: 5, السبت: 6, سبت: 6 };
+function vDate(t) {
+  if (/(قبل امس|اول امس|قبل البارح)/.test(t)) return addDays(S.today, -2);
+  if (/(امس|البارح|البارحه)/.test(t)) return addDays(S.today, -1);
+  const m = t.match(/(يوم|تاريخ)\s+(\d{1,2})(?!\d)/);
+  if (m) { const dd = Number(m[2]); let d = S.today.slice(0, 8) + String(dd).padStart(2, '0'); if (d > S.today) d = addMonths(S.today, -1).slice(0, 8) + String(dd).padStart(2, '0'); return d; }
+  for (const w of t.split(' ')) if (V_DAYS[w] != null) { const diff = (parseISO(S.today).getUTCDay() - V_DAYS[w] + 7) % 7; return addDays(S.today, -diff); }
+  return S.today;
+}
+// ---- الفروع ----
+const V_STOP = new Set(['حلويات', 'فرع', 'مصنع', 'رقم', 'المندوب', 'مندوب', 'بيكري', 'الكيك', 'كيك', 'ال', 'و', 'من', 'في', 'على']);
+function vBranchTokens(b) {
+  const core = [...new Set(vNorm(b.name + ' ' + (b.group_name || '')).split(' ').map(vStrip).filter(w => w.length > 1 && !V_STOP.has(w) && !/^\d+$/.test(w)))];
+  const n = vNorm(b.name), alias = [];
+  if (/مصنع/.test(n)) alias.push('مصنع'); if (/توزيع/.test(n)) alias.push('توزيع', 'مندوب'); if (/بيكري/.test(n)) alias.push('بيكري');
+  return { core, alias };
+}
+// يرجع أفضل الفروع المطابقة مرتبة (مع موقعها في النص)
+function vBranches(t, list = activeBranches()) {
+  const words = t.split(' ').map(w => { const a = vStrip(w), v = [a]; if (/^[لبوف]/.test(w) && w.length > 3) v.push(vStrip(w.slice(1))); return v; });
+  const find = w => words.findIndex(vs => vs.some(x => x === w || (w.length > 3 && x.length > 3 && (x.startsWith(w) || w.startsWith(x)))));
+  return list.map(b => {
+    const { core, alias } = vBranchTokens(b); let hit = 0, ch = 0, pos = 99;
+    for (const w of [...core, ...alias]) { const k = find(w); if (k >= 0) { hit++; if (core.includes(w)) ch++; pos = Math.min(pos, k); } }
+    return { b, score: hit ? hit + (ch === core.length ? 0.5 : 0) : 0, pos };
+  }).filter(x => x.score > 0).sort((a, b) => b.score - a.score || a.pos - b.pos);
+}
+// ---- الرد ----
+function vSay(text, kind = '') {
+  VC.log.unshift({ text, kind }); VC.log = VC.log.slice(0, 6); vRender();
+  try { if (window.speechSynthesis && $('vSpeak') && $('vSpeak').checked) { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text.replace(/[*_]/g, '')); u.lang = 'ar-SA'; const v = speechSynthesis.getVoices().find(x => /^ar/i.test(x.lang)); if (v) u.voice = v; speechSynthesis.speak(u); } } catch (e) { }
+}
+const vMoney = n => money(Math.round(Number(n) * 100) / 100);
+function vFill(id, v) { const el = $(id); if (!el) return false; el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); return true; }
+// ---- تنفيذ الأمر ----
+async function vRun(raw) {
+  const t = vNorm(raw); if (!t) return;
+  $('vHeard').textContent = raw;
+  const head = / من /.test(t) && /(تحصيل|حصلنا|حصل|استلمنا|سداد|سدد|دفع)/.test(t) ? t.split(' من ')[0] : t;
+  const nums = vNumbers(t), bm = vBranches(head), b = bm.length ? bm[0].b : null, d = vDate(t);
+  const has = re => re.test(t);
+  // المساعدة
+  if (has(/(مساعده|وش تقدر|ايش تقدر|الاوامر|ساعدني)/)) return vSay('أقدر: أفتح أي فرع أو صفحة، أجهز إدخال مبيعات أو تحصيل أو مردود، وأجاوب عن المبيعات والتحصيل والمتبقي. شوف الأمثلة تحت.');
+  // الفترة
+  if (has(/(الشهر الماضي|الشهر اللي فات|الشهر السابق)/) && !has(/كم/)) { S.mode = 'month'; S.month = addMonths(S.today, -1).slice(0, 7); $('monthInput').value = S.month; await reload(); return vSay('تم عرض الشهر الماضي'); }
+  if (has(/(هذا الشهر|الشهر الحالي)/) && has(/(اعرض|غير|الفتره|رجع)/)) { S.mode = 'current'; await reload(); return vSay('تم عرض هذا الشهر'); }
+  // الصفحات
+  const PAGES = [[/(التقارير|تقرير اداري|التقارير الاداريه)/, openReports, 'التقارير الإدارية'], [/(الاعدادات)/, () => openSettings(), 'الإعدادات', 1], [/(الحاسبه|حاسبه|التكلفه)/, openCalc, 'حاسبة التكلفة', 1],
+    [/(مصمم الصور|المصمم|تصميم)/, openStudio, 'مصمم الصور', 1], [/(المقارنه|قارن)/, openCompare, 'المقارنة'], [/(التوالف|التالف)/, () => openWaste(), 'التوالف'], [/(التمويل|التمويلات|الاقساط)/, openFund, 'حساب التمويلات'],
+    [/(الرئيسيه|الصفحه الرئيسيه|ارجع|رجوع)/, () => closeDetail(), 'الصفحة الرئيسية']];
+  const nav = has(/^(افتح|روح|ودني|اعرض|اظهر|ورني|وريني|انتقل|ادخل علي|ادخل الى|اذهب)/) || (!nums.length && !has(/(كم|ايش|وش|سجل|ادخل)/));
+  if (nav) {
+    for (const [re, fn, name, edit] of PAGES) if (re.test(t)) { if (edit && VIEW) return vSay('هذه الصفحة للإدارة فقط', 'err'); fn(); return vSay(`فتحت ${name}`); }
+    if (b && !nums.length) { openDetail(b.group_name || b.name); return vSay(`فتحت صفحة ${b.name}`); }
+  }
+  const isQ = has(/^(كم|ايش|وش|شو|اعطني|عطني|ابغي اعرف|قل لي)/) || has(/(كم|مجموع|اجمالي)/) && !has(/(سجل|ادخل|اضف|حط)/);
+  // الأسئلة
+  if (isQ) {
+    const brs = b ? [b] : activeBranches(), who = b ? b.name : 'كل الفروع';
+    const specific = has(/(اليوم|امس|البارح|يوم \d|تاريخ \d|قبل امس|السبت|الاحد|الاثنين|الثلاثاء|الاربعاء|الخميس|الجمعه)/) && !has(/(الشهر|الفتره)/);
+    if (has(/(المتبقي|الباقي|الاجل|المديونيه|الدين|عليه)/)) {
+      const m = summary(brs.filter(x => x.credit)); if (!m.credit && !m.collected) return vSay(`${who}: لا توجد مبيعات آجلة في الفترة`);
+      return vSay(`المتبقي من الآجل على ${who} خلال الفترة ${vMoney(m.rest)} ريال، من صافي ${vMoney(m.netCredit)} وتحصيل ${vMoney(m.collected)}`);
+    }
+    if (has(/(تحصيل|حصلنا|المحصل|السداد)/)) {
+      if (specific) { const rows = await vDay(d); const c = rows.filter(r => brs.some(x => x.id === r.branch_id)).reduce((a, r) => a + (Number(r.collected) || 0), 0); return vSay(`تحصيل ${who} يوم ${fmtLong(d)}: ${vMoney(c)} ريال`); }
+      const m = summary(brs); return vSay(`تحصيل ${who} خلال الفترة ${vMoney(m.collected)} ريال`);
+    }
+    if (has(/(توالف|التالف)/)) { const w = S.waste.filter(r => brs.some(x => x.id === r.branch_id)); return vSay(`توالف ${who} خلال الفترة ${vMoney(wasteTotal(w))} ريال`); }
+    if (has(/(نقد|النقدي|مصروفات|المسلم)/)) { const cs = cashStats(brs); if (!cs) return vSay(`${who}: لا يوجد تفصيل نقدي`); return vSay(`${who}: المبيعات النقدية ${vMoney(cs.cash)}، المصروفات ${vMoney(cs.exp)}، صافي النقد المسلم ${vMoney(cs.net)} ريال`); }
+    if (specific) {
+      const rows = (await vDay(d)).filter(r => brs.some(x => x.id === r.branch_id));
+      if (!rows.length) return vSay(`لا توجد مبيعات مدخلة ل${who} يوم ${fmtLong(d)}`);
+      const s = rows.reduce((a, r) => a + Number(r.amount), 0); return vSay(`مبيعات ${who} يوم ${fmtLong(d)}: ${vMoney(s)} ريال`);
+    }
+    const m = summary(brs);
+    return vSay(`مبيعات ${who} خلال الفترة (${repPeriod()}): ${vMoney(m.net)} ريال${b ? '' : ` من ${activeBranches().length} فروع`}`);
+  }
+  // الإدخال (الإدارة فقط)
+  const wantRet = has(/(مردود|مرتجع|ارجاع|رجيع)/), wantCol = !wantRet && has(/(تحصيل|حصلنا|حصل|استلمنا|سداد|سدد|دفع|دفعه)/), wantSale = !wantRet && !wantCol && (has(/(مبيعات|مبيعه|بيع|باع|ادخل|سجل|اضف|حط)/) || (nums.length && b));
+  if (wantRet || wantCol || wantSale) {
+    if (VIEW) return vSay('الإدخال للإدارة فقط', 'err');
+    if (!b) return vSay('ما عرفت الفرع، قل اسم الفرع مع المبلغ. مثال: سجل مبيعات أفنون ألف وخمسمية', 'err');
+    const main = nums.filter(n => !(t.split(' ').slice(Math.max(0, n.i - 1), n.i).some(w => /^(يوم|تاريخ)$/.test(w))));
+    const amount = main.length ? main[0].v : null;
+    if (wantSale) {
+      if (S.idx[b.id + '|' + d] != null) {
+        openDetail(b.group_name || b.name); openSaleEdit(b.id, d); await new Promise(r => setTimeout(r, 60));
+        if (isSP(b)) { const c = vNumAfter(t, /^(نقد|نقدي|النقدي|كاش|نقدا)$/), k = vNumAfter(t, /^(بنك|بنكي|البنكي|شبكه|تحويل|مدي)$/); if (c != null) vFill('seAC', c); if (k != null) vFill('seAB', k); }
+        else if (amount != null) vFill('seAmount', amount);
+        return vSay(`مبيعات ${b.name} يوم ${fmtLong(d)} مسجلة من قبل (${vMoney(S.idx[b.id + '|' + d])}). فتحت لك التعديل${amount != null ? ` بالمبلغ الجديد ${vMoney(amount)}` : ''}، راجع واضغط حفظ`);
+      }
+      openEntry(b.id, d); await new Promise(r => setTimeout(r, 60));
+      if (isSP(b)) {
+        const c = vNumAfter(t, /^(نقد|نقدي|النقدي|كاش|نقدا)$/), k = vNumAfter(t, /^(بنك|بنكي|البنكي|شبكه|تحويل|مدي)$/);
+        if (c != null) vFill('eAC', c); if (k != null) vFill('eAB', k); if (c == null && k == null && amount != null) vFill('eAC', amount);
+        return vSay(`جهزت إدخال مبيعات ${b.name} ليوم ${fmtLong(d)}: نقدي ${vMoney(c ?? (k == null ? amount || 0 : 0))}، بنكي ${vMoney(k || 0)}. راجع واضغط حفظ`);
+      }
+      if (amount != null) vFill('eAmount', amount);
+      if (b.credit) { const c = vNumAfter(t, /^(تحصيل|وتحصيل|حصلنا)$/); if (c != null) vFill('ep-cash', c); }
+      return vSay(amount != null ? `جهزت إدخال مبيعات ${b.name} ليوم ${fmtLong(d)} بمبلغ ${vMoney(amount)} ريال. راجع واضغط حفظ` : `فتحت إدخال مبيعات ${b.name}. قل أو اكتب المبلغ`);
+    }
+    if (!b.credit) return vSay(`${b.name} ليس فرعاً آجلاً. التحصيل والمردود للفروع الآجلة فقط`, 'err');
+    openDetail(b.group_name || b.name); await new Promise(r => setTimeout(r, 80));
+    const kind = wantRet ? 'return' : 'collect', form = document.querySelector(`[data-mvadd="${kind}"]`);
+    if (!form) return vSay('ما لقيت نموذج الإضافة في صفحة الفرع', 'err');
+    vFill('mvD-' + kind, minISO(d, S.today));
+    if (wantRet) { if (amount != null) vFill('mvA-return', amount); }
+    else {
+      const k = has(/(تحويل|بنك|بنكي)/) ? 'bank' : has(/(شبكه|مدي|بطاقه)/) ? 'card' : 'cash';
+      if (amount != null) vFill('mvp-' + k, amount);
+      // المصدر: "من فرع كذا"
+      const ix = t.split(' ').findIndex(w => w === 'من'); if (ix >= 0 && amount != null) {
+        const src = vBranches(t.split(' ').slice(ix + 1).join(' '), accOf(b.id).map(a => ({ id: a.id, name: a.name, group_name: '' })));
+        if (src.length) vFill(`mvsc-a${src[0].b.id}`, amount);
+      }
+    }
+    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return vSay(amount != null ? `جهزت ${wantRet ? 'مردود' : 'تحصيل'} ${b.name} بمبلغ ${vMoney(amount)} ريال ليوم ${fmtLong(d)}. راجع واضغط إضافة` : `فتحت ${wantRet ? 'المردود' : 'التحصيل'} في صفحة ${b.name}. اكتب المبلغ`);
+  }
+  if (b) { openDetail(b.group_name || b.name); return vSay(`فتحت صفحة ${b.name}`); }
+  vSay('ما فهمت الأمر. جرّب: "كم مبيعات اليوم" أو "سجل مبيعات أفنون ألفين" أو "افتح التقارير"', 'err');
+}
+async function vDay(d) {
+  if (d >= S.from && d <= S.to) return S.sales.filter(s => s.sale_date === d);
+  if (VIEW) return [];
+  const { data } = await sb.from('sales').select('branch_id,amount,collected').eq('sale_date', d); return data || [];
+}
+// ---- الواجهة ----
+function vRender() {
+  const box = $('vLog'); if (!box) return;
+  box.innerHTML = VC.log.map((x, i) => `<p class="v-msg${x.kind === 'err' ? ' err' : ''}${i ? ' old' : ''}">${esc(x.text)}</p>`).join('');
+}
+function vOpen() {
+  const p = $('voicePanel'); p.hidden = !p.hidden; $('voiceBtn').classList.toggle('on', !p.hidden);
+  if (!p.hidden) { $('vNoSR').hidden = !!VSR; if (!VSR) $('vText').focus(); }
+  else vStop();
+}
+function vStop() { VC.on = false; try { VC.rec && VC.rec.stop(); } catch (e) { } $('vMic').classList.remove('rec'); $('vMic').setAttribute('aria-pressed', 'false'); }
+function vListen() {
+  if (!VSR) { $('vText').focus(); return vSay('المتصفح لا يدعم التحدث. استخدم Chrome أو Safari، أو اكتب الأمر', 'err'); }
+  if (VC.on) return vStop();
+  const r = VC.rec = new VSR(); r.lang = 'ar-SA'; r.interimResults = true; r.maxAlternatives = 1; r.continuous = false;
+  let final = '';
+  r.onresult = e => { let it = ''; for (let i = e.resultIndex; i < e.results.length; i++) { if (e.results[i].isFinal) final += e.results[i][0].transcript; else it += e.results[i][0].transcript; } $('vHeard').textContent = final + it || '…'; };
+  r.onerror = e => { vStop(); if (e.error === 'not-allowed' || e.error === 'service-not-allowed') vSay('اسمح للموقع باستخدام المايكروفون من إعدادات المتصفح', 'err'); else if (e.error === 'no-speech') vSay('ما سمعت شيء، اضغط وتكلم', 'err'); else if (e.error !== 'aborted') vSay('تعذّر التعرف على الكلام: ' + e.error, 'err'); };
+  r.onend = () => { const was = VC.on; vStop(); if (was && final.trim()) vRun(final.trim()); };
+  VC.on = true; $('vMic').classList.add('rec'); $('vMic').setAttribute('aria-pressed', 'true'); $('vHeard').textContent = 'أسمعك… تكلم الآن';
+  try { r.start(); } catch (e) { vStop(); }
+}
+function bindVoice() {
+  $('voiceBtn').onclick = vOpen; $('vClose').onclick = vOpen; $('vMic').onclick = vListen;
+  $('vForm').onsubmit = e => { e.preventDefault(); const v = $('vText').value.trim(); if (v) { $('vText').value = ''; vRun(v); } };
+  $('voicePanel').addEventListener('click', e => { const x = e.target.closest('[data-vex]'); if (x) vRun(x.dataset.vex); });
+  if (window.speechSynthesis) speechSynthesis.getVoices();
+}
 // ---------------- العرض ----------------
 // شعارات الفروع بجانب العنوان (بدون تكرار نفس الشعار)
 // الأسماء الطويلة على سطرين: "حلويات مورا - البلد" ← حلويات مورا / (فرع البلد)
@@ -5396,6 +5680,7 @@ bindCompare();
 bindReports();
 bindCalc();
 bindStudio();
+bindVoice();
 $('studioBtn').onclick = () => S.view === 'studio' ? closeDetail() : openStudio();
 $('calcBtn').onclick = () => S.view === 'calc' ? closeDetail() : openCalc();
 $('settingsView').addEventListener('click', e => { const b = e.target.closest('[data-ingnew],[data-ingsave],[data-ingtog],[data-ingrm]'); if (b) ingAction(b); const c = e.target.closest('[data-clnew],[data-cltog],[data-cldel]'); if (c) calcLinkAction(c); });
@@ -5457,9 +5742,9 @@ async function checkEntry() {
 }
 function syncEntryCredit() {
   const b = S.byId[Number($('eBranch').value)], c = !!(b && b.credit);
-  $('eSplitS').innerHTML = b ? aSplitHtml('es', b.id, 'توزيع المبيعات على الفروع', {}, () => parseAmount($('eAmount').value), 'المبيعات') : '';
-  $('eSplitC').innerHTML = b && c ? aSplitHtml('ec', b.id, 'توزيع التحصيل على الفروع', {}, () => payRead('ep').sum, 'التحصيل') : '';
-  if (!b) { delete ASPL.es; delete ASPL.ec; } else if (!c) delete ASPL.ec;
+  $('eSplitS').innerHTML = b && !isCol(b) ? aSplitHtml('es', b.id, 'توزيع المبيعات على الفروع', {}, () => parseAmount($('eAmount').value), 'المبيعات') : '';
+  $('eSplitC').innerHTML = b && c ? aSplitHtml('ec', b.id, colTitle(b), {}, () => payRead('ep').sum, 'التحصيل') : '';
+  if (!b) { delete ASPL.es; delete ASPL.ec; } else { if (!c) delete ASPL.ec; if (isCol(b)) delete ASPL.es; }
   $('eColWrap').hidden = !c;
   const sp = isSP(b); $('eSP').hidden = !sp; $('eAmount').readOnly = sp; $('eAmount').classList.toggle('auto', sp);
   if (sp) { $('eAC').value = ''; $('eAB').value = ''; $('eAmount').value = ''; }
