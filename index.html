@@ -661,6 +661,9 @@
   .l2-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
   .l2-top .loan-a { font-family: var(--font-head); font-size: 20px; font-weight: 700; }
   .l2-mid { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px; margin: 6px 0; }
+  .l2-tools { display: inline-flex; gap: 4px; margin-inline-start: 6px; }
+  .l2-tools .icon-btn { width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); cursor: pointer; font-size: 14px; }
+  .l2-top .loan-n { flex: 1; min-width: 0; }
   .l2-meter small { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }
   .t-bar.thin { height: 7px; }
   @media (max-width: 900px) { .fund-cols { grid-template-columns: 1fr; } .fund-kpis { grid-template-columns: 1fr; } .fk-v { font-size: 26px; } }
@@ -1094,7 +1097,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-20 ب</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-20 ج</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -1815,16 +1818,21 @@ function renderFund() {
         : `<p class="muted">لا توجد دفعات أسبوعية. أضفها من الإعدادات > التمويلات.</p>`}
       </section>
       <section class="fund-col">
-        <div class="sec-h"><h2>مواعيد سداد التمويلات</h2>${VIEW ? '' : `<button class="btn btn-primary btn-sm" data-loanform="1">${S.loanForm ? 'إغلاق' : '+ إضافة تمويل'}</button>`}</div>
-        ${S.loanForm && !VIEW ? `<div class="loan-form">
-          <label class="field"><span>اسم التمويل</span><input class="in" id="lfName" maxlength="80" placeholder="مثال: تمويل بنك الراجحي"></label>
-          <div class="sp2"><label class="field"><span>مبلغ القسط</span><input class="in" id="lfAmt" inputmode="decimal" dir="ltr" placeholder="0"></label>
-          <label class="field"><span>تاريخ السداد</span><input class="in" type="date" id="lfDate" value="${S.today}"></label></div>
-          <label class="field"><span>عدد الأقساط الشهرية <small class="muted">(1 = دفعة واحدة، فارغ = مستمر)</small></span><input class="in" id="lfN" inputmode="numeric" dir="ltr" placeholder="مثال: 12"></label>
-          <button class="btn btn-primary btn-sm" data-loansave="1">حفظ التمويل</button></div>` : ''}
+        <div class="sec-h"><h2>مواعيد سداد التمويلات</h2>${VIEW ? '' : `<button class="btn btn-primary btn-sm" data-loanform="1">${S.loanForm && !S.loanEdit ? 'إغلاق' : '+ إضافة تمويل'}</button>`}</div>
+        ${S.loanForm && !VIEW ? (() => { const L = S.loanEdit ? S.fin.loans.find(x => x.id === S.loanEdit) : null;
+          const ld = L ? loanDue(L, L.start_month ? monthStart(L.start_month) : m) : S.today;
+          let cnt = ''; if (L && L.start_month && L.end_month) { let n = 0; for (let x = monthStart(L.start_month); x <= monthStart(L.end_month) && n < 400; x = addMonths(x, 1)) n++; cnt = n; }
+          return `<div class="loan-form"><b>${L ? 'تعديل التمويل' : 'تمويل جديد'}</b>
+          <label class="field"><span>اسم التمويل</span><input class="in" id="lfName" maxlength="80" placeholder="مثال: تمويل بنك الراجحي" value="${L ? esc(L.name) : ''}"></label>
+          <div class="sp2"><label class="field"><span>مبلغ القسط</span><input class="in" id="lfAmt" inputmode="decimal" dir="ltr" placeholder="0" value="${L ? Number(L.amount) : ''}"></label>
+          <label class="field"><span>${L ? 'تاريخ أول سداد' : 'تاريخ السداد'}</span><input class="in" type="date" id="lfDate" value="${ld.slice(0, 10)}"></label></div>
+          <label class="field"><span>عدد الأقساط الشهرية <small class="muted">(1 = دفعة واحدة، فارغ = مستمر)</small></span><input class="in" id="lfN" inputmode="numeric" dir="ltr" placeholder="مثال: 12" value="${cnt}"></label>
+          ${L ? '<p class="muted" style="font-size:12px;margin:0">تغيير المبلغ لا يغيّر الأقساط المسددة سابقاً.</p>' : ''}
+          <div class="st-ra" style="padding:0"><button class="btn btn-primary btn-sm" data-loansave="1">${L ? 'حفظ التعديل' : 'حفظ التمويل'}</button><button class="btn btn-ghost btn-sm" data-loancancel="1">إلغاء</button></div></div>`; })() : ''}
         ${f.loans.length ? `<div class="loans2">${f.loans.map(l => { const d = loanDue(l, m), st = payState(loanPayOf(l.id, m), l.amount), pr = loanProgress(l, m);
           return `<div class="loan2${st.full ? ' paid' : st.part ? ' partial' : ''}">
-            <div class="l2-top"><div class="loan-n"><b>${esc(l.name)}</b><small>يستحق ${esc(fmtDayName(d))} ${esc(fmtShort(d))}</small></div><span class="num loan-a">${money(st.due)}</span></div>
+            <div class="l2-top"><div class="loan-n"><b>${esc(l.name)}</b><small>يستحق ${esc(fmtDayName(d))} ${esc(fmtShort(d))}</small></div><span class="num loan-a">${money(st.due)}</span>
+              ${VIEW ? '' : `<span class="l2-tools"><button class="icon-btn" data-loanedit="${l.id}" title="تعديل التمويل" aria-label="تعديل ${esc(l.name)}">✎</button><button class="icon-x sm" data-loandel="${l.id}" title="حذف التمويل" aria-label="حذف ${esc(l.name)}">×</button></span>`}</div>
             <div class="l2-mid">${daysTag(d, st.full)}${payCtl('lpay', `${l.id}|${m}`, st)}</div>
             <div class="l2-meter"><span class="t-bar alt thin"><i style="width:${Math.min(100, pr.pct)}%"></i></span><small>${fmtPct(pr.pct)} · ${pr.txt}</small></div></div>`; }).join('')}</div>
           <div class="loan-sum"><div class="fc-row"><span>المسدد من أقساط ${esc(fmtMonth(m))}</span><b class="num">${money(f.outPaid)} من ${money(f.outDue)}</b></div>
@@ -1852,7 +1860,17 @@ async function savePay(kind, key, add) {
 async function fundAction(t) {
   if (VIEW) return;
   let error;
-  if (t.dataset.loanform) { S.loanForm = !S.loanForm; renderFund(); if (S.loanForm) $('lfName').focus(); return; }
+  if (t.dataset.loanform) { S.loanForm = S.loanEdit ? true : !S.loanForm; S.loanEdit = null; renderFund(); if (S.loanForm) $('lfName').focus(); return; }
+  if (t.dataset.loancancel) { S.loanForm = false; S.loanEdit = null; return renderFund(); }
+  if (t.dataset.loanedit) { S.loanForm = true; S.loanEdit = Number(t.dataset.loanedit); renderFund(); const f = document.querySelector('.loan-form'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'center' }); $('lfName').focus(); return; }
+  if (t.dataset.loandel) {
+    const l = S.fin.loans.find(x => x.id === Number(t.dataset.loandel)); if (!l) return;
+    const paidN = S.fin.loanPays.filter(p => p.loan_id === l.id).length;
+    if (!confirm(`حذف التمويل "${l.name}"؟${paidN ? `\nسيُحذف معه ${paidN} سداد مسجل، ويتغير رصيد حساب التمويلات.` : ''}`)) return;
+    t.disabled = true;
+    ({ error } = await sb.from('loans').delete().eq('id', l.id));
+    if (!error) { if (S.loanEdit === l.id) { S.loanEdit = null; S.loanForm = false; } toast('تم حذف التمويل'); }
+  }
   if (t.dataset.loansave) {
     const n = $('lfName').value.trim(), a = parseAmount($('lfAmt').value), d = $('lfDate').value, cnt = $('lfN').value.trim() ? Math.round(Number($('lfN').value.trim())) : null;
     if (!n) { $('lfName').focus(); return toast('اكتب اسم التمويل', 'err'); }
@@ -1861,8 +1879,9 @@ async function fundAction(t) {
     if (cnt != null && (isNaN(cnt) || cnt < 1 || cnt > 360)) return toast('عدد الأقساط من 1 إلى 360', 'err');
     const start = monthStart(d);
     t.disabled = true;
-    ({ error } = await sb.from('loans').insert({ name: n, amount: a, due_day: Number(d.slice(8, 10)), start_month: start, end_month: cnt ? addMonths(start, cnt - 1) : null, active: true }));
-    if (!error) { S.loanForm = false; S.fundMonth = start; toast('تمت إضافة التمويل'); }
+    const row = { name: n, amount: a, due_day: Number(d.slice(8, 10)), start_month: start, end_month: cnt ? addMonths(start, cnt - 1) : null, active: true };
+    ({ error } = S.loanEdit ? await sb.from('loans').update(row).eq('id', S.loanEdit) : await sb.from('loans').insert(row));
+    if (!error) { toast(S.loanEdit ? 'تم حفظ التعديل' : 'تمت إضافة التمويل'); S.loanForm = false; S.loanEdit = null; if (S.fundMonth < start || (row.end_month && S.fundMonth > row.end_month)) S.fundMonth = start; }
   }
   if ('partcancel' in t.dataset) { S.partOpen = null; return renderFund(); }
   if (t.dataset.partopen) {
@@ -1870,7 +1889,7 @@ async function fundAction(t) {
     const inp = document.querySelector(`[data-partkey="${t.dataset.partopen}"]`); if (inp) inp.focus();
     return;
   }
-  if (t.dataset.loansave) { /* تم أعلاه */ } else if (t.dataset.partsave) {
+  if (t.dataset.loansave || t.dataset.loandel) { /* تم أعلاه */ } else if (t.dataset.partsave) {
     const k = t.dataset.partsave, inp = document.querySelector(`[data-partkey="${k}"]`), v = parseAmount(inp ? inp.value : '');
     if (isNaN(v) || v <= 0) { toast('اكتب مبلغ السداد رقماً أكبر من صفر', 'err'); if (inp) inp.focus(); return; }
     const [kind, ...rest] = k.split('|');
@@ -5713,7 +5732,7 @@ $('logoFile').onchange = async () => {
 
 // ---------------- الأحداث ----------------
 document.addEventListener('click', async e => {
-  const t = e.target.closest('[data-purtab],[data-puadd],[data-pudel],[data-editday],[data-delday],[data-rscancel],[data-wledit],[data-wldel],[data-wlsave],[data-wlcancel],[data-mvadd],[data-mvdel],[data-unmerge],[data-open-merge],[data-open-compare],[data-profit],[data-open-fund],[data-open-settings],[data-pay],[data-unpay],[data-lpay],[data-unlpay],[data-partopen],[data-partsave],[data-partcancel],[data-loanform],[data-loansave],[data-detail],[data-approve],[data-reject],[data-copy],[data-add],[data-waste-open],[data-delbatch]');
+  const t = e.target.closest('[data-purtab],[data-puadd],[data-pudel],[data-editday],[data-delday],[data-rscancel],[data-wledit],[data-wldel],[data-wlsave],[data-wlcancel],[data-mvadd],[data-mvdel],[data-unmerge],[data-open-merge],[data-open-compare],[data-profit],[data-open-fund],[data-open-settings],[data-pay],[data-unpay],[data-lpay],[data-unlpay],[data-partopen],[data-partsave],[data-partcancel],[data-loanform],[data-loansave],[data-loancancel],[data-loanedit],[data-loandel],[data-detail],[data-approve],[data-reject],[data-copy],[data-add],[data-waste-open],[data-delbatch]');
   if (!t) return;
   if (t.dataset.purtab || t.dataset.puadd || t.dataset.pudel) return purchAction(t);
   if (t.dataset.editday) { if (VIEW) return; const [b, d] = t.dataset.editday.split('|'); return openSaleEdit(Number(b), d); }
@@ -5727,7 +5746,7 @@ document.addEventListener('click', async e => {
   if (t.dataset.profit) { const k = t.dataset.profit; S.showProfit.has(k) ? S.showProfit.delete(k) : S.showProfit.add(k); return renderGroups(); }
   if ('openFund' in t.dataset) return openFund();
   if (t.dataset.openSettings) return openSettings(t.dataset.openSettings);
-  if (t.dataset.loanform || t.dataset.loansave || t.dataset.pay || t.dataset.unpay || t.dataset.lpay || t.dataset.unlpay || t.dataset.partopen || t.dataset.partsave || 'partcancel' in t.dataset) return fundAction(t);
+  if (t.dataset.loanform || t.dataset.loansave || t.dataset.loancancel || t.dataset.loanedit || t.dataset.loandel || t.dataset.pay || t.dataset.unpay || t.dataset.lpay || t.dataset.unlpay || t.dataset.partopen || t.dataset.partsave || 'partcancel' in t.dataset) return fundAction(t);
   if (t.dataset.wasteOpen) return openWaste(t.dataset.wasteOpen);
   if (VIEW && (t.dataset.add || t.dataset.approve || t.dataset.reject || t.dataset.delbatch)) return;
   if (t.dataset.delbatch) return deleteBatch(t.dataset.delbatch);
