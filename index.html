@@ -668,6 +668,8 @@
   .t-bar.thin { height: 7px; }
   @media (max-width: 900px) { .fund-cols { grid-template-columns: 1fr; } .fund-kpis { grid-template-columns: 1fr; } .fk-v { font-size: 26px; } }
   /* ---- المساعد الصوتي ---- */
+  .col-btn { background: #1F6B3A; border-color: #1F6B3A; color: #fff; }
+  .col-btn:hover { background: #17552d; border-color: #17552d; color: #fff; }
   .voice-btn { background: #C62828; color: #fff; border: 1px solid #C62828; font-weight: 700; box-shadow: 0 4px 14px rgba(198,40,40,.35); }
   .voice-btn:hover { background: #A61F1F; border-color: #A61F1F; color: #fff; }
   .voice-btn svg { width: 17px; height: 17px; vertical-align: -3px; }
@@ -1032,6 +1034,7 @@
     <div class="top-actions">
       <button id="voiceBtn" class="btn btn-sm voice-btn" title="أمر صوتي: تكلم والبرنامج ينفذ" aria-label="أمر صوتي"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg> أمر صوتي</button>
       <button id="addBtn" class="btn btn-primary btn-sm edit-only">إدخال مبيعات</button>
+      <button id="colBtn" class="btn btn-primary btn-sm edit-only col-btn">إدخال تحصيل</button>
       <button id="repBtn" class="btn btn-ghost btn-sm">تقارير إدارية</button>
       <button id="calcBtn" class="btn btn-ghost btn-sm edit-only">حاسبة التكلفة</button>
       <button id="studioBtn" class="btn btn-ghost btn-sm edit-only">مصمم الصور</button>
@@ -1099,7 +1102,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-20 د</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-20 هـ</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -1123,6 +1126,23 @@
   </main>
 </div>
 
+<dialog id="colDlg" class="entry-dlg">
+  <form id="colForm" method="dialog">
+    <h2 style="font-size:19px">إدخال تحصيل</h2>
+    <p class="muted" style="font-size:13px;margin-top:-4px">تحصيل إضافي من الإدارة للفروع الآجلة (يُخصم من المتبقي)</p>
+    <div class="sp2"><label class="field"><span>الفرع</span><select class="in" id="cBranch"></select></label>
+    <label class="field"><span>التاريخ</span><input class="in" type="date" id="cDate"></label></div>
+    <div class="field"><span>مبلغ التحصيل (ريال)</span><div id="cPay"></div></div>
+    <div id="cSplit"></div>
+    <label class="field"><span>ملاحظة (اختياري)</span><input class="in" id="cNote" maxlength="200" placeholder="مثال: دفعة من الحساب"></label>
+    <p class="muted" id="cInfo" style="font-size:13px"></p>
+    <p class="entry-status bad" id="cStatus" role="status"></p>
+    <div class="dlg-actions">
+      <button class="btn btn-primary" type="submit" id="cSave">حفظ التحصيل</button>
+      <button class="btn btn-ghost" type="button" id="cCancel">إلغاء</button>
+    </div>
+  </form>
+</dialog>
 <dialog id="seDlg" class="entry-dlg">
   <form id="seForm" method="dialog">
     <h2 style="font-size:19px" id="seTitle">تعديل المبيعات</h2>
@@ -4584,6 +4604,17 @@ async function vRun(raw) {
       return vSay(amount != null ? `جهزت إدخال مبيعات ${b.name} ليوم ${fmtLong(d)} بمبلغ ${vMoney(amount)} ريال. راجع واضغط حفظ` : `فتحت إدخال مبيعات ${b.name}. قل أو اكتب المبلغ`);
     }
     if (!b.credit) return vSay(`${b.name} ليس فرعاً آجلاً. التحصيل والمردود للفروع الآجلة فقط`, 'err');
+    if (wantCol) {
+      openCol(b.id); await new Promise(r => setTimeout(r, 60));
+      vFill('cDate', minISO(d, S.today));
+      const k = has(/(تحويل|بنك|بنكي)/) ? 'bank' : has(/(شبكه|مدي|بطاقه)/) ? 'card' : 'cash';
+      if (amount != null) vFill('cp-' + k, amount);
+      const ix = t.split(' ').findIndex(w => w === 'من'); if (ix >= 0 && amount != null) {
+        const src = vBranches(t.split(' ').slice(ix + 1).join(' '), accOf(b.id).map(a => ({ id: a.id, name: a.name, group_name: '' })));
+        if (src.length) vFill(`csx-a${src[0].b.id}`, amount);
+      }
+      return vSay(amount != null ? `جهزت تحصيل ${b.name} بمبلغ ${vMoney(amount)} ريال ليوم ${fmtLong(d)}. راجع واضغط حفظ التحصيل` : `فتحت إدخال تحصيل ${b.name}. اكتب المبلغ`);
+    }
     openDetail(b.group_name || b.name); await new Promise(r => setTimeout(r, 80));
     const kind = wantRet ? 'return' : 'collect', form = document.querySelector(`[data-mvadd="${kind}"]`);
     if (!form) return vSay('ما لقيت نموذج الإضافة في صفحة الفرع', 'err');
@@ -5862,6 +5893,41 @@ document.addEventListener('input', e => {
 $('eBranch').onchange = () => { syncEntryCredit(); checkEntry(); };
 $('eDate').onchange = checkEntry;
 $('eCancel').onclick = () => eDlg.close();
+// ---------- إدخال تحصيل (زر في الأعلى) ----------
+const colDlg = $('colDlg');
+function colSync() {
+  const b = S.byId[Number($('cBranch').value)]; if (!b) return;
+  $('cSplit').innerHTML = aSplitHtml('csx', b.id, colTitle(b), {}, () => payRead('cp').sum, 'التحصيل'); if (ASPL.csx) aSplitCalc('csx');
+  const m = summary([b]); $('cInfo').innerHTML = m.credit || m.collected ? `المتبقي على ${esc(label(b))} خلال الفترة: <b class="num">${money(m.rest)}</b> ريال` : '';
+}
+function openCol(bid) {
+  const crs = activeBranches().filter(b => b.credit);
+  if (!crs.length) return toast('لا توجد فروع آجلة', 'err');
+  $('cBranch').innerHTML = crs.map(b => `<option value="${b.id}">${esc(label(b))}</option>`).join('');
+  if (bid && crs.some(b => b.id === bid)) $('cBranch').value = String(bid);
+  else { const g = S.detail && (S.gmap[S.detail] || (S.mmap || {})[S.detail]); const cb = g && g.branches.find(b => b.credit); if (cb) $('cBranch').value = String(cb.id); }
+  $('cDate').value = S.today; $('cDate').max = S.today; $('cNote').value = ''; $('cStatus').textContent = ''; $('cSave').disabled = false;
+  $('cPay').innerHTML = payFields('cp');
+  colSync(); colDlg.showModal(); setTimeout(() => $('cp-cash').focus(), 50);
+}
+$('colBtn').onclick = () => openCol();
+$('cCancel').onclick = () => colDlg.close();
+$('cBranch').onchange = colSync;
+$('colForm').onsubmit = async e => {
+  e.preventDefault();
+  const st = $('cStatus'), bid = Number($('cBranch').value), d = $('cDate').value, pr = payRead('cp');
+  if (!d || d > S.today) { st.textContent = 'اختر تاريخاً صحيحاً (ليس في المستقبل)'; return; }
+  if (pr.bad) { st.textContent = `اكتب مبلغ ${PAY_TTL[pr.bad]} رقماً فقط`; $('cp-' + pr.bad).focus(); return; }
+  if (!(pr.sum > 0)) { st.textContent = 'اكتب مبلغ التحصيل في خانة واحدة على الأقل'; $('cp-cash').focus(); return; }
+  const row = { branch_id: bid, move_date: d, kind: 'collect', amount: pr.sum, col_cash: pr.v.cash, col_bank: pr.v.bank, col_card: pr.v.card, note: $('cNote').value.trim() || null, entered_by: 'admin' };
+  if (ASPL.csx && $('csx-asp')) { const x = aSplitCalc('csx'); if (!x.ok) { st.textContent = x.msg; return; } if (Object.keys(x.vals).length) row.split = x.vals; }
+  $('cSave').disabled = true;
+  const { error } = await sb.from('credit_moves').insert(row);
+  $('cSave').disabled = false;
+  if (error) { st.textContent = errMsg(error); return; }
+  colDlg.close(); toast(`تمت إضافة تحصيل ${money(pr.sum)} ريال لـ ${label(S.byId[bid])}`);
+  await loadMoves(); renderAll();
+};
 const seDlg = $('seDlg'); $('seCancel').onclick = () => seDlg.close(); $('seForm').onsubmit = saveSaleEdit;
 $('addBtn').onclick = () => openEntry(S.detail && S.detail !== '__all' && S.gmap[S.detail].branches.length === 1 ? S.gmap[S.detail].branches[0].id : null);
 $('entryForm').onsubmit = async ev => {
