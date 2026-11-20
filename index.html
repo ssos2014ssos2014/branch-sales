@@ -625,6 +625,45 @@
   .aex-net { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; background: #E3F4E6; color: #14532D; border: 2px solid #2E8B47; border-radius: 10px; padding: 8px 10px; font-weight: 700; }
   .aex-net b { font-size: 18px; }
   @media (prefers-color-scheme: dark) { .aex-net { background: #123d22; color: #c9f2d4; } }
+  /* ---- دفعات التمويل الأسبوعية ---- */
+  .fund-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 10px 0 16px; }
+  .fk { display: flex; gap: 12px; align-items: flex-start; border-radius: 18px; padding: 16px 18px; border: 2px solid var(--line); background: var(--surface); }
+  .fk.bal { border-color: #2E8B47; background: linear-gradient(135deg, color-mix(in srgb, #2E8B47 10%, var(--surface)), var(--surface)); }
+  .fk.out { border-color: var(--viz-2, #c0703a); background: linear-gradient(135deg, color-mix(in srgb, var(--viz-2, #c0703a) 10%, var(--surface)), var(--surface)); }
+  .fk > div { flex: 1; min-width: 0; } .fk p { margin: 0; }
+  .fk-v { font-family: var(--font-head); font-size: 30px; font-weight: 800; margin: 2px 0 6px !important; }
+  .fk.bal .fk-v { color: #1d6b35; }
+  .fund-cols { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  .fund-col { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 12px 14px; min-width: 0; }
+  .fund-col .sec-h { margin-top: 0; }
+  .wk-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .wk-tbl th, .wk-tbl td { padding: 7px 6px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  .wk-tbl th { font-size: 12px; color: var(--muted); font-weight: 600; white-space: nowrap; } .wk-tbl th small { display: block; font-weight: 400; }
+  .wk-tbl .n { text-align: center; }
+  .wk-tbl tfoot td { font-weight: 700; border-bottom: 0; } .wk-tbl tfoot small { font-weight: 600; color: var(--muted); }
+  .wk-name { min-width: 140px; } .wk-name b { display: block; } .wk-name small { color: var(--muted); font-size: 11px; }
+  .wk-meter { display: block; height: 6px; border-radius: 4px; background: var(--bg); margin: 4px 0 2px; overflow: hidden; }
+  .wk-meter i { display: block; height: 100%; background: #2E8B47; border-radius: 4px; }
+  .wk-c.paid { background: color-mix(in srgb, #2E8B47 10%, transparent); } .wk-c.late { background: color-mix(in srgb, var(--no-c) 6%, transparent); }
+  .wk-c.partial { background: color-mix(in srgb, #d99a1e 12%, transparent); }
+  .pc-ok { width: 34px; height: 30px; border-radius: 8px; border: 0; background: #2E8B47; color: #fff; font-size: 16px; cursor: pointer; }
+  .pc-ok:disabled { cursor: default; }
+  .pc-acts { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; }
+  .pay-btn.sm { padding: 5px 8px; font-size: 12px; white-space: nowrap; }
+  .part-link { border: 0; background: none; color: var(--muted); font: inherit; font-size: 11px; text-decoration: underline; cursor: pointer; padding: 0; }
+  .pc-part { font-size: 11px; color: #9a6b00; } .pc-no { color: var(--muted); }
+  .pc-form { display: inline-flex; gap: 3px; align-items: center; } .pc-form .part-in { width: 70px; }
+  .loan-form { border: 1px dashed var(--line); border-radius: 12px; padding: 10px; margin-bottom: 10px; display: grid; gap: 6px; }
+  .loans2 { display: grid; gap: 8px; }
+  .loan2 { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--bg); }
+  .loan2.paid { border-color: #2E8B47; background: color-mix(in srgb, #2E8B47 7%, var(--bg)); }
+  .loan2.partial { border-color: #d99a1e; }
+  .l2-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .l2-top .loan-a { font-family: var(--font-head); font-size: 20px; font-weight: 700; }
+  .l2-mid { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px; margin: 6px 0; }
+  .l2-meter small { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .t-bar.thin { height: 7px; }
+  @media (max-width: 900px) { .fund-cols { grid-template-columns: 1fr; } .fund-kpis { grid-template-columns: 1fr; } .fk-v { font-size: 26px; } }
   /* ---- المساعد الصوتي ---- */
   .voice-btn svg { width: 16px; height: 16px; vertical-align: -3px; }
   .voice-btn.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
@@ -671,7 +710,7 @@
   .acc-set-r .acc-link { flex: 0 1 230px; font-size: 13px; }
   @media (max-width: 640px) { .acc-set-r { flex-wrap: wrap; } .acc-set-r .acc-link { flex: 1 1 100%; order: 9; } }
   /* ---- مصمم الصور ---- */
-  #studioBtn.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+  #fundBtn.on, #studioBtn.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
   .st-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); }
   @media (max-width: 900px) { .st-grid { grid-template-columns: 1fr; } }
   .st-drop { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 2px dashed var(--line); border-radius: var(--r-md); padding: 22px; cursor: pointer; background: var(--bg); text-align: center; }
@@ -990,6 +1029,7 @@
       <button id="repBtn" class="btn btn-ghost btn-sm">تقارير إدارية</button>
       <button id="calcBtn" class="btn btn-ghost btn-sm edit-only">حاسبة التكلفة</button>
       <button id="studioBtn" class="btn btn-ghost btn-sm edit-only">مصمم الصور</button>
+      <button id="fundBtn" class="btn btn-ghost btn-sm">دفعات التمويل الأسبوعية</button>
       <button id="cmpBtn" class="btn btn-ghost btn-sm">المقارنة</button>
       <button id="wasteBtn" class="btn btn-ghost btn-sm">التوالف</button>
       <button id="lateBtn" class="bell-btn" aria-expanded="false" aria-haspopup="true" aria-label="تنبيهات التأخير" title="تنبيهات التأخير"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span id="lateDot" class="bell-dot" hidden></span></button>
@@ -1054,7 +1094,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-20 أ</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-20 ب</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -1723,50 +1763,75 @@ function payCtl(kind, key, st) {
     <button class="part-btn" data-partopen="${k}">${st.part ? '+ جزئي' : 'سداد جزئي'}</button>
     ${st.part ? `<button class="icon-x sm" data-un${kind}="${key}" title="إلغاء كل السداد" aria-label="إلغاء السداد">×</button>` : ''}</span>`;
 }
+// خانة سداد مختصرة داخل جدول الأسابيع
+function payCell(key, st) {
+  if (st.full) return `<button class="pc-ok" ${VIEW ? 'disabled' : `data-unpay="${key}"`} title="${VIEW ? 'مسدد' : 'مسدد · اضغط لإلغاء السداد'}">✓</button>`;
+  if (VIEW) return st.part ? `<span class="pc-part">${money(st.paid)}</span>` : '<span class="pc-no">—</span>';
+  const k = `pay|${key}`;
+  if (S.partOpen === k) return `<span class="pc-form"><input class="in part-in" data-partkey="${k}" inputmode="decimal" dir="ltr" placeholder="المبلغ" aria-label="مبلغ السداد الجزئي"><button class="pay-btn" data-partsave="${k}">حفظ</button><button class="icon-x sm" data-partcancel aria-label="إلغاء">×</button></span>`;
+  return `<span class="pc-acts">${st.part ? `<small class="pc-part" title="المتبقي ${money(st.due - st.paid)}">مسدد ${money(st.paid)}</small>` : ''}
+    <button class="pay-btn sm" data-pay="${key}">${st.part ? 'إكمال' : 'تم السداد'}</button><button class="part-link" data-partopen="${k}" title="سداد جزئي">جزئي</button></span>`;
+}
+// تقدّم التمويل: الأشهر المسددة من كل أشهره (إن كان له تاريخ نهاية) أو سداد هذا الشهر
+function loanProgress(l, m) {
+  if (l.start_month && l.end_month) {
+    const months = []; for (let x = monthStart(l.start_month); x <= monthStart(l.end_month); x = addMonths(x, 1)) months.push(x);
+    const due = months.length * Number(l.amount), paid = S.fin.loanPays.filter(p => p.loan_id === l.id).reduce((a, p) => a + Number(p.amount), 0);
+    const n = months.filter(x => { const st = payState(loanPayOf(l.id, x), l.amount); return st.full; }).length;
+    return { pct: pctOf(paid, due), txt: `${n} من ${months.length} أقساط · المتبقي ${money(Math.max(0, due - paid))}` };
+  }
+  const st = payState(loanPayOf(l.id, m), l.amount); return { pct: pctOf(st.paid, st.due), txt: 'قسط شهري مستمر' };
+}
 function renderFund() {
   const el = $('fund'); if (!el) return;
   const m = S.fundMonth || (S.fundMonth = monthStart(S.today));
-  if (!S.fin.ok) { el.innerHTML = `${backHead('رصيد حساب التمويلات البنكية')}<p class="muted">شغّل ملف fin.sql في Supabase لتفعيل هذه الصفحة.</p>`; bindBack(); return; }
+  if (!S.fin.ok) { el.innerHTML = `${backHead('دفعات التمويل الأسبوعية')}<p class="muted">شغّل ملف fin.sql في Supabase لتفعيل هذه الصفحة.</p>`; bindBack(); return; }
   const f = fundStats(m);
-  const remainAfter = f.balance - (f.outDue - f.outPaid);
-  el.innerHTML = `${backHead('رصيد حساب التمويلات البنكية', `<div class="month-nav"><button class="nav" data-fm="-1" aria-label="الشهر السابق">›</button><b>${esc(fmtMonth(m))}</b><button class="nav" data-fm="1" aria-label="الشهر التالي">‹</button></div>`)}
-    <section class="fund-hero">
-      <div class="fh-main"><span class="ki bank big">${ICON_BANK}</span><div><p>الرصيد الحالي للحساب</p><p class="fh-bal num">${money(f.balance)}<span class="cur">ريال</span></p>
-        <p class="muted" style="font-size:13px">الرصيد الافتتاحي ${money(S.fin.opening)} + كل الإيداعات المسددة − كل التمويلات المسددة</p></div></div>
-      <div class="fh-bars">
-        <div><div class="fc-row"><span>إيداعات الفروع لشهر ${esc(fmtMonth(m))}</span><b class="num">${money(f.inPaid)} من ${money(f.inDue)}</b></div>
-          <div class="t-bar"><i style="width:${Math.min(100, pctOf(f.inPaid, f.inDue))}%"></i></div><p class="fc-note">${fmtPct(pctOf(f.inPaid, f.inDue))} من أقساط الشهر</p></div>
-        <div><div class="fc-row"><span>سداد التمويلات لشهر ${esc(fmtMonth(m))}</span><b class="num">${money(f.outPaid)} من ${money(f.outDue)}</b></div>
-          <div class="t-bar alt"><i style="width:${Math.min(100, pctOf(f.outPaid, f.outDue))}%"></i></div><p class="fc-note">${fmtPct(pctOf(f.outPaid, f.outDue))} من تمويلات الشهر · الرصيد بعد سداد المتبقي: <b class="num ${remainAfter >= 0 ? 'ok' : 'no'}">${money(remainAfter)}</b></p></div>
-      </div>
+  const fridays = [...new Set(f.srcs.flatMap(s => dueDates(s, m)))].sort();
+  const allLoanPaid = S.fin.loanPays.reduce((a, p) => a + Number(p.amount), 0);
+  const kpi = (cls, ic, t, v, sub, pct) => `<div class="fk ${cls}"><span class="ki ${ic}">${ic === 'bank' ? ICON_BANK : ICON_DOC}</span><div><p>${t}</p><p class="fk-v num">${money(v)}<span class="cur">ريال</span></p>
+    ${pct != null ? `<div class="t-bar${cls === 'out' ? ' alt' : ''}"><i style="width:${Math.min(100, pct)}%"></i></div>` : ''}<p class="fc-note">${sub}</p></div></div>`;
+  el.innerHTML = `${backHead('دفعات التمويل الأسبوعية', `<div class="month-nav"><button class="nav" data-fm="-1" aria-label="الشهر السابق">›</button><b>${esc(fmtMonth(m))}</b><button class="nav" data-fm="1" aria-label="الشهر التالي">‹</button></div>`)}
+    <section class="fund-kpis">
+      ${kpi('bal', 'bank', 'رصيد حساب التمويلات', f.balance, `إيداعات ${esc(fmtMonth(m))}: ${money(f.inPaid)} من ${money(f.inDue)} (${fmtPct(pctOf(f.inPaid, f.inDue))})`, pctOf(f.inPaid, f.inDue))}
+      ${kpi('out', 'doc', 'إجمالي الأقساط المسددة', f.outPaid, `من ${money(f.outDue)} أقساط ${esc(fmtMonth(m))} (${fmtPct(pctOf(f.outPaid, f.outDue))}) · كل ما سُدد: ${money(allLoanPaid)}`, pctOf(f.outPaid, f.outDue))}
     </section>
-
-    <div class="sec-h"><h2>أقساط الفروع لحساب التمويلات</h2><span class="muted">تُدفع كل ${f.srcs.length && f.srcs.every(s => Number(s.weekday) === 5) ? 'جمعة' : 'أسبوع'}</span></div>
-    ${f.srcs.length ? `<div class="src-grid">${f.srcs.map(s => {
-      const ds = dueDates(s, m), sts = ds.map(d => payState(payOf(s.id, d), s.weekly_amount));
-      const paidN = sts.filter(x => x.full).length, partN = sts.filter(x => x.part).length;
-      const due = sts.reduce((a, x) => a + x.due, 0), paid = sts.reduce((a, x) => a + x.paid, 0);
-      return `<div class="src-card">
-        <div class="src-h"><div><b>${nameHtml(s.label)}</b><small>${money(s.weekly_amount)} ريال كل ${WD[s.weekday]}</small></div><span class="src-sum num">${money(paid)} / ${money(due)}</span></div>
-        <div class="t-bar thin"><i style="width:${Math.min(100, pctOf(paid, due))}%"></i></div>
-        ${ds.map((d, i) => { const st = sts[i]; return `<div class="inst${st.full ? ' paid' : st.part ? ' partial' : ''}">
-          <span class="inst-d">${esc(fmtDayName(d))} ${esc(fmtShort(d))}</span><span class="num inst-a">${money(st.due)}</span>
-          ${daysTag(d, st.full)}${payCtl('pay', `${s.id}|${d}`, st)}
-          ${st.part ? `<span class="part-bar"><i style="width:${pctOf(st.paid, st.due)}%"></i></span>` : ''}</div>`; }).join('')}
-        <p class="fc-note">${paidN} من ${ds.length} أقساط مسددة${partN ? ` · ${partN} مسدد جزئياً` : ''}</p></div>`;
-    }).join('')}</div>` : `<p class="muted">لا توجد أقساط. أضفها من الإعدادات > التمويلات.</p>`}
-
-    <div class="sec-h"><h2>التمويلات ومواعيد السداد</h2></div>
-    ${f.loans.length ? `<div class="loan-total"><span>إجمالي تمويلات شهر ${esc(fmtMonth(m))}</span><b class="num">${money(f.outDue)}<span class="cur">ريال</span></b></div>
-      <div class="loans">${f.loans.map(l => { const d = loanDue(l, m), st = payState(loanPayOf(l.id, m), l.amount); return `<div class="loan${st.full ? ' paid' : st.part ? ' partial' : ''}">
-        <div class="loan-n"><b>${esc(l.name)}</b>${l.notes ? `<small>${esc(l.notes)}</small>` : ''}</div>
-        <span class="num loan-a">${money(st.due)}</span>
-        <span class="loan-d">يستحق ${esc(fmtShort(d))}</span>
-        ${daysTag(d, st.full)}${payCtl('lpay', `${l.id}|${m}`, st)}
-        ${st.part ? `<span class="part-bar"><i style="width:${pctOf(st.paid, st.due)}%"></i></span>` : ''}</div>`; }).join('')}</div>
-      <div class="loan-sum"><div class="fc-row"><span>إجمالي المسدد من تمويلات الشهر الحالي</span><b class="num">${money(f.outPaid)} من ${money(f.outDue)} (${fmtPct(pctOf(f.outPaid, f.outDue))})</b></div>
-        <div class="t-bar alt"><i style="width:${Math.min(100, pctOf(f.outPaid, f.outDue))}%"></i></div></div>`
-    : `<p class="muted">لا توجد تمويلات لهذا الشهر${VIEW ? '' : '. أضف التمويلات ومواعيدها من الإعدادات > التمويلات'}.</p>`}`;
+    <div class="fund-cols">
+      <section class="fund-col">
+        <div class="sec-h"><h2>دفعات الفروع الأسبوعية</h2><span class="muted">تُدفع كل ${f.srcs.length && f.srcs.every(s => Number(s.weekday) === 5) ? 'جمعة' : 'أسبوع'}</span></div>
+        ${f.srcs.length ? `<div class="tbl-wrap"><table class="wk-tbl"><thead><tr><th>الفرع</th><th class="n">القسط</th>${fridays.map(d => `<th class="n">${esc(fmtShort(d))}<small>${esc(fmtDayName(d))}</small></th>`).join('')}</tr></thead>
+          <tbody>${f.srcs.map(s => {
+            const ds = dueDates(s, m), sts = ds.map(d => payState(payOf(s.id, d), s.weekly_amount));
+            const due = sts.reduce((a, x) => a + x.due, 0), paid = sts.reduce((a, x) => a + x.paid, 0), pct = pctOf(paid, due);
+            return `<tr><td class="wk-name"><b>${nameHtml(s.label)}</b><span class="wk-meter" title="${money(paid)} من ${money(due)}"><i style="width:${Math.min(100, pct)}%"></i></span><small class="num">${money(paid)} / ${money(due)} · ${fmtPct(pct)}</small></td>
+              <td class="n num">${money(s.weekly_amount)}</td>
+              ${fridays.map(d => { const i = ds.indexOf(d); if (i < 0) return '<td class="n">—</td>'; const st = sts[i];
+                return `<td class="n wk-c${st.full ? ' paid' : st.part ? ' partial' : dayDiff(S.today, d) < 0 ? ' late' : ''}">${payCell(`${s.id}|${d}`, st)}</td>`; }).join('')}</tr>`;
+          }).join('')}</tbody>
+          <tfoot><tr><td>المجموع</td><td class="n num">${money(f.srcs.reduce((a, s) => a + Number(s.weekly_amount), 0))}</td>${fridays.map(d => {
+            let due = 0, paid = 0; for (const s of f.srcs) if (dueDates(s, m).includes(d)) { const st = payState(payOf(s.id, d), s.weekly_amount); due += st.due; paid += st.paid; }
+            return `<td class="n num"><small>${money(paid)}<br>من ${money(due)}</small></td>`; }).join('')}</tr></tfoot></table></div>
+          <p class="fc-note">عند الضغط على "تم السداد" يُضاف المبلغ إلى رصيد حساب التمويلات. اضغط ✓ لإلغاء السداد.</p>`
+        : `<p class="muted">لا توجد دفعات أسبوعية. أضفها من الإعدادات > التمويلات.</p>`}
+      </section>
+      <section class="fund-col">
+        <div class="sec-h"><h2>مواعيد سداد التمويلات</h2>${VIEW ? '' : `<button class="btn btn-primary btn-sm" data-loanform="1">${S.loanForm ? 'إغلاق' : '+ إضافة تمويل'}</button>`}</div>
+        ${S.loanForm && !VIEW ? `<div class="loan-form">
+          <label class="field"><span>اسم التمويل</span><input class="in" id="lfName" maxlength="80" placeholder="مثال: تمويل بنك الراجحي"></label>
+          <div class="sp2"><label class="field"><span>مبلغ القسط</span><input class="in" id="lfAmt" inputmode="decimal" dir="ltr" placeholder="0"></label>
+          <label class="field"><span>تاريخ السداد</span><input class="in" type="date" id="lfDate" value="${S.today}"></label></div>
+          <label class="field"><span>عدد الأقساط الشهرية <small class="muted">(1 = دفعة واحدة، فارغ = مستمر)</small></span><input class="in" id="lfN" inputmode="numeric" dir="ltr" placeholder="مثال: 12"></label>
+          <button class="btn btn-primary btn-sm" data-loansave="1">حفظ التمويل</button></div>` : ''}
+        ${f.loans.length ? `<div class="loans2">${f.loans.map(l => { const d = loanDue(l, m), st = payState(loanPayOf(l.id, m), l.amount), pr = loanProgress(l, m);
+          return `<div class="loan2${st.full ? ' paid' : st.part ? ' partial' : ''}">
+            <div class="l2-top"><div class="loan-n"><b>${esc(l.name)}</b><small>يستحق ${esc(fmtDayName(d))} ${esc(fmtShort(d))}</small></div><span class="num loan-a">${money(st.due)}</span></div>
+            <div class="l2-mid">${daysTag(d, st.full)}${payCtl('lpay', `${l.id}|${m}`, st)}</div>
+            <div class="l2-meter"><span class="t-bar alt thin"><i style="width:${Math.min(100, pr.pct)}%"></i></span><small>${fmtPct(pr.pct)} · ${pr.txt}</small></div></div>`; }).join('')}</div>
+          <div class="loan-sum"><div class="fc-row"><span>المسدد من أقساط ${esc(fmtMonth(m))}</span><b class="num">${money(f.outPaid)} من ${money(f.outDue)}</b></div>
+            <div class="t-bar alt"><i style="width:${Math.min(100, pctOf(f.outPaid, f.outDue))}%"></i></div></div>`
+        : `<p class="muted">لا توجد تمويلات مستحقة في ${esc(fmtMonth(m))}.</p>`}
+      </section>
+    </div>`;
   bindBack();
   el.querySelectorAll('[data-fm]').forEach(b => b.onclick = () => { S.fundMonth = addMonths(S.fundMonth, Number(b.dataset.fm)); renderFund(); });
 }
@@ -1787,13 +1852,25 @@ async function savePay(kind, key, add) {
 async function fundAction(t) {
   if (VIEW) return;
   let error;
+  if (t.dataset.loanform) { S.loanForm = !S.loanForm; renderFund(); if (S.loanForm) $('lfName').focus(); return; }
+  if (t.dataset.loansave) {
+    const n = $('lfName').value.trim(), a = parseAmount($('lfAmt').value), d = $('lfDate').value, cnt = $('lfN').value.trim() ? Math.round(Number($('lfN').value.trim())) : null;
+    if (!n) { $('lfName').focus(); return toast('اكتب اسم التمويل', 'err'); }
+    if (isNaN(a) || a <= 0) { $('lfAmt').focus(); return toast('اكتب مبلغ القسط', 'err'); }
+    if (!d) return toast('اختر تاريخ السداد', 'err');
+    if (cnt != null && (isNaN(cnt) || cnt < 1 || cnt > 360)) return toast('عدد الأقساط من 1 إلى 360', 'err');
+    const start = monthStart(d);
+    t.disabled = true;
+    ({ error } = await sb.from('loans').insert({ name: n, amount: a, due_day: Number(d.slice(8, 10)), start_month: start, end_month: cnt ? addMonths(start, cnt - 1) : null, active: true }));
+    if (!error) { S.loanForm = false; S.fundMonth = start; toast('تمت إضافة التمويل'); }
+  }
   if ('partcancel' in t.dataset) { S.partOpen = null; return renderFund(); }
   if (t.dataset.partopen) {
     S.partOpen = t.dataset.partopen; renderFund();
     const inp = document.querySelector(`[data-partkey="${t.dataset.partopen}"]`); if (inp) inp.focus();
     return;
   }
-  if (t.dataset.partsave) {
+  if (t.dataset.loansave) { /* تم أعلاه */ } else if (t.dataset.partsave) {
     const k = t.dataset.partsave, inp = document.querySelector(`[data-partkey="${k}"]`), v = parseAmount(inp ? inp.value : '');
     if (isNaN(v) || v <= 0) { toast('اكتب مبلغ السداد رقماً أكبر من صفر', 'err'); if (inp) inp.focus(); return; }
     const [kind, ...rest] = k.split('|');
@@ -4838,7 +4915,7 @@ function renderDetail() {
 function showView(v) {
   S.view = v;
   for (const [id, name] of [['overview', 'overview'], ['detail', 'detail'], ['waste', 'waste'], ['fund', 'fund'], ['settingsView', 'settings'], ['compare', 'compare'], ['reports', 'reports'], ['calc', 'calc'], ['studio', 'studio']]) $(id).hidden = v !== name;
-  $('studioBtn').classList.toggle('on', v === 'studio');
+  $('studioBtn').classList.toggle('on', v === 'studio'); $('fundBtn').classList.toggle('on', v === 'fund');
   $('calcBtn').classList.toggle('on', v === 'calc');
   $('repBtn').classList.toggle('on', v === 'reports');
   $('cmpBtn').classList.toggle('on', v === 'compare');
@@ -5636,7 +5713,7 @@ $('logoFile').onchange = async () => {
 
 // ---------------- الأحداث ----------------
 document.addEventListener('click', async e => {
-  const t = e.target.closest('[data-purtab],[data-puadd],[data-pudel],[data-editday],[data-delday],[data-rscancel],[data-wledit],[data-wldel],[data-wlsave],[data-wlcancel],[data-mvadd],[data-mvdel],[data-unmerge],[data-open-merge],[data-open-compare],[data-profit],[data-open-fund],[data-open-settings],[data-pay],[data-unpay],[data-lpay],[data-unlpay],[data-partopen],[data-partsave],[data-partcancel],[data-detail],[data-approve],[data-reject],[data-copy],[data-add],[data-waste-open],[data-delbatch]');
+  const t = e.target.closest('[data-purtab],[data-puadd],[data-pudel],[data-editday],[data-delday],[data-rscancel],[data-wledit],[data-wldel],[data-wlsave],[data-wlcancel],[data-mvadd],[data-mvdel],[data-unmerge],[data-open-merge],[data-open-compare],[data-profit],[data-open-fund],[data-open-settings],[data-pay],[data-unpay],[data-lpay],[data-unlpay],[data-partopen],[data-partsave],[data-partcancel],[data-loanform],[data-loansave],[data-detail],[data-approve],[data-reject],[data-copy],[data-add],[data-waste-open],[data-delbatch]');
   if (!t) return;
   if (t.dataset.purtab || t.dataset.puadd || t.dataset.pudel) return purchAction(t);
   if (t.dataset.editday) { if (VIEW) return; const [b, d] = t.dataset.editday.split('|'); return openSaleEdit(Number(b), d); }
@@ -5650,7 +5727,7 @@ document.addEventListener('click', async e => {
   if (t.dataset.profit) { const k = t.dataset.profit; S.showProfit.has(k) ? S.showProfit.delete(k) : S.showProfit.add(k); return renderGroups(); }
   if ('openFund' in t.dataset) return openFund();
   if (t.dataset.openSettings) return openSettings(t.dataset.openSettings);
-  if (t.dataset.pay || t.dataset.unpay || t.dataset.lpay || t.dataset.unlpay || t.dataset.partopen || t.dataset.partsave || 'partcancel' in t.dataset) return fundAction(t);
+  if (t.dataset.loanform || t.dataset.loansave || t.dataset.pay || t.dataset.unpay || t.dataset.lpay || t.dataset.unlpay || t.dataset.partopen || t.dataset.partsave || 'partcancel' in t.dataset) return fundAction(t);
   if (t.dataset.wasteOpen) return openWaste(t.dataset.wasteOpen);
   if (VIEW && (t.dataset.add || t.dataset.approve || t.dataset.reject || t.dataset.delbatch)) return;
   if (t.dataset.delbatch) return deleteBatch(t.dataset.delbatch);
@@ -5682,6 +5759,7 @@ bindCalc();
 bindStudio();
 bindVoice();
 $('studioBtn').onclick = () => S.view === 'studio' ? closeDetail() : openStudio();
+$('fundBtn').onclick = () => S.view === 'fund' ? closeDetail() : openFund();
 $('calcBtn').onclick = () => S.view === 'calc' ? closeDetail() : openCalc();
 $('settingsView').addEventListener('click', e => { const b = e.target.closest('[data-ingnew],[data-ingsave],[data-ingtog],[data-ingrm]'); if (b) ingAction(b); const c = e.target.closest('[data-clnew],[data-cltog],[data-cldel]'); if (c) calcLinkAction(c); });
 $('repBtn').onclick = () => S.view === 'reports' ? closeDetail() : openReports();
