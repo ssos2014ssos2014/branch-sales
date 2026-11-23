@@ -384,6 +384,7 @@ function fatal(title, msg) {
 async function load() {
   const { data, error } = await sb.rpc('branch_info', { p_token: token });
   if (error) { fatal('تعذّر فتح صفحة الفرع', errMsg(error)); return; }
+  if (data && data.invoice_mode) { location.replace('invoice.html?t=' + encodeURIComponent(token)); return; }
   info = data; map = {};
   for (const e of info.entries) map[e.date] = e;
   if (!viewMonth) viewMonth = monthStart(info.today);
@@ -1557,6 +1558,6 @@ else {
   }, 300000);
 }
 </script>
-<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-20 أ</p>
+<p style="text-align:center;font-size:11px;color:#9a928a;margin:18px 0 10px">إصدار الواجهة: 2026-11-23 أ</p>
 </body>
 </html>

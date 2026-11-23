@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>فواتير المبيعات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .wrap { max-width: 640px; margin: 0 auto; padding: calc(16px + env(safe-area-inset-top, 0px)) 14px 120px; }
+  .head { display: flex; align-items: center; gap: 12px; }
+  .head img { width: 48px; height: 48px; border-radius: 12px; object-fit: contain; background: var(--surface); border: 1px solid var(--line); padding: 4px; }
+  .head h1 { font-size: 22px; } .head p { color: var(--muted); font-size: 13px; }
+  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 4px; margin: 14px 0; position: sticky; top: 6px; z-index: 5; }
+  .tabs button { border: 0; background: none; padding: 10px 4px; border-radius: 10px; font-weight: 600; font-size: 14px; }
+  .tabs button[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px; margin-top: 12px; }
+  .step { font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
+  .cust-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+  .cust { text-align: start; border: 1.5px solid var(--line); background: var(--bg); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 2px; }
+  .cust b { font-size: 15px; } .cust small { font-size: 12px; color: var(--muted); }
+  .cust small.due { color: var(--caramel); font-weight: 600; }
+  .cust:hover { border-color: var(--ink); }
+  .cust-sel { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--bg); border-radius: 12px; padding: 10px 12px; }
+  .cust-sel b { font-size: 17px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+  .in { width: 100%; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: var(--r-sm); background: var(--bg); color: var(--ink); font-size: 16px; }
+  .in:focus { outline: none; border-color: var(--ink); background: var(--surface); }
+  .search { margin: 10px 0; }
+  .items { display: grid; gap: 8px; }
+  .item { border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--surface); }
+  .item.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--surface)); }
+  .it-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .it-top b { font-size: 15px; } .it-price { font-family: var(--font-head); font-weight: 700; white-space: nowrap; }
+  .it-price small { font-weight: 400; color: var(--muted); font-size: 12px; }
+  .it-ctl { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .qty { display: inline-flex; align-items: center; border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg); }
+  .qty button { width: 42px; height: 42px; border: 0; background: none; font-size: 22px; font-weight: 700; }
+  .qty input { width: 64px; height: 42px; border: 0; text-align: center; background: none; font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--ink); }
+  .wgt { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+  .wgt input { width: 90px; text-align: center; padding: 9px 6px; }
+  .line-tot { margin-inline-start: auto; font-family: var(--font-head); font-weight: 700; font-size: 16px; }
+  .bar { position: fixed; inset-inline: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--line); padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 24px rgba(0,0,0,.08); z-index: 10; }
+  .bar-in { max-width: 640px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+  .bar-in .tot { flex: 1; } .bar-in .tot small { display: block; color: var(--muted); font-size: 12px; }
+  .bar-in .tot b { font-family: var(--font-head); font-size: 24px; }
+  .err { color: var(--rose); font-size: 14px; font-weight: 600; min-height: 0; }
+  .err:empty { display: none; }
+  .inv-list { display: grid; gap: 8px; }
+  .inv-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--surface); text-align: start; width: 100%; }
+  .inv-row small { display: block; color: var(--muted); font-size: 12px; }
+  .inv-row .num { font-weight: 700; font-size: 16px; }
+  .inv-row.col { background: color-mix(in srgb, var(--accent) 6%, var(--surface)); }
+  /* الفاتورة */
+  .receipt { background: #fff; color: #1d1712; border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  .receipt .r-h { display: flex; justify-content: space-between; gap: 8px; border-bottom: 2px solid #1d1712; padding-bottom: 8px; margin-bottom: 8px; }
+  .receipt .r-h h2 { font-size: 18px; } .receipt .r-h p { font-size: 13px; color: #5b5149; }
+  .receipt table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .receipt th, .receipt td { padding: 6px 4px; border-bottom: 1px solid #e6e1da; text-align: start; }
+  .receipt th { font-size: 12px; color: #5b5149; } .receipt .n { text-align: center; }
+  .receipt tfoot td { font-weight: 800; font-size: 16px; border-bottom: 0; border-top: 2px solid #1d1712; }
+  .receipt .r-note { font-size: 13px; color: #5b5149; margin-top: 6px; }
+  .acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .acts .btn { flex: 1; }
+  .pay-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .pay-grid .in { text-align: center; font-family: var(--font-head); font-size: 18px; }
+  .note-box { font-size: 13px; color: var(--muted); }
+  .empty { text-align: center; color: var(--muted); padding: 18px 8px; }
+  @media print {
+    body * { visibility: hidden; } .receipt, .receipt * { visibility: visible; }
+    .receipt { position: absolute; inset: 0 0 auto 0; border: 0; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="head" id="head"></header>
+  <nav class="tabs" role="group" aria-label="الأقسام">
+    <button data-tab="new" aria-pressed="true">فاتورة جديدة</button>
+    <button data-tab="col" aria-pressed="false">سند تحصيل</button>
+    <button data-tab="list" aria-pressed="false">الفواتير</button>
+  </nav>
+  <section id="view"><p class="empty">جارٍ التحميل…</p></section>
+  <p class="muted" style="text-align:center;font-size:12px;margin-top:18px">إصدار الواجهة: 2026-11-23 أ</p>
+</main>
+<div class="bar" id="bar" hidden></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="common.js"></script>
+<script>
+const token = new URLSearchParams(location.search).get('t');
+const $ = id => document.getElementById(id);
+let D = null, TAB = 'new';
+let INV = { cust: null, date: null, q: '', lines: {}, note: '', done: null, busy: false };   // lines: {item_id: {qty, w}}
+let COL = { cust: null, date: null, cash: '', bank: '', card: '', note: '', busy: false };
+let LIST = { cust: '', open: null };
+const num = v => { const n = parseAmount(String(v ?? '')); return isNaN(n) ? NaN : n; };
+const r2 = v => Math.round(v * 100) / 100;
+const custOf = id => D.customers.find(c => c.id === Number(id));
+const itemOf = id => D.items.find(i => i.id === Number(id));
+function unitPrice(it, w) { return r2(Number(it.price) + (it.weighted ? (Number(w) || 0) / 1000 * Number(D.branch.choc_price) : 0)); }
+function itemsFor(c) { const ids = c && c.items && c.items.length ? new Set(c.items) : null; return D.items.filter(i => !ids || ids.has(i.id)); }
+
+async function load() {
+  if (!token) { $('view').innerHTML = '<p class="empty">الرابط ناقص. افتح رابط الفرع الصحيح.</p>'; return; }
+  const { data, error } = await sb.rpc('inv_data', { p_token: token });
+  if (error) { $('view').innerHTML = `<p class="empty">${esc(errMsg(error))}</p>`; return; }
+  D = data; INV.date = INV.date || D.today; COL.date = COL.date || D.today;
+  $('head').innerHTML = `${D.branch.logo ? `<img src="${esc(D.branch.logo)}" alt="">` : ''}<div><h1>${esc(D.branch.name)}</h1><p>فواتير المبيعات (آجل) · ${esc(fmtLong(D.today))}</p></div>`;
+  render();
+}
+function setTab(t) { TAB = t; document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tab === t))); render(); scrollTo({ top: 0 }); }
+
+function custPicker(sel) {
+  if (!D.customers.length) return '<p class="empty">لا يوجد عملاء. اطلب من الإدارة إضافة العملاء.</p>';
+  return `<div class="cust-grid">${D.customers.map(c => `<button class="cust" data-${sel}="${c.id}"><b>${esc(c.name)}</b>
+    <small class="${c.balance > 0.004 ? 'due' : ''}">${c.balance > 0.004 ? `عليه ${money(c.balance)} ريال` : 'لا يوجد مبلغ متبقٍ'}</small></button>`).join('')}</div>`;
+}
+function render() {
+  const v = $('view'), bar = $('bar'); bar.hidden = true;
+  if (!D) return;
+  if (TAB === 'new') return renderNew(v, bar);
+  if (TAB === 'col') return renderCol(v);
+  return renderList(v);
+}
+
+// ---------- فاتورة جديدة ----------
+function invTotal() {
+  let t = 0, n = 0;
+  for (const id in INV.lines) { const l = INV.lines[id], it = itemOf(id); if (!it) continue; const q = num(l.qty); if (!(q > 0)) continue; t += r2(unitPrice(it, l.w) * q); n++; }
+  return { t: r2(t), n };
+}
+function renderNew(v, bar) {
+  if (INV.done) return renderDone(v);
+  const c = INV.cust ? custOf(INV.cust) : null;
+  if (!c) { v.innerHTML = `<div class="panel"><p class="step">1) اختر العميل</p>${custPicker('pick')}</div>`; return; }
+  const list = itemsFor(c), q = INV.q.trim();
+  const shown = q ? list.filter(i => i.name.includes(q)) : list;
+  v.innerHTML = `<div class="panel">
+      <div class="cust-sel"><div><small class="muted">العميل</small><br><b>${esc(c.name)}</b></div><button class="btn btn-ghost btn-sm" data-change="1">تغيير</button></div>
+      <div class="row2" style="margin-top:10px"><label class="field">تاريخ الفاتورة<input class="in" type="date" id="invDate" value="${INV.date}" max="${D.today}" min="${addDays(D.today, -30)}"></label>
+        <label class="field">ملاحظة (اختياري)<input class="in" id="invNote" maxlength="200" value="${esc(INV.note)}"></label></div></div>
+    <div class="panel"><p class="step">2) الأصناف والكميات${D.branch.choc_price ? ` <small style="font-weight:400">· سعر كيلو الشوكولاتة ${money(D.branch.choc_price)} ريال</small>` : ''}</p>
+      ${list.length > 6 ? `<input class="in search" id="invQ" placeholder="ابحث عن صنف…" value="${esc(INV.q)}" autocomplete="off">` : ''}
+      <div class="items">${shown.length ? shown.map(it => itemHtml(it)).join('') : '<p class="empty">لا توجد أصناف لهذا العميل. اطلب من الإدارة تخصيص الأصناف.</p>'}</div></div>`;
+  const tt = invTotal();
+  bar.hidden = false;
+  bar.innerHTML = `<div class="bar-in"><div class="tot"><small>${tt.n} صنف · فاتورة آجلة</small><b class="num" id="invTot">${money(tt.t)}</b> <small style="display:inline">ريال</small></div>
+    <button class="btn btn-primary btn-lg" id="invGo" ${tt.n ? '' : 'disabled'}>إصدار الفاتورة</button></div><p class="err" id="invErr"></p>`;
+  $('invGo').onclick = submitInv;
+}
+function itemHtml(it) {
+  const l = INV.lines[it.id] || { qty: '', w: it.weighted ? String(Number(it.weight_g)) : '' };
+  const q = num(l.qty), up = unitPrice(it, l.w), on = q > 0;
+  return `<div class="item${on ? ' on' : ''}" data-item="${it.id}">
+    <div class="it-top"><b>${esc(it.name)}</b><span class="it-price"><span data-up>${money(up)}</span> <small>ريال / ${esc(it.unit || 'حبة')}</small></span></div>
+    <div class="it-ctl"><span class="qty"><button type="button" data-q="-1" aria-label="إنقاص">−</button><input inputmode="decimal" data-qty value="${esc(l.qty)}" placeholder="0" aria-label="الكمية"><button type="button" data-q="1" aria-label="زيادة">+</button></span>
+      ${it.weighted ? `<label class="wgt">وزن الشوكولاتة <input class="in" inputmode="decimal" data-w value="${esc(l.w)}" aria-label="وزن الشوكولاتة بالجرام"> جم</label>` : ''}
+      <span class="line-tot num" data-lt>${on ? money(r2(up * q)) : ''}</span></div></div>`;
+}
+function refreshItem(box) {
+  const it = itemOf(box.dataset.item), l = INV.lines[it.id] || {}, q = num(l.qty), up = unitPrice(it, l.w);
+  box.querySelector('[data-up]').textContent = money(up);
+  box.querySelector('[data-lt]').textContent = q > 0 ? money(r2(up * q)) : '';
+  box.classList.toggle('on', q > 0);
+  const tt = invTotal(); if ($('invTot')) { $('invTot').textContent = money(tt.t); $('invTot').previousElementSibling.textContent = `${tt.n} صنف · فاتورة آجلة`; $('invGo').disabled = !tt.n; }
+}
+function lineOf(id) { const it = itemOf(id); return INV.lines[id] || (INV.lines[id] = { qty: '', w: it.weighted ? String(Number(it.weight_g)) : '' }); }
+async function submitInv() {
+  const err = $('invErr'), c = custOf(INV.cust), lines = [];
+  for (const id in INV.lines) {
+    const l = INV.lines[id], it = itemOf(id); if (!it) continue;
+    const q = num(l.qty); if (l.qty === '' || q === 0) continue;
+    if (isNaN(q) || q < 0) { err.textContent = `كمية غير صحيحة للصنف "${it.name}"`; return; }
+    const row = { item_id: it.id, qty: q };
+    if (it.weighted) { const w = num(l.w); if (isNaN(w) || w < 0) { err.textContent = `وزن غير صحيح للصنف "${it.name}"`; return; } row.weight_g = w; }
+    lines.push(row);
+  }
+  if (!lines.length) { err.textContent = 'أضف كمية لصنف واحد على الأقل'; return; }
+  const tt = invTotal();
+  if (!confirm(`إصدار فاتورة آجلة على ${c.name}\nبمبلغ ${money(tt.t)} ريال (${tt.n} صنف)؟`)) return;
+  if (INV.busy) return; INV.busy = true; $('invGo').disabled = true; $('invGo').textContent = 'جارٍ الإصدار…';
+  const { data, error } = await sb.rpc('inv_create', { p_token: token, p_account: c.id, p_date: INV.date, p_lines: lines, p_note: INV.note || null });
+  INV.busy = false;
+  if (error) { $('invGo').disabled = false; $('invGo').textContent = 'إصدار الفاتورة'; err.textContent = errMsg(error); return; }
+  const doneId = data.id;
+  INV = { cust: null, date: INV.date, q: '', lines: {}, note: '', done: doneId, busy: false };
+  await load(); toast(`تم إصدار الفاتورة رقم ${data.no}`);
+}
+function receiptHtml(v) {
+  const c = custOf(v.account_id) || { name: '—' };
+  return `<div class="receipt" id="receipt">
+    <div class="r-h"><div><h2>${esc(D.branch.name)}</h2><p>فاتورة مبيعات آجلة</p></div><div style="text-align:end"><h2 class="num">رقم ${v.no}</h2><p>${esc(fmtLong(v.date))}</p></div></div>
+    <p style="font-size:14px;margin-bottom:6px">العميل: <b>${esc(c.name)}</b></p>
+    <table><thead><tr><th>الصنف</th><th class="n">الكمية</th><th class="n">السعر</th><th class="n">الإجمالي</th></tr></thead>
+      <tbody>${(v.lines || []).map(l => `<tr><td>${esc(l.name)}${l.weight_g != null ? `<br><small>شوكولاتة ${money(l.weight_g)} جم</small>` : ''}</td><td class="n">${money(l.qty)} ${esc(l.unit || '')}</td><td class="n">${money(l.unit_price)}</td><td class="n">${money(l.total)}</td></tr>`).join('')}</tbody>
+      <tfoot><tr><td colspan="3">الإجمالي (آجل)</td><td class="n">${money(v.total)} ريال</td></tr></tfoot></table>
+    ${v.note ? `<p class="r-note">ملاحظة: ${esc(v.note)}</p>` : ''}</div>`;
+}
+function invText(v) {
+  const c = custOf(v.account_id) || { name: '' };
+  return [`🧾 *فاتورة مبيعات آجلة رقم ${v.no}*`, `🏭 ${D.branch.name}`, `👤 العميل: ${c.name}`, `📅 ${fmtLong(v.date)}`, '━━━━━━━━━━━━',
+    ...(v.lines || []).map(l => `• ${l.name}${l.weight_g != null ? ` (${money(l.weight_g)} جم)` : ''}: ${money(l.qty)} × ${money(l.unit_price)} = ${money(l.total)}`),
+    '━━━━━━━━━━━━', `💰 *الإجمالي: ${money(v.total)} ريال*`, ...(v.note ? [`📝 ${v.note}`] : [])].join('\n');
+}
+async function shareText(t) {
+  if (navigator.share) { try { await navigator.share({ text: t }); return; } catch (e) { if (e.name === 'AbortError') return; } }
+  try { await navigator.clipboard.writeText(t); toast('تم نسخ الفاتورة، الصقها في الواتساب'); } catch (e) { }
+  window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank', 'noopener');
+}
+function renderDone(v) {
+  const inv = D.invoices.find(x => x.id === INV.done);
+  if (!inv) { INV.done = null; return render(); }
+  v.innerHTML = `<div class="panel"><p class="step" style="color:var(--accent)">✓ تم إصدار الفاتورة</p>${receiptHtml(inv)}
+    <div class="acts"><button class="btn btn-ghost" data-print="1">طباعة</button><button class="btn btn-ghost" data-share="${inv.id}">مشاركة واتساب</button></div>
+    <button class="btn btn-primary btn-block btn-lg" style="margin-top:10px" data-newinv="1">فاتورة جديدة</button></div>`;
+}
+
+// ---------- سند تحصيل ----------
+function renderCol(v) {
+  const c = COL.cust ? custOf(COL.cust) : null;
+  if (!c) { v.innerHTML = `<div class="panel"><p class="step">اختر العميل الذي دفع</p>${custPicker('cpick')}</div>`; return; }
+  const t = ['cash', 'bank', 'card'].reduce((a, k) => a + (num(COL[k]) || 0), 0);
+  v.innerHTML = `<div class="panel">
+    <div class="cust-sel"><div><small class="muted">العميل</small><br><b>${esc(c.name)}</b><br><small class="${c.balance > 0.004 ? '' : 'muted'}" style="color:var(--caramel)">${c.balance > 0.004 ? `المتبقي عليه ${money(c.balance)} ريال` : 'لا يوجد مبلغ متبقٍ'}</small></div><button class="btn btn-ghost btn-sm" data-cchange="1">تغيير</button></div>
+    <label class="field" style="margin-top:10px">تاريخ التحصيل<input class="in" type="date" id="colDate" value="${COL.date}" max="${D.today}" min="${addDays(D.today, -30)}"></label>
+    <p class="step" style="margin-top:12px">المبلغ المستلم</p>
+    <div class="pay-grid"><label class="field">نقدي<input class="in" data-c="cash" inputmode="decimal" value="${esc(COL.cash)}" placeholder="0"></label>
+      <label class="field">تحويل بنكي<input class="in" data-c="bank" inputmode="decimal" value="${esc(COL.bank)}" placeholder="0"></label>
+      <label class="field">شبكة<input class="in" data-c="card" inputmode="decimal" value="${esc(COL.card)}" placeholder="0"></label></div>
+    <p style="margin-top:8px">المجموع: <b class="num" id="colTot">${money(t)}</b> ريال</p>
+    <label class="field" style="margin-top:8px">ملاحظة (اختياري)<input class="in" id="colNote" maxlength="200" value="${esc(COL.note)}"></label>
+    <p class="err" id="colErr"></p>
+    <button class="btn btn-primary btn-block btn-lg" style="margin-top:10px" id="colGo">حفظ التحصيل</button></div>`;
+  $('colGo').onclick = submitCol;
+}
+async function submitCol() {
+  const err = $('colErr'), c = custOf(COL.cust), v = {};
+  for (const k of ['cash', 'bank', 'card']) { v[k] = COL[k].trim() ? num(COL[k]) : 0; if (isNaN(v[k]) || v[k] < 0) { err.textContent = 'اكتب المبالغ أرقاماً فقط'; return; } }
+  const t = v.cash + v.bank + v.card; if (!(t > 0)) { err.textContent = 'اكتب المبلغ المستلم'; return; }
+  if (!confirm(`تسجيل تحصيل ${money(t)} ريال من ${c.name}؟`)) return;
+  if (COL.busy) return; COL.busy = true; $('colGo').disabled = true;
+  const { error } = await sb.rpc('inv_collect', { p_token: token, p_account: c.id, p_date: COL.date, p_cash: v.cash, p_bank: v.bank, p_card: v.card, p_note: COL.note || null });
+  COL.busy = false;
+  if (error) { $('colGo').disabled = false; err.textContent = errMsg(error); return; }
+  COL = { cust: null, date: COL.date, cash: '', bank: '', card: '', note: '', busy: false };
+  await load(); toast(`تم تسجيل تحصيل ${money(t)} ريال من ${c.name}`);
+}
+
+// ---------- قائمة الفواتير والتحصيل ----------
+function renderList(v) {
+  if (LIST.open) {
+    const inv = D.invoices.find(x => x.id === LIST.open); if (!inv) { LIST.open = null; return render(); }
+    const canDel = inv.by === 'branch' && (Date.now() - new Date(inv.at).getTime()) < 24 * 3600e3;
+    v.innerHTML = `<div class="panel"><button class="btn btn-ghost btn-sm" data-back="1" style="margin-bottom:10px">→ رجوع للقائمة</button>${receiptHtml(inv)}
+      <div class="acts"><button class="btn btn-ghost" data-print="1">طباعة</button><button class="btn btn-ghost" data-share="${inv.id}">مشاركة واتساب</button>${canDel ? `<button class="btn btn-ghost" style="color:var(--rose)" data-del="${inv.id}">حذف الفاتورة</button>` : ''}</div></div>`;
+    return;
+  }
+  const f = LIST.cust ? Number(LIST.cust) : null;
+  const rows = [...D.invoices.filter(x => !f || x.account_id === f).map(x => ({ t: 'inv', d: x.date, at: x.at, x })),
+    ...D.collections.flatMap(m => Object.keys(m.split || {}).filter(k => !f || Number(k) === f).map(k => ({ t: 'col', d: m.date, at: '', x: m, acc: Number(k), amount: Number(m.split[k]) })))]
+    .sort((a, b) => a.d < b.d ? 1 : a.d > b.d ? -1 : (b.at || '').localeCompare(a.at || ''));
+  const c = f ? custOf(f) : null;
+  v.innerHTML = `<div class="panel">
+    <label class="field">العميل<select class="in" id="listCust"><option value="">كل العملاء</option>${D.customers.map(x => `<option value="${x.id}"${f === x.id ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</select></label>
+    ${c ? `<p style="margin-top:8px">المتبقي على ${esc(c.name)}: <b class="num" style="color:var(--caramel)">${money(c.balance)}</b> ريال</p>` : ''}
+    <p class="muted" style="font-size:12px;margin:8px 0">آخر 45 يوماً</p>
+    <div class="inv-list">${rows.length ? rows.map(r => r.t === 'inv'
+      ? `<button class="inv-row" data-open="${r.x.id}"><span><b>فاتورة ${r.x.no}</b> · ${esc((custOf(r.x.account_id) || {}).name || '')}<small>${esc(fmtShort(r.d))} · ${(r.x.lines || []).length} صنف</small></span><span class="num">${money(r.x.total)}</span></button>`
+      : `<div class="inv-row col"><span><b>تحصيل</b> · ${esc((custOf(r.acc) || {}).name || '')}<small>${esc(fmtShort(r.d))}${r.x.by === 'admin' ? ' · من الإدارة' : ''}${r.x.note ? ' · ' + esc(r.x.note) : ''}</small></span><span class="num" style="color:var(--accent)">${money(r.amount)}</span></div>`).join('')
+      : '<p class="empty">لا توجد فواتير.</p>'}</div></div>`;
+  $('listCust').onchange = e => { LIST.cust = e.target.value; render(); };
+}
+
+// ---------- الأحداث ----------
+document.addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
+  if (d.tab) return setTab(d.tab);
+  if (d.pick) { INV.cust = Number(d.pick); INV.lines = {}; INV.q = ''; return render(); }
+  if (d.change) { INV.cust = null; return render(); }
+  if (d.newinv) { INV.done = null; return render(); }
+  if (d.cpick) { COL.cust = Number(d.cpick); return render(); }
+  if (d.cchange) { COL.cust = null; return render(); }
+  if (d.q) { const box = b.closest('[data-item]'), l = lineOf(box.dataset.item), q = Math.max(0, (num(l.qty) || 0) + Number(d.q)); l.qty = q ? String(q) : ''; box.querySelector('[data-qty]').value = l.qty; return refreshItem(box); }
+  if (d.open) { LIST.open = Number(d.open); return render(); }
+  if (d.back) { LIST.open = null; return render(); }
+  if (d.print) return print();
+  if (d.share) { const inv = D.invoices.find(x => x.id === Number(d.share)); if (inv) shareText(invText(inv)); return; }
+  if (d.del) {
+    const inv = D.invoices.find(x => x.id === Number(d.del));
+    if (!confirm(`حذف الفاتورة رقم ${inv.no} (${money(inv.total)} ريال)؟`)) return;
+    const { error } = await sb.rpc('inv_delete', { p_token: token, p_id: inv.id });
+    if (error) return toast(errMsg(error), 'err');
+    LIST.open = null; await load(); toast('تم حذف الفاتورة');
+  }
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'invQ') { INV.q = t.value; const pos = t.selectionStart; render(); const n = $('invQ'); n.focus(); n.setSelectionRange(pos, pos); return; }
+  if (t.id === 'invDate') INV.date = t.value;
+  if (t.id === 'invNote') INV.note = t.value;
+  if (t.id === 'colDate') COL.date = t.value;
+  if (t.id === 'colNote') COL.note = t.value;
+  if (t.dataset.c) { COL[t.dataset.c] = t.value; $('colTot').textContent = money(['cash', 'bank', 'card'].reduce((a, k) => a + (num(COL[k]) || 0), 0)); }
+  const box = t.closest('[data-item]');
+  if (box) { const l = lineOf(box.dataset.item); if ('qty' in t.dataset) l.qty = t.value; if ('w' in t.dataset) l.w = t.value; refreshItem(box); }
+});
+load();
+</script>
+</body>
+</html>

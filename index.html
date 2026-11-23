@@ -667,6 +667,58 @@
   .l2-meter small { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }
   .t-bar.thin { height: 7px; }
   @media (max-width: 900px) { .fund-cols { grid-template-columns: 1fr; } .fund-kpis { grid-template-columns: 1fr; } .fk-v { font-size: 26px; } }
+  /* ---- الفواتير ---- */
+  .inv-k { margin-bottom: 4px; }
+  .inv-sub { font-size: 14px; margin: 14px 0 6px; font-family: var(--font-head); }
+  .inv-top { display: grid; gap: 4px; }
+  .inv-top > div { display: grid; grid-template-columns: minmax(120px, 1fr) 1.4fr 90px; gap: 10px; align-items: center; font-size: 13px; }
+  .inv-top b { text-align: center; }
+  .inv-tbl tbody tr { cursor: pointer; }
+  .inv-vdlg { max-width: 640px; } .inv-vdlg .r-h { display: flex; justify-content: space-between; gap: 10px; border-bottom: 2px solid var(--ink); padding-bottom: 8px; margin-bottom: 8px; }
+  .inv-items { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 760px; }
+  .inv-items th { font-size: 12px; color: var(--muted); text-align: start; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+  .inv-items td { padding: 5px 4px; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); vertical-align: middle; }
+  .inv-items .n { text-align: center; } .inv-items .in.sm { width: 90px; } .inv-items .in.n { text-align: center; }
+  .inv-items .dd-chk { font-size: 12px; justify-content: center; }
+  .inv-add { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
+  .inv-add #niName { flex: 1 1 180px; } .inv-add .in.sm { width: 100px; }
+  .inv-cust { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; color: var(--ink); }
+  .chip small { color: var(--muted); } .chip.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); } .chip.on small { color: inherit; opacity: .7; }
+  .inv-assign { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
+  .inv-checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 4px 12px; margin-top: 6px; }
+  /* ---- قائمة الأدوات ---- */
+  .more-menu { position: fixed; z-index: 70; width: 250px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 16px 40px rgba(0,0,0,.18); padding: 6px; display: grid; gap: 2px; }
+  .more-menu[hidden] { display: none; }
+  .mm-item { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; text-align: start; width: 100%; border: 0; background: none; padding: 9px 12px; border-radius: 10px; font: inherit; color: var(--ink); cursor: pointer; }
+  .mm-item:hover, .mm-item:focus-visible { background: var(--bg); outline: none; }
+  .mm-item b { font-size: 14px; } .mm-item small { font-size: 11px; color: var(--muted); }
+  .mm-item.on { background: var(--ink); color: var(--on-ink); } .mm-item.on small { color: inherit; opacity: .75; }
+  #moreBtn.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+  /* ---- مبيعات آخر يوم ---- */
+  .last-day { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 14px 18px; margin: 14px 0; }
+  .last-day:empty { display: none; }
+  .ld-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .ld-h h2 { font-size: 17px; margin: 0; } .ld-h .muted { font-size: 13px; }
+  .ld-nav { display: flex; gap: 6px; }
+  .ld-tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .ld-tbl th { font-size: 12px; color: var(--muted); font-weight: 600; text-align: start; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  .ld-tbl td { padding: 8px; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+  .ld-tbl tbody tr { cursor: pointer; } .ld-tbl tbody tr:hover { background: var(--bg); }
+  .ld-tbl .n { text-align: center; width: 120px; font-weight: 700; }
+  .ld-tbl tr.miss td:first-child { color: var(--muted); }
+  .ld-tbl tfoot td { font-weight: 800; font-size: 16px; border-bottom: 0; border-top: 2px solid var(--ink); }
+  .ld-barc { width: 38%; } .ld-bar { display: block; height: 8px; background: var(--bg); border-radius: 5px; overflow: hidden; }
+  .ld-bar i { display: block; height: 100%; background: var(--viz-1); border-radius: 5px; }
+  @media (max-width: 640px) { .ld-barc, .ld-barh { display: none; } .ld-tbl .n { width: auto; } }
+  /* ---- المؤشرات المختصرة ---- */
+  .kpi-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .kpi-4 .kpi b { font-size: 24px; }
+  .kpi-4 .kpi.real { background: color-mix(in srgb, #2E8B47 9%, var(--surface)); }
+  .kpi-4 .kpi.rest { background: color-mix(in srgb, #d99a1e 12%, var(--surface)); }
+  @media (max-width: 900px) { .kpi-4 { grid-template-columns: 1fr 1fr; } }
+  .kpi-more { margin-top: 8px; } .kpi-more > summary { cursor: pointer; color: var(--muted); font-size: 13px; padding: 4px 2px; }
+  .kpi-more .kpi-g3 { margin-top: 8px; }
   /* ---- المساعد الصوتي ---- */
   .col-btn { background: #1F6B3A; border-color: #1F6B3A; color: #fff; }
   .col-btn:hover { background: #17552d; border-color: #17552d; color: #fff; }
@@ -1035,18 +1087,21 @@
       <button id="voiceBtn" class="btn btn-sm voice-btn" title="أمر صوتي: تكلم والبرنامج ينفذ" aria-label="أمر صوتي"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg> أمر صوتي</button>
       <button id="addBtn" class="btn btn-primary btn-sm edit-only">إدخال مبيعات</button>
       <button id="colBtn" class="btn btn-primary btn-sm edit-only col-btn">إدخال تحصيل</button>
-      <button id="repBtn" class="btn btn-ghost btn-sm">تقارير إدارية</button>
-      <button id="calcBtn" class="btn btn-ghost btn-sm edit-only">حاسبة التكلفة</button>
-      <button id="studioBtn" class="btn btn-ghost btn-sm edit-only">مصمم الصور</button>
-      <button id="fundBtn" class="btn btn-ghost btn-sm">دفعات التمويل الأسبوعية</button>
-      <button id="cmpBtn" class="btn btn-ghost btn-sm">المقارنة</button>
-      <button id="wasteBtn" class="btn btn-ghost btn-sm">التوالف</button>
+      <button id="repBtn" class="btn btn-ghost btn-sm">التقارير</button>
+      <button id="moreBtn" class="btn btn-ghost btn-sm" aria-haspopup="true" aria-expanded="false" aria-controls="moreMenu">الأدوات <span aria-hidden="true">▾</span></button>
       <button id="lateBtn" class="bell-btn" aria-expanded="false" aria-haspopup="true" aria-label="تنبيهات التأخير" title="تنبيهات التأخير"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span id="lateDot" class="bell-dot" hidden></span></button>
       <button id="bellBtn" class="btn btn-ghost btn-sm">طلبات التعديل <span id="bellCount" class="badge zero">0</span></button>
       <button id="settingsBtn" class="btn btn-ghost btn-sm edit-only">الإعدادات</button>
       <button id="logoutBtn" class="btn btn-ghost btn-sm edit-only">خروج</button>
     </div>
   </div></header>
+  <div id="moreMenu" class="more-menu" hidden role="menu" aria-label="الأدوات">
+    <button id="fundBtn" class="mm-item" role="menuitem"><b>دفعات التمويل الأسبوعية</b><small>أقساط الفروع والتمويلات</small></button>
+    <button id="wasteBtn" class="mm-item" role="menuitem"><b>التوالف</b><small>تقارير البضائع التالفة</small></button>
+    <button id="cmpBtn" class="mm-item" role="menuitem"><b>المقارنة</b><small>مقارنة الفروع والفترات</small></button>
+    <button id="calcBtn" class="mm-item edit-only" role="menuitem"><b>حاسبة التكلفة</b><small>تكلفة المنتج وسعره</small></button>
+    <button id="studioBtn" class="mm-item edit-only" role="menuitem"><b>مصمم الصور</b><small>صور المنتجات على خلفيات</small></button>
+  </div>
   <section id="latePanel" class="late-pop" hidden role="dialog" aria-label="تنبيهات التأخير"></section>
   <section id="voicePanel" class="voice-pop" hidden role="dialog" aria-label="أمر صوتي">
     <div class="v-head"><b>أمر صوتي</b><label class="v-spk"><input type="checkbox" id="vSpeak" checked> رد بالصوت</label><button class="icon-x sm" id="vClose" aria-label="إغلاق">×</button></div>
@@ -1092,6 +1147,7 @@
 
     <div id="overview">
       <section id="hero" class="hero"></section>
+      <section id="lastDay" class="last-day"></section>
       <section id="kpis" class="kpis"></section>
       <section id="finSum"></section>
       <section id="wasteSum"></section>
@@ -1102,7 +1158,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-20 هـ</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-23 أ</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -1121,11 +1177,16 @@
       <div id="setPanel-general" class="set-panel" hidden><div class="set-card"><div id="settings"></div></div></div>
       <div id="setPanel-ings" class="set-panel" hidden></div>
       <div id="setPanel-accts" class="set-panel" hidden></div>
+      <div id="setPanel-inv" class="set-panel" hidden></div>
       <div id="setPanel-links" class="set-panel" hidden><div class="set-card"><h3>روابط إدخال المبيعات للفروع</h3><div id="links"></div></div></div>
     </section>
   </main>
 </div>
 
+<dialog id="invVDlg" class="entry-dlg inv-vdlg">
+  <div id="invVBody"></div>
+  <div class="dlg-actions"><button class="btn btn-ghost" type="button" id="invVDel" style="color:var(--rose)">حذف الفاتورة</button><button class="btn btn-primary" type="button" id="invVClose">إغلاق</button></div>
+</dialog>
 <dialog id="colDlg" class="entry-dlg">
   <form id="colForm" method="dialog">
     <h2 style="font-size:19px">إدخال تحصيل</h2>
@@ -1281,7 +1342,8 @@ async function loadSalesRows() {
 }
 async function loadBranches() {
   const cols = 'id,name,group_name,sort_order,token,active,credit,waste,logo,is_rep,whatsapp,track_from,late_exempt,monthly_target,profit_margin,sales_wa_link,waste_wa_link';
-  let { data, error } = await sb.from('branches').select(cols + ',sales_pay,split_mode').order('sort_order').order('id');
+  let { data, error } = await sb.from('branches').select(cols + ',sales_pay,split_mode,invoice_mode,choc_price,choc_cost').order('sort_order').order('id');
+  if (error && /invoice_mode|choc_/.test(error.message || '')) ({ data, error } = await sb.from('branches').select(cols + ',sales_pay,split_mode').order('sort_order').order('id'));
   if (error && /split_mode/.test(error.message || '')) ({ data, error } = await sb.from('branches').select(cols + ',sales_pay').order('sort_order').order('id'));
   if (error && /sales_pay/.test(error.message || '')) ({ data, error } = await sb.from('branches').select(cols).order('sort_order').order('id'));
   if (error) { toast(errMsg(error), 'err'); return; }
@@ -1347,6 +1409,7 @@ async function reload() {
     await loadMoves();
     await loadAccounts();
     await loadPurch();
+    await loadInv();
     await loadCost();
     buildGroups();
     renderAll();
@@ -1943,7 +2006,7 @@ function bindBack() { document.querySelectorAll('[data-back]').forEach(b => b.on
 // =====================================================================
 //  صفحة الإعدادات (تبويبات)
 // =====================================================================
-const SET_TABS = [['targets', 'الأهداف وهامش الربح'], ['commit', 'الالتزامات'], ['fund', 'التمويلات'], ['general', 'الفروع والروابط والوصول'], ['links', 'روابط الإدخال'], ['accts', 'توزيع الفواتير على الفروع'], ['ings', 'مكونات المنتجات']];
+const SET_TABS = [['targets', 'الأهداف وهامش الربح'], ['commit', 'الالتزامات'], ['fund', 'التمويلات'], ['general', 'الفروع والروابط والوصول'], ['links', 'روابط الإدخال'], ['accts', 'توزيع الفواتير على الفروع'], ['inv', 'الفواتير والأصناف'], ['ings', 'مكونات المنتجات']];
 function renderSettingsView() {
   const el = $('settingsView'); if (!el || el.hidden) return;
   const ae = document.activeElement;
@@ -1957,6 +2020,7 @@ function renderSettingsView() {
   if (S.setTab === 'links') renderLinks();
   if (S.setTab === 'ings') renderSetIngs();
   if (S.setTab === 'accts') renderSetAccts();
+  if (S.setTab === 'inv') renderSetInv();
 }
 function renderSetTargets() {
   const brs = activeBranches();
@@ -2139,10 +2203,12 @@ function bindSettingsView() {
     if (b.closest('#setPanel-commit')) return commitAction({ target: b });
     if (b.closest('#setPanel-fund')) return fundSetAction(b);
     if (b.closest('#setPanel-accts')) return accAction(b);
+    if (b.closest('#setPanel-inv')) return invSetAction(b);
   });
   el.addEventListener('change', e => {
     const t = e.target;
     if (t.dataset.bset) return saveBranchField(t);
+    if (t.closest('#setPanel-inv')) return invSetChange(t);
     if (t.id === 'accBranch') { S.accBranch = Number(t.value); return renderSetAccts(); }
     if (t.id === 'accMode') return (async () => { const b = S.byId[S.accBranch], v = t.value;
       const { error } = await sb.from('branches').update({ split_mode: v }).eq('id', b.id);
@@ -4222,7 +4288,7 @@ function acctCard(b) {
   const tInv = list.reduce((a, r) => a + r.inv, 0), tPaid = list.reduce((a, r) => a + r.paid, 0);
   const max = Math.max(1, ...list.map(r => Math.max(r.inv, r.paid)));
   return `<section class="acc-box">
-    <div class="pay-h"><h3>فواتير ${esc(b.name)} حسب الفروع</h3><span class="muted">إجمالي المبيعات <b class="num">${money(branchTotal(b.id))}</b> ريال</span></div>
+    <div class="pay-h"><h3>${b.invoice_mode ? `حسابات عملاء ${esc(b.name)}` : `فواتير ${esc(b.name)} حسب الفروع`}</h3><span class="muted">إجمالي المبيعات <b class="num">${money(branchTotal(b.id))}</b> ريال</span></div>
     <div class="acc-legend"><span><i class="inv"></i>الفواتير</span><span><i class="paid"></i>السداد</span></div>
     <div class="acc-tbl" role="table">
       <div class="acc-r acc-hd" role="row"><span>الفرع</span><span></span><span class="n">الفواتير</span><span class="n">السداد</span><span class="n">المتبقي</span></div>
@@ -4668,6 +4734,163 @@ function bindVoice() {
   $('voicePanel').addEventListener('click', e => { const x = e.target.closest('[data-vex]'); if (x) vRun(x.dataset.vex); });
   if (window.speechSynthesis) speechSynthesis.getVoices();
 }
+// =====================================================================
+//  نقطة الفواتير (أفق النكهات): الأصناف، العملاء وتخصيص أصنافهم، الفواتير والأرباح
+// =====================================================================
+S.inv = { items: [], cust: [], invoices: [], ok: false };
+const invBranches = () => S.branches.filter(b => b.invoice_mode);
+async function loadInv() {
+  const ids = invBranches().map(b => b.id); if (!ids.length) { S.inv = { items: [], cust: [], invoices: [], ok: false }; return; }
+  const [it, ci, iv] = await Promise.all([
+    sb.from('inv_items').select('*').in('branch_id', ids).order('sort_order').order('id'),
+    sb.from('inv_customer_items').select('*'),
+    sb.from('invoices').select('*, invoice_lines(*)').in('branch_id', ids).gte('inv_date', S.from).lte('inv_date', S.to).order('inv_no', { ascending: false })
+  ]);
+  if (it.error || ci.error || iv.error) { S.inv = { items: [], cust: [], invoices: [], ok: false, err: (it.error || ci.error || iv.error).message }; return; }
+  S.inv = { items: it.data || [], cust: ci.data || [], invoices: iv.data || [], ok: true };
+}
+const invUnit = (it, w, b) => Number(it.price) + (it.weighted ? (Number(w ?? it.weight_g) || 0) / 1000 * Number(b.choc_price ?? 23) : 0);
+const invUnitCost = (it, w, b) => Number(it.cost) + (it.weighted ? (Number(w ?? it.weight_g) || 0) / 1000 * Number(b.choc_cost ?? 11) : 0);
+// بطاقة الفواتير في صفحة الفرع
+function invCard(b) {
+  if (!b.invoice_mode) return '';
+  if (!S.inv.ok) return `<section class="acc-box"><p class="st-note">لتفعيل الفواتير شغّل ملف invoices.sql في Supabase مرة واحدة.</p></section>`;
+  const list = S.inv.invoices.filter(v => v.branch_id === b.id);
+  const tot = list.reduce((a, v) => a + Number(v.total), 0), cost = list.reduce((a, v) => a + Number(v.cost_total), 0), pr = tot - cost;
+  const items = {}; for (const v of list) for (const l of v.invoice_lines || []) { const k = l.name; const x = items[k] || (items[k] = { name: k, qty: 0, total: 0, profit: 0 }); x.qty += Number(l.qty); x.total += Number(l.total); x.profit += Number(l.total) - Number(l.cost); }
+  const top = Object.values(items).sort((a, c) => c.total - a.total).slice(0, 8), tmax = Math.max(1, ...top.map(x => x.total));
+  const show = S.invAll ? list : list.slice(0, 12);
+  return `<section class="acc-box inv-box">
+    <div class="pay-h"><h3>فواتير ${esc(b.name)}</h3><span class="muted">${list.length} فاتورة في الفترة</span></div>
+    <div class="cash-flow inv-k"><div><span>المبيعات (آجل)</span><b class="num">${money(tot)}</b></div><div><span>التكلفة على المصنع</span><b class="num">${money(cost)}</b></div>
+      <div class="net"><span>الربح · ${fmtPct(tot ? pr / tot * 100 : 0)}</span><b class="num">${pr < 0 ? negMoney(-pr) : money(pr)}</b></div></div>
+    ${top.length ? `<h4 class="inv-sub">أكثر الأصناف مبيعاً</h4><div class="inv-top">${top.map(x => `<div><span>${esc(x.name)} <small class="muted">× ${money(x.qty)}</small></span><span class="ld-bar"><i style="width:${x.total / tmax * 100}%"></i></span><b class="num">${money(x.total)}</b></div>`).join('')}</div>` : ''}
+    <h4 class="inv-sub">الفواتير</h4>
+    ${list.length ? `<table class="ld-tbl inv-tbl"><thead><tr><th>رقم</th><th>التاريخ</th><th>العميل</th><th class="n">المبلغ</th><th class="n">الربح</th></tr></thead><tbody>
+      ${show.map(v => `<tr data-invview="${v.id}"><td class="num">${v.inv_no}</td><td>${esc(fmtShort(v.inv_date))}</td><td>${esc(accName(v.account_id))}</td><td class="n num">${money(v.total)}</td><td class="n num ok">${money(Number(v.total) - Number(v.cost_total))}</td></tr>`).join('')}</tbody></table>
+      ${list.length > 12 ? `<button class="btn btn-ghost btn-sm" data-invall="1" style="margin-top:8px">${S.invAll ? 'عرض أقل' : `عرض كل الفواتير (${list.length})`}</button>` : ''}` : '<p class="muted">لا توجد فواتير في هذه الفترة.</p>'}
+    <p class="muted set-hint">مبيعات كل يوم = مجموع فواتيره تلقائياً. الأصناف والعملاء من الإعدادات ← الفواتير والأصناف.</p>
+  </section>`;
+}
+function openInvView(id) {
+  const v = S.inv.invoices.find(x => x.id === id); if (!v) return;
+  const b = S.byId[v.branch_id];
+  $('invVBody').innerHTML = `<div class="r-h"><div><b>${esc(b.name)}</b><br><small class="muted">فاتورة آجلة · ${v.entered_by === 'admin' ? 'من الإدارة' : 'من الفرع'}</small></div><div style="text-align:end"><b class="num">رقم ${v.inv_no}</b><br><small class="muted">${esc(fmtLong(v.inv_date))}</small></div></div>
+    <p>العميل: <b>${esc(accName(v.account_id))}</b></p>
+    <table class="ld-tbl"><thead><tr><th>الصنف</th><th class="n">الكمية</th><th class="n">السعر</th><th class="n">الإجمالي</th><th class="n">التكلفة</th></tr></thead><tbody>
+    ${(v.invoice_lines || []).map(l => `<tr><td>${esc(l.name)}${l.weight_g != null ? `<br><small class="muted">شوكولاتة ${money(l.weight_g)} جم</small>` : ''}</td><td class="n">${money(l.qty)}</td><td class="n">${money(l.unit_price)}</td><td class="n">${money(l.total)}</td><td class="n muted">${money(l.cost)}</td></tr>`).join('')}</tbody>
+    <tfoot><tr><td colspan="3">الإجمالي</td><td class="n">${money(v.total)}</td><td class="n">${money(v.cost_total)}</td></tr></tfoot></table>
+    <p style="margin-top:8px">الربح: <b class="num ok">${money(Number(v.total) - Number(v.cost_total))}</b> ريال${v.choc_price ? ` <small class="muted">· كيلو الشوكولاتة ${money(v.choc_price)} وتكلفته ${money(v.choc_cost)}</small>` : ''}</p>
+    ${v.note ? `<p class="muted">ملاحظة: ${esc(v.note)}</p>` : ''}`;
+  $('invVDel').hidden = VIEW; $('invVDel').dataset.id = id;
+  $('invVDlg').showModal();
+}
+// ---------- الإعدادات ← الفواتير والأصناف ----------
+function renderSetInv() {
+  const el = $('setPanel-inv'), all = activeBranches(), ib = invBranches();
+  if (!S.invBranch || !S.byId[S.invBranch] || !S.byId[S.invBranch].invoice_mode) S.invBranch = (ib[0] || {}).id;
+  const b = S.byId[S.invBranch];
+  const head = `<div class="set-card"><h3>نقطة فواتير بالأصناف</h3>
+    <p class="muted set-hint">الفرع المفعّل يصدر موظفه فواتير آجلة بالأصناف لكل عميل بدل كتابة رقم المبيعات، ومبيعات كل يوم تُحسب من الفواتير. التحصيل يُسجَّل لكل عميل.</p>
+    ${S.inv.err && /inv_items|invoices|schema cache|invoice_mode/i.test(S.inv.err) ? '<p class="st-note">شغّل ملف invoices.sql في Supabase مرة واحدة.</p>' : ''}
+    <div class="sp-set">${all.map(x => `<label class="dd-chk"><input type="checkbox" data-invmode="${x.id}"${x.invoice_mode ? ' checked' : ''}> ${esc(label(x))}</label>`).join('')}</div></div>`;
+  if (!b) { el.innerHTML = head; return; }
+  const items = S.inv.items.filter(i => i.branch_id === b.id), act = items.filter(i => i.active), off = items.filter(i => !i.active);
+  const custs = accOf(b.id);
+  if (!S.invCust || !custs.some(c => c.id === S.invCust)) S.invCust = (custs[0] || {}).id;
+  const assigned = new Set(S.inv.cust.filter(x => x.account_id === S.invCust).map(x => x.item_id));
+  const itemRow = it => {
+    const fp = invUnit(it, null, b), fc = invUnitCost(it, null, b);
+    return `<tr><td><input class="in" data-ii="${it.id}" data-f="name" value="${esc(it.name)}" maxlength="80" aria-label="اسم الصنف"></td>
+      <td><input class="in sm" data-ii="${it.id}" data-f="unit" value="${esc(it.unit || '')}" maxlength="15" aria-label="الوحدة"></td>
+      <td><input class="in sm n" data-ii="${it.id}" data-f="price" value="${Number(it.price)}" inputmode="decimal" dir="ltr" aria-label="سعر البيع"></td>
+      <td><input class="in sm n" data-ii="${it.id}" data-f="cost" value="${Number(it.cost)}" inputmode="decimal" dir="ltr" aria-label="التكلفة"></td>
+      <td class="n"><label class="dd-chk"><input type="checkbox" data-ii="${it.id}" data-f="weighted"${it.weighted ? ' checked' : ''}> بوزن</label>
+        ${it.weighted ? `<input class="in sm n" data-ii="${it.id}" data-f="weight_g" value="${Number(it.weight_g)}" inputmode="decimal" dir="ltr" aria-label="وزن الشوكولاتة بالجرام" title="جرام">` : ''}</td>
+      <td class="n num">${money(fp)}<br><small class="${fp - fc >= 0 ? 'ok' : 'no'}">ربح ${money(fp - fc)}</small></td>
+      <td><button class="icon-x sm" data-iioff="${it.id}" aria-label="إيقاف الصنف">×</button></td></tr>`;
+  };
+  el.innerHTML = head + `
+  <div class="set-card"><div class="mv-row"><label class="field" style="flex:1;max-width:340px"><span>الفرع</span><select class="in" id="invBranch">${ib.map(x => `<option value="${x.id}"${x.id === b.id ? ' selected' : ''}>${esc(label(x))}</option>`).join('')}</select></label></div>
+    <h3 style="margin-top:10px">سعر الشوكولاتة للبوكسات الموزونة</h3>
+    <div class="sp2" style="max-width:420px"><label class="field"><span>سعر البيع للكيلو</span><input class="in" id="chocP" value="${Number(b.choc_price ?? 23)}" inputmode="decimal" dir="ltr"></label>
+      <label class="field"><span>التكلفة للكيلو</span><input class="in" id="chocC" value="${Number(b.choc_cost ?? 11)}" inputmode="decimal" dir="ltr"></label></div>
+    <p class="muted set-hint">سعر البوكس الموزون = سعر البوكس بدون شوكولاتة + (الوزن ÷ 1000 × سعر الكيلو). والموظف يقدر يعدّل الوزن في الفاتورة.</p></div>
+  <div class="set-card"><h3>الأصناف (${act.length})</h3>
+    <div class="tbl-wrap"><table class="inv-items"><thead><tr><th>الصنف</th><th>الوحدة</th><th class="n">سعر البيع</th><th class="n">التكلفة على المصنع</th><th class="n">الوزن (جم)</th><th class="n">السعر النهائي</th><th></th></tr></thead>
+      <tbody>${act.map(itemRow).join('') || '<tr><td colspan="7" class="muted">لا توجد أصناف بعد.</td></tr>'}</tbody></table></div>
+    <p class="muted set-hint">للبوكس الموزون: سعر البيع والتكلفة هنا للبوكس بدون الشوكولاتة، وتُضاف الشوكولاتة حسب الوزن.</p>
+    <div class="inv-add"><input class="in" id="niName" maxlength="80" placeholder="اسم الصنف"><input class="in sm" id="niUnit" maxlength="15" placeholder="الوحدة" value="حبة">
+      <input class="in sm n" id="niPrice" inputmode="decimal" dir="ltr" placeholder="سعر البيع"><input class="in sm n" id="niCost" inputmode="decimal" dir="ltr" placeholder="التكلفة">
+      <label class="dd-chk"><input type="checkbox" id="niW"> بوكس بوزن</label><input class="in sm n" id="niWg" inputmode="decimal" dir="ltr" placeholder="الوزن جم">
+      <button class="btn btn-primary btn-sm" data-iiadd="1">+ إضافة صنف</button></div>
+    ${off.length ? `<p class="muted" style="font-size:13px;margin-top:10px">أصناف موقوفة: ${off.map(i => `<button class="btn btn-ghost btn-sm" data-iion="${i.id}">↺ ${esc(i.name)}</button>`).join(' ')}</p>` : ''}</div>
+  <div class="set-card"><h3>العملاء وأصناف كل عميل</h3>
+    <div class="inv-cust">${custs.map(c => `<button class="chip${c.id === S.invCust ? ' on' : ''}" data-invcust="${c.id}">${esc(c.name)} <small>${S.inv.cust.filter(x => x.account_id === c.id).length || 'الكل'}</small></button>`).join('') || '<p class="muted">لا يوجد عملاء.</p>'}</div>
+    <div class="inv-add" style="border:0;padding-top:0"><input class="in" id="ncName" maxlength="60" placeholder="اسم عميل جديد" style="flex:1 1 220px;max-width:360px"><button class="btn btn-primary btn-sm" data-ncadd="1">+ إضافة عميل</button></div>
+    ${S.invCust ? `<div class="inv-assign"><div class="fc-row"><b>أصناف ${esc(accName(S.invCust))}</b><span><button class="btn btn-ghost btn-sm" data-asall="1">تحديد الكل</button> <button class="btn btn-ghost btn-sm" data-asnone="1">إلغاء الكل</button></span></div>
+      <p class="muted set-hint">${assigned.size ? `${assigned.size} صنف تظهر لهذا العميل.` : 'لم تُحدَّد أصناف، فتظهر له كل الأصناف.'}</p>
+      <div class="inv-checks">${act.map(i => `<label class="dd-chk"><input type="checkbox" data-asitem="${i.id}"${assigned.has(i.id) ? ' checked' : ''}> ${esc(i.name)}</label>`).join('')}</div>
+      <p class="muted set-hint">تعديل اسم العميل أو إزالته من: الإعدادات ← توزيع الفواتير على الفروع.</p></div>` : ''}</div>`;
+}
+async function invSetAction(t) {
+  const b = S.byId[S.invBranch]; let error;
+  if (t.dataset.iiadd) {
+    const n = $('niName').value.trim(), p = parseAmount($('niPrice').value || '0'), c = parseAmount($('niCost').value || '0'), w = $('niW').checked, wg = parseAmount($('niWg').value || '0');
+    if (!n) { $('niName').focus(); return toast('اكتب اسم الصنف', 'err'); }
+    if (isNaN(p) || isNaN(c) || p < 0 || c < 0) return toast('اكتب السعر والتكلفة أرقاماً', 'err');
+    if (w && (isNaN(wg) || wg < 0)) return toast('اكتب الوزن بالجرام', 'err');
+    ({ error } = await sb.from('inv_items').insert({ branch_id: b.id, name: n, unit: $('niUnit').value.trim() || 'حبة', price: p, cost: c, weighted: w, weight_g: w ? wg : 0, active: true, sort_order: S.inv.items.filter(i => i.branch_id === b.id).length + 1 }));
+    if (!error) toast('تمت إضافة الصنف');
+  } else if (t.dataset.iioff || t.dataset.iion) {
+    ({ error } = await sb.from('inv_items').update({ active: !!t.dataset.iion }).eq('id', Number(t.dataset.iioff || t.dataset.iion)));
+  } else if (t.dataset.invcust) { S.invCust = Number(t.dataset.invcust); return renderSetInv(); }
+  else if (t.dataset.ncadd) {
+    const n = $('ncName').value.trim(); if (!n) { $('ncName').focus(); return toast('اكتب اسم العميل', 'err'); }
+    if (accOf(b.id).some(a => a.name === n)) return toast('العميل موجود', 'err');
+    ({ error } = await sb.from('branch_accounts').insert({ branch_id: b.id, name: n, sort_order: accOf(b.id).length + 1, active: true }));
+    if (!error) { toast('تمت إضافة العميل'); await loadAccounts(); const c = accOf(b.id).find(a => a.name === n); if (c) S.invCust = c.id; }
+  } else if (t.dataset.asall || t.dataset.asnone) {
+    const ids = S.inv.items.filter(i => i.branch_id === b.id && i.active).map(i => i.id);
+    ({ error } = await sb.from('inv_customer_items').delete().eq('account_id', S.invCust));
+    if (!error && t.dataset.asall && ids.length) ({ error } = await sb.from('inv_customer_items').insert(ids.map(id => ({ account_id: S.invCust, item_id: id }))));
+  } else return;
+  if (error) return toast(/inv_|schema cache/i.test(error.message || '') ? 'شغّل ملف invoices.sql أولاً' : errMsg(error), 'err');
+  await loadInv(); renderSetInv();
+}
+async function invSetChange(t) {
+  const b = S.byId[S.invBranch]; let error;
+  if (t.dataset.invmode) {
+    const id = Number(t.dataset.invmode), v = t.checked;
+    if (v && !confirm(`تحويل "${label(S.byId[id])}" إلى نقطة فواتير بالأصناف؟\nسيصدر الموظف فواتير لكل عميل، ومبيعات اليوم تُحسب من الفواتير.`)) { t.checked = false; return; }
+    ({ error } = await sb.from('branches').update({ invoice_mode: v, ...(v ? { split_mode: 'both' } : {}) }).eq('id', id));
+    if (error) { t.checked = !v; return toast(/invoice_mode|schema cache/i.test(error.message || '') ? 'شغّل ملف invoices.sql أولاً' : errMsg(error), 'err'); }
+    S.byId[id].invoice_mode = v; if (v) { S.byId[id].split_mode = 'both'; S.invBranch = id; } toast(v ? 'تم تفعيل نقطة الفواتير' : 'تم الإلغاء');
+    await loadInv(); return renderSetInv();
+  }
+  if (t.id === 'invBranch') { S.invBranch = Number(t.value); S.invCust = null; return renderSetInv(); }
+  if (t.id === 'chocP' || t.id === 'chocC') {
+    const v = parseAmount(t.value); if (isNaN(v) || v < 0) return toast('اكتب السعر رقماً', 'err');
+    const f = t.id === 'chocP' ? 'choc_price' : 'choc_cost';
+    ({ error } = await sb.from('branches').update({ [f]: v }).eq('id', b.id));
+    if (error) return toast(errMsg(error), 'err'); b[f] = v; toast('تم الحفظ'); return renderSetInv();
+  }
+  if (t.dataset.ii) {
+    const f = t.dataset.f, id = Number(t.dataset.ii); let v;
+    if (f === 'weighted') v = t.checked;
+    else if (f === 'name' || f === 'unit') { v = t.value.trim(); if (!v && f === 'name') return toast('اسم الصنف مطلوب', 'err'); }
+    else { v = parseAmount(t.value); if (isNaN(v) || v < 0) return toast('اكتب رقماً صحيحاً', 'err'); }
+    ({ error } = await sb.from('inv_items').update({ [f]: v }).eq('id', id));
+    if (error) return toast(errMsg(error), 'err');
+    const it = S.inv.items.find(i => i.id === id); if (it) it[f] = v; toast('تم الحفظ'); return renderSetInv();
+  }
+  if (t.dataset.asitem) {
+    const id = Number(t.dataset.asitem);
+    ({ error } = t.checked ? await sb.from('inv_customer_items').insert({ account_id: S.invCust, item_id: id }) : await sb.from('inv_customer_items').delete().eq('account_id', S.invCust).eq('item_id', id));
+    if (error) { t.checked = !t.checked; return toast(errMsg(error), 'err'); }
+    await loadInv(); return renderSetInv();
+  }
+}
 // ---------------- العرض ----------------
 // شعارات الفروع بجانب العنوان (بدون تكرار نفس الشعار)
 // الأسماء الطويلة على سطرين: "حلويات مورا - البلد" ← حلويات مورا / (فرع البلد)
@@ -4694,7 +4917,7 @@ function renderBrandLogos() {
 
 function renderAll() {
   renderBrandLogos();
-  renderPeriodLabel(); renderLate(); renderCorrections(); renderResend(); renderHero(); renderKpis(); renderFinSum(); renderWasteSum(); renderGroups(); renderCharts(); renderHistory();
+  renderPeriodLabel(); renderLate(); renderCorrections(); renderResend(); renderHero(); renderLastDay(); renderKpis(); renderFinSum(); renderWasteSum(); renderGroups(); renderCharts(); renderHistory();
   if (S.detail) renderDetail();
   if (S.wasteView) renderWaste();
   if (S.view === 'fund') renderFund();
@@ -4750,26 +4973,44 @@ function renderHero() {
     ${chart}`;
 }
 
+// مبيعات آخر يوم مُدخل لكل الفروع (مع التنقل بين الأيام)
+function renderLastDay() {
+  const el = $('lastDay'); if (!el) return;
+  const act = S.branches.filter(b => b.active);
+  const days = [...new Set(S.sales.filter(x => act.some(b => b.id === x.branch_id) && x.sale_date <= S.today).map(x => x.sale_date))].sort();
+  if (!days.length) { el.innerHTML = ''; return; }
+  if (!S.ldDay || !days.includes(S.ldDay)) S.ldDay = days[days.length - 1];
+  const d = S.ldDay, i = days.indexOf(d);
+  const rows = act.map(b => ({ b, v: amt(b.id, d) })), tot = rows.reduce((a, r) => a + (r.v || 0), 0), max = Math.max(1, ...rows.map(r => r.v || 0));
+  const miss = rows.filter(r => r.v == null).length;
+  el.innerHTML = `<div class="ld-h"><div><h2>مبيعات ${i === days.length - 1 ? 'آخر يوم' : 'يوم'}</h2><span class="muted">${esc(fmtLong(d))}</span></div>
+      <div class="ld-nav"><button class="nav" data-ld="-1" ${i ? '' : 'disabled'} aria-label="اليوم السابق">›</button><button class="nav" data-ld="1" ${i < days.length - 1 ? '' : 'disabled'} aria-label="اليوم التالي">‹</button></div></div>
+    <table class="ld-tbl"><thead><tr><th>الفرع</th><th class="n">المبيعات</th><th class="ld-barh" aria-hidden="true"></th></tr></thead>
+      <tbody>${rows.map(r => `<tr data-detail="${esc(r.b.group_name || r.b.name)}" class="${r.v == null ? 'miss' : ''}"><td>${nameHtml(label(r.b))}${r.b.credit ? ' <span class="credit-tag">آجل</span>' : ''}</td>
+        <td class="n num">${r.v == null ? '<small class="muted">لم يُدخل</small>' : money(r.v)}</td>
+        <td class="ld-barc"><span class="ld-bar"><i style="width:${(r.v || 0) / max * 100}%"></i></span></td></tr>`).join('')}</tbody>
+      <tfoot><tr><td>المجموع${miss ? ` <small class="muted">(${miss} لم يُدخل)</small>` : ''}</td><td class="n num">${money(tot)}</td><td></td></tr></tfoot></table>`;
+  el.querySelectorAll('[data-ld]').forEach(b => b.onclick = () => { S.ldDay = days[i + Number(b.dataset.ld)]; renderLastDay(); });
+}
 function renderKpis() {
   const cb = S.branches.filter(b => b.credit);
   if (!cb.length) { $('kpis').innerHTML = ''; return; }
   const m = summary();
   const names = [...new Set(cb.map(b => b.group_name))].join(' و');
   const restLabel = S.mode === 'current' ? 'إجمالي الآجل المتبقي من مبيعات الشهر الحالي' : 'إجمالي الآجل المتبقي من مبيعات الفترة';
-  $('kpis').innerHTML = `<div class="kpi-g3">
+  const rest = m.rest < 0 ? 'التحصيل أعلى من آجل الفترة' : m.credit ? `غير محصّل ${fmtPct(100 - m.pct)}` : 'لا توجد مبيعات آجلة';
+  $('kpis').innerHTML = `<div class="kpi-4">
+    <div class="kpi"><span>صافي المبيعات</span><b class="num">${money(m.net)}</b><small>${m.returns ? `بعد مردود ${money(m.returns)}` : `نقدي ${money(m.cash)} · آجل ${money(m.credit)}`}</small></div>
+    <div class="kpi real"><span>الدخل الحقيقي</span><b class="num">${money(m.real)}</b><small>النقدي + المحصّل من الآجل</small></div>
+    <div class="kpi"><span>المحصّل من الآجل</span><b class="num ok">${money(m.collected)}</b><div class="meter"><i style="width:${Math.min(100, m.pct)}%"></i></div><small>${fmtPct(m.pct)} من ${money(m.netCredit)}</small></div>
+    <div class="kpi rest"><span>المتبقي من الآجل</span><b class="num">${money(m.rest)}</b><small>${rest}</small></div>
+  </div>
+  <details class="kpi-more"><summary>تفاصيل الأرقام</summary><div class="kpi-g3">
     <div class="kpi"><span>المبيعات الكاملة</span><b class="num">${money(m.sales)}</b><small>نقدي ${money(m.cash)} + آجل ${money(m.credit)}</small></div>
     <div class="kpi ret-k"><span>مردود المبيعات</span><b class="num ret-neg">${negMoney(m.returns)}</b><small>من مبيعات الفروع الآجلة</small></div>
-    <div class="kpi net-k"><span>صافي المبيعات</span><b class="num">${money(m.net)}</b><small>المبيعات الكاملة − المردود</small></div>
     <div class="kpi"><span>إجمالي الفواتير الآجلة</span><b class="num">${money(m.netCredit)}</b><small>${m.returns ? `${money(m.credit)} − مردود ${money(m.returns)}` : esc(names)}</small></div>
-    <div class="kpi"><span>المبالغ المحصّلة من الآجل</span><b class="num">${money(m.collected)}</b><small>من ${money(m.netCredit)} ريال</small>${m.collected ? payBreak(m.pay) : ''}</div>
-    <div class="kpi"><span>نسبة تحصيل الآجل</span><b class="num">${fmtPct(m.pct)}</b><div class="meter"><i style="width:${Math.min(100, m.pct)}%"></i></div></div>
-    </div><div class="kpi-g2">
-    <div class="kpi wide real"><div class="ic">${ICON_WALLET}</div><div>
-      <span>إجمالي الدخل الحقيقي</span><b class="num">${money(m.real)}<span class="cur">ريال</span></b>
-      <small>مبيعات الفروع النقدية ${money(m.cash)} + المحصّل من الآجل ${money(m.collected)}</small></div></div>
-    <div class="kpi wide rest"><div class="ic">${ICON_CLOCK}</div><div>
-      <span>${restLabel}</span><b class="num">${money(m.rest)}<span class="cur">ريال</span></b>
-      <small>${m.rest < 0 ? 'التحصيل أعلى من آجل الفترة (تحصيل من فواتير سابقة)' : m.credit ? `غير محصّل: ${fmtPct(100 - m.pct)} من صافي الآجل` : 'لا توجد مبيعات آجلة في هذه الفترة'}</small></div></div></div>`;
+    <div class="kpi"><span>طرق التحصيل</span>${m.collected ? payBreak(m.pay) : '<small>لا يوجد تحصيل</small>'}</div>
+  </div></details>`;
 }
 
 function dotsFor(b, strip) {
@@ -4802,14 +5043,9 @@ function renderGroups() {
     const isCredit = g.branches.some(b => b.credit);
     const m = isCredit ? summary(g.branches) : null;
     const creditBox = isCredit ? `<div class="crd">
-        <div class="sub"><span>إجمالي المبيعات (آجل)</span><b>${money(m.credit)}</b></div>
-        ${m.returns ? `<div class="sub"><span>مردود المبيعات</span><b class="ret-neg">${negMoney(m.returns)}</b></div>
-        <div class="sub net-line"><span>صافي المبيعات</span><b>${money(m.netCredit)}</b></div>` : ''}
         <div class="sub"><span>التحصيل</span><b class="ok">${money(m.collected)}</b></div>
-        ${m.collected ? payBreak(m.pay) : ''}
-        <div class="sub"><span>المبلغ الباقي</span><b>${money(m.rest)}</b></div>
-        <div class="meter"><i style="width:${Math.min(100, m.pct)}%"></i></div>
-        <p class="pct">المحصّل ${fmtPct(m.pct)} من ${m.returns ? 'صافي' : 'إجمالي'} المبيعات</p></div>` : '';
+        <div class="sub"><span>المتبقي</span><b>${money(m.rest)}</b></div>
+        <div class="meter"><i style="width:${Math.min(100, m.pct)}%"></i></div></div>` : '';
 
     const logo = (g.branches.find(b => b.logo) || {}).logo;
     const isWaste = g.branches.some(b => b.waste);
@@ -4946,6 +5182,7 @@ function renderDetail() {
       <div class="pill"><span>أيام فيها إدخال</span><b>${entered} من ${days.length}</b></div>
       <div class="pill"><span>مرات التأخير (تراكمي)</span><b class="${brs.some(b => lateOf(b.id).count) ? 'no' : ''}">${brs.reduce((a, b) => a + lateOf(b.id).count, 0)}</b></div>
     </div>
+    ${!multi ? invCard(brs[0]) : ''}
     ${!multi ? acctCard(brs[0]) : ''}
     ${!multi && purchShow(brs[0]) ? purchPanel(brs[0]) : ''}
     ${salesPayBox(brs)}
@@ -4972,6 +5209,8 @@ function showView(v) {
   $('repBtn').classList.toggle('on', v === 'reports');
   $('cmpBtn').classList.toggle('on', v === 'compare');
   $('settingsBtn').classList.toggle('on', v === 'settings');
+  $('wasteBtn').classList.toggle('on', v === 'waste');
+  $('moreBtn').classList.toggle('on', !!$('moreMenu').querySelector('.on')); closeMore();
   // الفترة وطلبات التعديل تخص اللوحة والتقارير فقط
   const side = v === 'fund' || v === 'settings' || v === 'compare' || v === 'calc' || v === 'studio';
   document.querySelector('.period').hidden = side; $('corrections').hidden = side;
@@ -5015,10 +5254,11 @@ function wByItem(recs) {
 
 function lateLine(g) {
   const act = g.branches.filter(b => b.active && !b.late_exempt);
-  if (!act.length) return `<div class="sub"><span>مرات التأخير</span><b class="muted" style="font-weight:400;font-size:13px">مستثنى</b></div>`;
+  if (!act.length) return '';
   const cnt = act.reduce((a, b) => a + lateOf(b.id).count, 0);
   const miss = act.reduce((a, b) => a + lateMissing(b).length, 0);
   const wa = act.length === 1 && act[0].whatsapp ? `<a class="wa-mini edit-only" href="${esc(waUrl(act[0].whatsapp))}" target="_blank" rel="noopener" title="مراسلة على واتساب">واتساب</a>` : '';
+  if (!cnt && !miss) return '';
   return `<div class="sub"><span>مرات التأخير${miss ? ` <small class="late-tag">متأخر ${daysWord(miss)}</small>` : ''}</span><b class="${cnt ? 'no' : ''}">${cnt}</b></div>${wa ? `<div class="sub">${wa}</div>` : ''}`;
 }
 
@@ -5765,8 +6005,10 @@ $('logoFile').onchange = async () => {
 
 // ---------------- الأحداث ----------------
 document.addEventListener('click', async e => {
-  const t = e.target.closest('[data-purtab],[data-puadd],[data-pudel],[data-editday],[data-delday],[data-rscancel],[data-wledit],[data-wldel],[data-wlsave],[data-wlcancel],[data-mvadd],[data-mvdel],[data-unmerge],[data-open-merge],[data-open-compare],[data-profit],[data-open-fund],[data-open-settings],[data-pay],[data-unpay],[data-lpay],[data-unlpay],[data-partopen],[data-partsave],[data-partcancel],[data-loanform],[data-loansave],[data-loancancel],[data-loanedit],[data-loandel],[data-detail],[data-approve],[data-reject],[data-copy],[data-add],[data-waste-open],[data-delbatch]');
+  const t = e.target.closest('[data-invview],[data-invall],[data-purtab],[data-puadd],[data-pudel],[data-editday],[data-delday],[data-rscancel],[data-wledit],[data-wldel],[data-wlsave],[data-wlcancel],[data-mvadd],[data-mvdel],[data-unmerge],[data-open-merge],[data-open-compare],[data-profit],[data-open-fund],[data-open-settings],[data-pay],[data-unpay],[data-lpay],[data-unlpay],[data-partopen],[data-partsave],[data-partcancel],[data-loanform],[data-loansave],[data-loancancel],[data-loanedit],[data-loandel],[data-detail],[data-approve],[data-reject],[data-copy],[data-add],[data-waste-open],[data-delbatch]');
   if (!t) return;
+  if (t.dataset.invview) return openInvView(Number(t.dataset.invview));
+  if (t.dataset.invall) { S.invAll = !S.invAll; return renderDetail(); }
   if (t.dataset.purtab || t.dataset.puadd || t.dataset.pudel) return purchAction(t);
   if (t.dataset.editday) { if (VIEW) return; const [b, d] = t.dataset.editday.split('|'); return openSaleEdit(Number(b), d); }
   if (t.dataset.delday) { if (VIEW) return; const [k, b, d] = t.dataset.delday.split('|'); return openDelDlg(k, Number(b), d); }
@@ -5893,6 +6135,14 @@ document.addEventListener('input', e => {
 $('eBranch').onchange = () => { syncEntryCredit(); checkEntry(); };
 $('eDate').onchange = checkEntry;
 $('eCancel').onclick = () => eDlg.close();
+$('invVClose').onclick = () => $('invVDlg').close();
+$('invVDel').onclick = async () => {
+  const v = S.inv.invoices.find(x => x.id === Number($('invVDel').dataset.id)); if (!v) return;
+  if (!confirm(`حذف الفاتورة رقم ${v.inv_no} (${money(v.total)} ريال)؟\nتُخصم من مبيعات يوم ${fmtShort(v.inv_date)} تلقائياً.`)) return;
+  const { error } = await sb.from('invoices').delete().eq('id', v.id);
+  if (error) return toast(errMsg(error), 'err');
+  $('invVDlg').close(); toast('تم حذف الفاتورة'); reload();
+};
 // ---------- إدخال تحصيل (زر في الأعلى) ----------
 const colDlg = $('colDlg');
 function colSync() {
@@ -5928,6 +6178,19 @@ $('colForm').onsubmit = async e => {
   colDlg.close(); toast(`تمت إضافة تحصيل ${money(pr.sum)} ريال لـ ${label(S.byId[bid])}`);
   await loadMoves(); renderAll();
 };
+// ---------- قائمة الأدوات ----------
+function closeMore() { const m = $('moreMenu'); if (!m || m.hidden) return; m.hidden = true; $('moreBtn').setAttribute('aria-expanded', 'false'); }
+$('moreBtn').onclick = e => {
+  e.stopPropagation(); const m = $('moreMenu');
+  if (!m.hidden) return closeMore();
+  m.hidden = false; S.moreAt = Date.now(); $('moreBtn').setAttribute('aria-expanded', 'true');
+  const r = $('moreBtn').getBoundingClientRect(), w = m.offsetWidth;
+  m.style.top = (r.bottom + 6) + 'px'; m.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.right - w)) + 'px';
+  const f = m.querySelector('.mm-item:not([hidden])'); if (f) f.focus();
+};
+document.addEventListener('click', e => { if (!e.target.closest('#moreMenu,#moreBtn')) closeMore(); else if (e.target.closest('.mm-item')) setTimeout(closeMore, 0); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMore(); });
+addEventListener('resize', closeMore); addEventListener('scroll', e => { if (Date.now() - (S.moreAt || 0) > 400 && !(e.target.closest && e.target.closest('#moreMenu'))) closeMore(); }, true);
 const seDlg = $('seDlg'); $('seCancel').onclick = () => seDlg.close(); $('seForm').onsubmit = saveSaleEdit;
 $('addBtn').onclick = () => openEntry(S.detail && S.detail !== '__all' && S.gmap[S.detail].branches.length === 1 ? S.gmap[S.detail].branches[0].id : null);
 $('entryForm').onsubmit = async ev => {
