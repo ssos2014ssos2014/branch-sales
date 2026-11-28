@@ -35,7 +35,8 @@
   .item { border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--surface); }
   .item.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--surface)); }
   .it-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-  .it-top b { font-size: 15px; } .it-price { font-family: var(--font-head); font-weight: 700; white-space: nowrap; }
+  .it-top b { font-size: 15px; } .it-name { flex: 1; }
+  .it-img { width: 52px; height: 52px; border-radius: 10px; object-fit: cover; border: 1px solid var(--line); flex: none; } .it-price { font-family: var(--font-head); font-weight: 700; white-space: nowrap; }
   .it-price small { font-weight: 400; color: var(--muted); font-size: 12px; }
   .it-ctl { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
   .qty { display: inline-flex; align-items: center; border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg); }
@@ -85,7 +86,7 @@
     <button data-tab="list" aria-pressed="false">الفواتير</button>
   </nav>
   <section id="view"><p class="empty">جارٍ التحميل…</p></section>
-  <p class="muted" style="text-align:center;font-size:12px;margin-top:18px">إصدار الواجهة: 2026-11-23 أ</p>
+  <p class="muted" style="text-align:center;font-size:12px;margin-top:18px">إصدار الواجهة: 2026-11-23 ب</p>
 </main>
 <div class="bar" id="bar" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
@@ -157,7 +158,7 @@ function itemHtml(it) {
   const l = INV.lines[it.id] || { qty: '', w: it.weighted ? String(Number(it.weight_g)) : '' };
   const q = num(l.qty), up = unitPrice(it, l.w), on = q > 0;
   return `<div class="item${on ? ' on' : ''}" data-item="${it.id}">
-    <div class="it-top"><b>${esc(it.name)}</b><span class="it-price"><span data-up>${money(up)}</span> <small>ريال / ${esc(it.unit || 'حبة')}</small></span></div>
+    <div class="it-top">${it.image ? `<img class="it-img" src="${esc(it.image)}" alt="">` : ''}<b class="it-name">${esc(it.name)}</b><span class="it-price"><span data-up>${money(up)}</span> <small>ريال / ${esc(it.unit || 'حبة')}</small></span></div>
     <div class="it-ctl"><span class="qty"><button type="button" data-q="-1" aria-label="إنقاص">−</button><input inputmode="decimal" data-qty value="${esc(l.qty)}" placeholder="0" aria-label="الكمية"><button type="button" data-q="1" aria-label="زيادة">+</button></span>
       ${it.weighted ? `<label class="wgt">وزن الشوكولاتة <input class="in" inputmode="decimal" data-w value="${esc(l.w)}" aria-label="وزن الشوكولاتة بالجرام"> جم</label>` : ''}
       <span class="line-tot num" data-lt>${on ? money(r2(up * q)) : ''}</span></div></div>`;

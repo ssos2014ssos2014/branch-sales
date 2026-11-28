@@ -675,11 +675,21 @@
   .inv-top b { text-align: center; }
   .inv-tbl tbody tr { cursor: pointer; }
   .inv-vdlg { max-width: 640px; } .inv-vdlg .r-h { display: flex; justify-content: space-between; gap: 10px; border-bottom: 2px solid var(--ink); padding-bottom: 8px; margin-bottom: 8px; }
-  .inv-items { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 760px; }
+  .inv-items { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 620px; }
   .inv-items th { font-size: 12px; color: var(--muted); text-align: start; padding: 6px 4px; border-bottom: 1px solid var(--line); }
   .inv-items td { padding: 5px 4px; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); vertical-align: middle; }
   .inv-items .n { text-align: center; } .inv-items .in.sm { width: 90px; } .inv-items .in.n { text-align: center; }
   .inv-items .dd-chk { font-size: 12px; justify-content: center; }
+  .ii-img { width: 54px; } .ii-img img { width: 46px; height: 46px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); display: block; }
+  .ii-noimg { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 10px; background: var(--bg); font-size: 20px; }
+  .ii-acts { white-space: nowrap; } .ii-acts .btn { margin: 2px; } .ii-del { color: var(--no-c); }
+  .id-img-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .id-img { width: 96px; height: 96px; border-radius: 14px; border: 1px dashed var(--line); background: var(--bg); display: grid; place-items: center; overflow: hidden; font-size: 12px; color: var(--muted); flex: none; }
+  .id-img img { width: 100%; height: 100%; object-fit: cover; }
+  .id-img-acts { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+  #itemDlg .dd-chk { display: flex; align-items: center; justify-content: flex-start; gap: 8px; font-size: 14px; width: auto; }
+  #itemDlg .dd-chk input { width: 18px; height: 18px; margin: 0; flex: none; }
+  .id-calc { background: var(--bg); border-radius: 10px; padding: 8px 10px; font-size: 14px; margin: 4px 0 8px; }
   .inv-add { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
   .inv-add #niName { flex: 1 1 180px; } .inv-add .in.sm { width: 100px; }
   .inv-cust { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -1158,7 +1168,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-23 أ</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-23 ب</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -1183,6 +1193,23 @@
   </main>
 </div>
 
+<dialog id="itemDlg" class="entry-dlg">
+  <form id="itemForm" method="dialog">
+    <h2 style="font-size:19px" id="idTitle">إضافة صنف</h2>
+    <div class="id-img-row"><div class="id-img" id="idImg"></div>
+      <div class="id-img-acts"><label class="btn btn-ghost btn-sm">اختيار صورة<input type="file" id="idFile" accept="image/*" hidden></label><button type="button" class="btn btn-ghost btn-sm" id="idImgDel">إزالة الصورة</button></div></div>
+    <div class="sp2"><label class="field"><span>اسم الصنف</span><input class="in" id="idName" maxlength="80"></label>
+      <label class="field"><span>الوحدة</span><input class="in" id="idUnit" maxlength="15" placeholder="حبة، بوكس، كيس…"></label></div>
+    <label class="dd-chk" style="margin:4px 0 6px"><input type="checkbox" id="idW"> بوكس يتغير سعره بوزن الشوكولاتة</label>
+    <label class="field" id="idWgRow"><span>وزن الشوكولاتة الافتراضي (جرام)</span><input class="in" id="idWg" inputmode="decimal" dir="ltr"></label>
+    <div class="sp2"><label class="field"><span id="idPriceLbl">سعر البيع</span><input class="in" id="idPrice" inputmode="decimal" dir="ltr"></label>
+      <label class="field"><span id="idCostLbl">التكلفة على المصنع</span><input class="in" id="idCost" inputmode="decimal" dir="ltr"></label></div>
+    <p class="id-calc" id="idCalc"></p>
+    <label class="dd-chk" id="idActiveRow"><input type="checkbox" id="idActive"> الصنف فعّال (يظهر للموظف)</label>
+    <p class="entry-status bad" id="idStatus" role="status"></p>
+    <div class="dlg-actions"><button class="btn btn-primary" type="submit" id="idSave">حفظ</button><button class="btn btn-ghost" type="button" id="idCancel">إلغاء</button></div>
+  </form>
+</dialog>
 <dialog id="invVDlg" class="entry-dlg inv-vdlg">
   <div id="invVBody"></div>
   <div class="dlg-actions"><button class="btn btn-ghost" type="button" id="invVDel" style="color:var(--rose)">حذف الفاتورة</button><button class="btn btn-primary" type="button" id="invVClose">إغلاق</button></div>
@@ -4785,6 +4812,54 @@ function openInvView(id) {
   $('invVDel').hidden = VIEW; $('invVDel').dataset.id = id;
   $('invVDlg').showModal();
 }
+// ---------- نافذة إضافة/تعديل صنف (مع الصورة) ----------
+let IDLG = { id: null, img: undefined };
+function openItemDlg(id) {
+  const b = S.byId[S.invBranch], it = id ? S.inv.items.find(i => i.id === id) : null;
+  IDLG = { id, img: it ? it.image || null : null };
+  $('idTitle').textContent = it ? 'تعديل الصنف' : 'إضافة صنف';
+  $('idName').value = it ? it.name : ''; $('idUnit').value = it ? it.unit || '' : 'حبة';
+  $('idPrice').value = it ? Number(it.price) : ''; $('idCost').value = it ? Number(it.cost) : '';
+  $('idW').checked = !!(it && it.weighted); $('idWg').value = it && it.weighted ? Number(it.weight_g) : '';
+  $('idActive').checked = it ? !!it.active : true; $('idActiveRow').hidden = !it;
+  $('idStatus').textContent = ''; itemDlgSync(); $('itemDlg').showModal(); setTimeout(() => $('idName').focus(), 50);
+}
+function itemDlgSync() {
+  const b = S.byId[S.invBranch], w = $('idW').checked;
+  $('idWgRow').hidden = !w;
+  $('idPriceLbl').textContent = w ? 'سعر البوكس بدون الشوكولاتة' : 'سعر البيع';
+  $('idCostLbl').textContent = w ? 'تكلفة البوكس بدون الشوكولاتة' : 'التكلفة على المصنع';
+  const p = parseAmount($('idPrice').value || '0'), c = parseAmount($('idCost').value || '0'), g = parseAmount($('idWg').value || '0');
+  const fp = (p || 0) + (w ? (g || 0) / 1000 * Number(b.choc_price ?? 23) : 0), fc = (c || 0) + (w ? (g || 0) / 1000 * Number(b.choc_cost ?? 11) : 0);
+  $('idCalc').innerHTML = `السعر النهائي: <b class="num">${money(Math.round(fp * 100) / 100)}</b> ريال · الربح <b class="num ${fp - fc >= 0 ? 'ok' : 'no'}">${money(Math.round((fp - fc) * 100) / 100)}</b>${fp ? ` (${fmtPct((fp - fc) / fp * 100)})` : ''}`;
+  $('idImg').innerHTML = IDLG.img ? `<img src="${esc(IDLG.img)}" alt="صورة الصنف">` : '<span>لا توجد صورة</span>';
+  $('idImgDel').hidden = !IDLG.img;
+}
+async function itemImgPick(file) {
+  if (!file || !/^image\//.test(file.type)) return toast('اختر صورة', 'err');
+  const u = await new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = bad; r.readAsDataURL(file); });
+  const img = await new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => bad(new Error('تعذّر قراءة الصورة')); i.src = u; });
+  const k = Math.min(1, 360 / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement('canvas');
+  c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+  const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.imageSmoothingQuality = 'high'; x.drawImage(img, 0, 0, c.width, c.height);
+  IDLG.img = c.toDataURL('image/jpeg', 0.82); itemDlgSync();
+}
+async function saveItemDlg(e) {
+  e.preventDefault();
+  const b = S.byId[S.invBranch], st = $('idStatus'), n = $('idName').value.trim(), w = $('idW').checked;
+  const p = parseAmount($('idPrice').value || '0'), c = parseAmount($('idCost').value || '0'), g = parseAmount($('idWg').value || '0');
+  if (!n) { st.textContent = 'اكتب اسم الصنف'; return $('idName').focus(); }
+  if (isNaN(p) || isNaN(c) || p < 0 || c < 0) { st.textContent = 'اكتب السعر والتكلفة أرقاماً'; return; }
+  if (w && (isNaN(g) || g <= 0)) { st.textContent = 'اكتب وزن الشوكولاتة بالجرام'; return $('idWg').focus(); }
+  const row = { name: n, unit: $('idUnit').value.trim() || 'حبة', price: p, cost: c, weighted: w, weight_g: w ? g : 0, image: IDLG.img || null };
+  $('idSave').disabled = true;
+  let { error } = IDLG.id ? await sb.from('inv_items').update({ ...row, active: $('idActive').checked }).eq('id', IDLG.id)
+    : await sb.from('inv_items').insert({ ...row, branch_id: b.id, active: true, sort_order: S.inv.items.filter(i => i.branch_id === b.id).length + 1 });
+  if (error && /image/.test(error.message || '')) { st.textContent = 'لحفظ الصور شغّل ملف invimg.sql في Supabase أولاً'; $('idSave').disabled = false; return; }
+  $('idSave').disabled = false;
+  if (error) { st.textContent = errMsg(error); return; }
+  $('itemDlg').close(); toast(IDLG.id ? 'تم حفظ الصنف' : 'تمت إضافة الصنف'); await loadInv(); renderSetInv();
+}
 // ---------- الإعدادات ← الفواتير والأصناف ----------
 function renderSetInv() {
   const el = $('setPanel-inv'), all = activeBranches(), ib = invBranches();
@@ -4801,14 +4876,11 @@ function renderSetInv() {
   const assigned = new Set(S.inv.cust.filter(x => x.account_id === S.invCust).map(x => x.item_id));
   const itemRow = it => {
     const fp = invUnit(it, null, b), fc = invUnitCost(it, null, b);
-    return `<tr><td><input class="in" data-ii="${it.id}" data-f="name" value="${esc(it.name)}" maxlength="80" aria-label="اسم الصنف"></td>
-      <td><input class="in sm" data-ii="${it.id}" data-f="unit" value="${esc(it.unit || '')}" maxlength="15" aria-label="الوحدة"></td>
-      <td><input class="in sm n" data-ii="${it.id}" data-f="price" value="${Number(it.price)}" inputmode="decimal" dir="ltr" aria-label="سعر البيع"></td>
-      <td><input class="in sm n" data-ii="${it.id}" data-f="cost" value="${Number(it.cost)}" inputmode="decimal" dir="ltr" aria-label="التكلفة"></td>
-      <td class="n"><label class="dd-chk"><input type="checkbox" data-ii="${it.id}" data-f="weighted"${it.weighted ? ' checked' : ''}> بوزن</label>
-        ${it.weighted ? `<input class="in sm n" data-ii="${it.id}" data-f="weight_g" value="${Number(it.weight_g)}" inputmode="decimal" dir="ltr" aria-label="وزن الشوكولاتة بالجرام" title="جرام">` : ''}</td>
+    return `<tr><td class="ii-img">${it.image ? `<img src="${esc(it.image)}" alt="">` : '<span class="ii-noimg" aria-hidden="true">🍫</span>'}</td>
+      <td><b>${esc(it.name)}</b><br><small class="muted">${esc(it.unit || '')}${it.weighted ? ` · بوزن ${money(it.weight_g)} جم` : ''}</small></td>
+      <td class="n num">${money(it.price)}</td><td class="n num muted">${money(it.cost)}</td>
       <td class="n num">${money(fp)}<br><small class="${fp - fc >= 0 ? 'ok' : 'no'}">ربح ${money(fp - fc)}</small></td>
-      <td><button class="icon-x sm" data-iioff="${it.id}" aria-label="إيقاف الصنف">×</button></td></tr>`;
+      <td class="n ii-acts"><button class="btn btn-ghost btn-sm" data-iiedit="${it.id}">✎ تعديل</button><button class="btn btn-ghost btn-sm ii-del" data-iidel="${it.id}">حذف</button></td></tr>`;
   };
   el.innerHTML = head + `
   <div class="set-card"><div class="mv-row"><label class="field" style="flex:1;max-width:340px"><span>الفرع</span><select class="in" id="invBranch">${ib.map(x => `<option value="${x.id}"${x.id === b.id ? ' selected' : ''}>${esc(label(x))}</option>`).join('')}</select></label></div>
@@ -4817,14 +4889,11 @@ function renderSetInv() {
       <label class="field"><span>التكلفة للكيلو</span><input class="in" id="chocC" value="${Number(b.choc_cost ?? 11)}" inputmode="decimal" dir="ltr"></label></div>
     <p class="muted set-hint">سعر البوكس الموزون = سعر البوكس بدون شوكولاتة + (الوزن ÷ 1000 × سعر الكيلو). والموظف يقدر يعدّل الوزن في الفاتورة.</p></div>
   <div class="set-card"><h3>الأصناف (${act.length})</h3>
-    <div class="tbl-wrap"><table class="inv-items"><thead><tr><th>الصنف</th><th>الوحدة</th><th class="n">سعر البيع</th><th class="n">التكلفة على المصنع</th><th class="n">الوزن (جم)</th><th class="n">السعر النهائي</th><th></th></tr></thead>
-      <tbody>${act.map(itemRow).join('') || '<tr><td colspan="7" class="muted">لا توجد أصناف بعد.</td></tr>'}</tbody></table></div>
-    <p class="muted set-hint">للبوكس الموزون: سعر البيع والتكلفة هنا للبوكس بدون الشوكولاتة، وتُضاف الشوكولاتة حسب الوزن.</p>
-    <div class="inv-add"><input class="in" id="niName" maxlength="80" placeholder="اسم الصنف"><input class="in sm" id="niUnit" maxlength="15" placeholder="الوحدة" value="حبة">
-      <input class="in sm n" id="niPrice" inputmode="decimal" dir="ltr" placeholder="سعر البيع"><input class="in sm n" id="niCost" inputmode="decimal" dir="ltr" placeholder="التكلفة">
-      <label class="dd-chk"><input type="checkbox" id="niW"> بوكس بوزن</label><input class="in sm n" id="niWg" inputmode="decimal" dir="ltr" placeholder="الوزن جم">
-      <button class="btn btn-primary btn-sm" data-iiadd="1">+ إضافة صنف</button></div>
-    ${off.length ? `<p class="muted" style="font-size:13px;margin-top:10px">أصناف موقوفة: ${off.map(i => `<button class="btn btn-ghost btn-sm" data-iion="${i.id}">↺ ${esc(i.name)}</button>`).join(' ')}</p>` : ''}</div>
+    <div class="tbl-wrap"><table class="inv-items"><thead><tr><th></th><th>الصنف</th><th class="n">سعر البيع</th><th class="n">التكلفة على المصنع</th><th class="n">السعر النهائي</th><th></th></tr></thead>
+      <tbody>${act.map(itemRow).join('') || '<tr><td colspan="6" class="muted">لا توجد أصناف بعد.</td></tr>'}</tbody></table></div>
+    <p class="muted set-hint">للبوكس الموزون: سعر البيع والتكلفة للبوكس بدون الشوكولاتة، وتُضاف الشوكولاتة حسب الوزن.</p>
+    <button class="btn btn-primary btn-sm" data-iinew="1" style="margin-top:8px">+ إضافة صنف</button>
+    ${off.length ? `<p class="muted" style="font-size:13px;margin-top:10px">أصناف موقوفة (لا تظهر للموظف): ${off.map(i => `<button class="btn btn-ghost btn-sm" data-iiedit="${i.id}">${esc(i.name)}</button>`).join(' ')}</p>` : ''}</div>
   <div class="set-card"><h3>العملاء وأصناف كل عميل</h3>
     <div class="inv-cust">${custs.map(c => `<button class="chip${c.id === S.invCust ? ' on' : ''}" data-invcust="${c.id}">${esc(c.name)} <small>${S.inv.cust.filter(x => x.account_id === c.id).length || 'الكل'}</small></button>`).join('') || '<p class="muted">لا يوجد عملاء.</p>'}</div>
     <div class="inv-add" style="border:0;padding-top:0"><input class="in" id="ncName" maxlength="60" placeholder="اسم عميل جديد" style="flex:1 1 220px;max-width:360px"><button class="btn btn-primary btn-sm" data-ncadd="1">+ إضافة عميل</button></div>
@@ -4835,15 +4904,12 @@ function renderSetInv() {
 }
 async function invSetAction(t) {
   const b = S.byId[S.invBranch]; let error;
-  if (t.dataset.iiadd) {
-    const n = $('niName').value.trim(), p = parseAmount($('niPrice').value || '0'), c = parseAmount($('niCost').value || '0'), w = $('niW').checked, wg = parseAmount($('niWg').value || '0');
-    if (!n) { $('niName').focus(); return toast('اكتب اسم الصنف', 'err'); }
-    if (isNaN(p) || isNaN(c) || p < 0 || c < 0) return toast('اكتب السعر والتكلفة أرقاماً', 'err');
-    if (w && (isNaN(wg) || wg < 0)) return toast('اكتب الوزن بالجرام', 'err');
-    ({ error } = await sb.from('inv_items').insert({ branch_id: b.id, name: n, unit: $('niUnit').value.trim() || 'حبة', price: p, cost: c, weighted: w, weight_g: w ? wg : 0, active: true, sort_order: S.inv.items.filter(i => i.branch_id === b.id).length + 1 }));
-    if (!error) toast('تمت إضافة الصنف');
-  } else if (t.dataset.iioff || t.dataset.iion) {
-    ({ error } = await sb.from('inv_items').update({ active: !!t.dataset.iion }).eq('id', Number(t.dataset.iioff || t.dataset.iion)));
+  if (t.dataset.iinew || t.dataset.iiedit) return openItemDlg(t.dataset.iiedit ? Number(t.dataset.iiedit) : null);
+  if (t.dataset.iidel) {
+    const it = S.inv.items.find(i => i.id === Number(t.dataset.iidel)); if (!it) return;
+    if (!confirm(`حذف الصنف "${it.name}" نهائياً؟\nالفواتير السابقة تبقى كما هي باسمه وسعره.`)) return;
+    ({ error } = await sb.from('inv_items').delete().eq('id', it.id));
+    if (!error) toast('تم حذف الصنف');
   } else if (t.dataset.invcust) { S.invCust = Number(t.dataset.invcust); return renderSetInv(); }
   else if (t.dataset.ncadd) {
     const n = $('ncName').value.trim(); if (!n) { $('ncName').focus(); return toast('اكتب اسم العميل', 'err'); }
@@ -6136,6 +6202,12 @@ $('eBranch').onchange = () => { syncEntryCredit(); checkEntry(); };
 $('eDate').onchange = checkEntry;
 $('eCancel').onclick = () => eDlg.close();
 $('invVClose').onclick = () => $('invVDlg').close();
+$('idCancel').onclick = () => $('itemDlg').close();
+$('itemForm').onsubmit = saveItemDlg;
+$('itemForm').addEventListener('input', e => { if (e.target.id !== 'idFile') itemDlgSync(); });
+$('idW').onchange = itemDlgSync;
+$('idFile').onchange = e => { itemImgPick(e.target.files[0]).catch(er => toast(errMsg(er), 'err')); e.target.value = ''; };
+$('idImgDel').onclick = () => { IDLG.img = null; itemDlgSync(); };
 $('invVDel').onclick = async () => {
   const v = S.inv.invoices.find(x => x.id === Number($('invVDel').dataset.id)); if (!v) return;
   if (!confirm(`حذف الفاتورة رقم ${v.inv_no} (${money(v.total)} ريال)؟\nتُخصم من مبيعات يوم ${fmtShort(v.inv_date)} تلقائياً.`)) return;
