@@ -481,6 +481,16 @@
   .mv-i { flex: 1; min-width: 0; font-size: 14px; }
   .mv-i small { display: block; font-size: 12px; color: var(--muted); }
   .mv-item > b { font-family: var(--font-head); font-size: 16px; white-space: nowrap; }
+  /* ---- جدول دفعات التحصيل ---- */
+  .cp-box { margin-top: 18px; }
+  .cp-tbl td small { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .cp-tbl .cp-i { color: var(--muted); font-size: 12px; width: 32px; text-align: center; }
+  .cp-tbl td.n { position: relative; }
+  .cp-tbl .cp-bar { display: block; height: 3px; border-radius: 2px; background: var(--ok-c); opacity: .35; margin: 4px auto 0; max-width: 100px; }
+  .cp-m { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 1px 8px; border-radius: 99px; background: var(--bg); border: 1px solid var(--line); margin: 1px 0; }
+  .cp-src { font-size: 11.5px; padding: 1px 8px; border-radius: 99px; background: color-mix(in srgb, var(--ok-c) 14%, transparent); white-space: nowrap; }
+  .cp-src.a { background: color-mix(in srgb, var(--muted) 18%, transparent); }
+  .cp-tbl tfoot td { font-weight: 800; }
   /* ---- تفصيل التحصيل ---- */
   .pay-line { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; font-size: 12px; color: var(--muted); }
   .pay-line span { display: inline-flex; align-items: center; gap: 4px; }
@@ -714,6 +724,9 @@
   .id-calc { background: var(--bg); border-radius: 10px; padding: 8px 10px; font-size: 14px; margin: 4px 0 8px; }
   .inv-add { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
   .inv-add #niName { flex: 1 1 180px; } .inv-add .in.sm { width: 100px; }
+  .bk-tbl .bk-cell { min-width: 150px; } .bk-cell .in.sm { width: 64px; display: inline-block; padding: 6px; } .bk-cell small { display: block; font-size: 11px; }
+  .ii-cost { color: var(--muted); }
+  .byw { font-size: 14px; background: color-mix(in srgb, var(--caramel) 10%, transparent); border-radius: 10px; padding: 8px 10px; }
   .inv-cust { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; color: var(--ink); }
   .chip small { color: var(--muted); } .chip.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); } .chip.on small { color: inherit; opacity: .7; }
@@ -1190,7 +1203,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-28 د</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-28 و</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -4869,10 +4882,12 @@ async function loadInv() {
     sb.from('invoices').select('*, invoice_lines(*)').in('branch_id', ids).gte('inv_date', S.from).lte('inv_date', S.to).order('inv_no', { ascending: false })
   ]);
   if (it.error || ci.error || iv.error) { S.inv = { items: [], cust: [], invoices: [], ok: false, err: (it.error || ci.error || iv.error).message }; return; }
-  S.inv = { items: it.data || [], cust: ci.data || [], invoices: iv.data || [], ok: true };
+  let catOk = (it.data || []).length ? 'cat' in it.data[0] : null;
+  if (catOk === null) { const t = await sb.from('inv_items').select('cat').limit(1); catOk = !t.error; }
+  S.inv = { items: it.data || [], cust: ci.data || [], invoices: iv.data || [], ok: true, catOk };
 }
-const invUnit = (it, w, b) => Number(it.price) + (it.weighted ? (Number(w ?? it.weight_g) || 0) / 1000 * Number(b.choc_price ?? 23) : 0);
-const invUnitCost = (it, w, b) => Number(it.cost) + (it.weighted ? (Number(w ?? it.weight_g) || 0) / 1000 * Number(b.choc_cost ?? 11) : 0);
+const invUnit = (it, w, b) => Number(it.price) + (it.weighted && (it.cat || 'box') === 'box' ? (Number(w ?? it.weight_g) || 0) / 1000 * Number(b.choc_price ?? 23) : 0);
+const invUnitCost = (it, w, b) => Number(it.cost) + (it.weighted && (it.cat || 'box') === 'box' ? (Number(w ?? it.weight_g) || 0) / 1000 * Number(b.choc_cost ?? 11) : 0);
 // بطاقة الفواتير في صفحة الفرع
 function invCard(b) {
   if (!b.invoice_mode) return '';
@@ -4900,12 +4915,23 @@ function openInvView(id) {
   $('invVBody').innerHTML = `<div class="r-h"><div><b>${esc(b.name)}</b><br><small class="muted">فاتورة آجلة · ${v.entered_by === 'admin' ? 'من الإدارة' : 'من الفرع'}</small></div><div style="text-align:end"><b class="num">رقم ${v.inv_no}</b><br><small class="muted">${esc(fmtLong(v.inv_date))}</small></div></div>
     <p>العميل: <b>${esc(accName(v.account_id))}</b></p>
     <table class="ld-tbl"><thead><tr><th>الصنف</th><th class="n">الكمية</th><th class="n">السعر</th><th class="n">الإجمالي</th><th class="n">التكلفة</th></tr></thead><tbody>
-    ${(v.invoice_lines || []).map(l => `<tr><td>${esc(l.name)}${l.weight_g != null ? `<br><small class="muted">شوكولاتة ${money(l.weight_g)} جم</small>` : ''}</td><td class="n">${money(l.qty)}</td><td class="n">${money(l.unit_price)}</td><td class="n">${money(l.total)}</td><td class="n muted">${money(l.cost)}</td></tr>`).join('')}</tbody>
+    ${(v.invoice_lines || []).slice().sort((a, c) => a.id - c.id).map(l => `<tr><td>${esc(l.name)}${l.weight_g != null ? `<br><small class="muted">شوكولاتة ${money(l.weight_g)} جم</small>` : ''}${l.boxes ? `<br><small class="muted">${l.boxes} بوكس</small>` : ''}</td><td class="n">${money(l.qty)} <small class="muted">${esc(l.unit || '')}</small></td><td class="n">${money(l.unit_price)}</td><td class="n">${money(l.total)}</td>
+      <td class="n muted">${l.cat === 'other' && !VIEW ? `<input class="in n sm" data-lcost="${l.id}" value="${Number(l.cost)}" inputmode="decimal" dir="ltr" aria-label="تكلفة السطر" title="اكتب تكلفة هذا الصنف">` : money(l.cost)}</td></tr>`).join('')}</tbody>
     <tfoot><tr><td colspan="3">الإجمالي</td><td class="n">${money(v.total)}</td><td class="n">${money(v.cost_total)}</td></tr></tfoot></table>
     <p style="margin-top:8px">الربح: <b class="num ok">${money(Number(v.total) - Number(v.cost_total))}</b> ريال${v.choc_price ? ` <small class="muted">· كيلو الشوكولاتة ${money(v.choc_price)} وتكلفته ${money(v.choc_cost)}</small>` : ''}</p>
-    ${v.note ? `<p class="muted">ملاحظة: ${esc(v.note)}</p>` : ''}`;
+    ${v.note ? `<p class="muted">ملاحظة: ${esc(v.note)}</p>` : ''}
+    ${(v.invoice_lines || []).some(l => l.cat === 'other') && !VIEW ? '<p class="muted set-hint">أصناف "أخرى" يكتبها الموظف بدون تكلفة: اكتب تكلفتها هنا ليُحسب الربح.</p>' : ''}`;
+  $('invVBody').onchange = async e => {
+    const x = e.target; if (!x.dataset.lcost) return;
+    const c = parseAmount(x.value); if (isNaN(c) || c < 0) return toast('اكتب التكلفة رقماً', 'err');
+    const l = v.invoice_lines.find(z => z.id === Number(x.dataset.lcost)); if (!l) return;
+    let { error } = await sb.from('invoice_lines').update({ cost: c, unit_cost: Math.round(c / Number(l.qty) * 100) / 100 }).eq('id', l.id);
+    if (!error) { l.cost = c; const ct = Math.round(v.invoice_lines.reduce((a, z) => a + Number(z.cost), 0) * 100) / 100; ({ error } = await sb.from('invoices').update({ cost_total: ct }).eq('id', v.id)); if (!error) v.cost_total = ct; }
+    if (error) return toast(errMsg(error), 'err');
+    toast('تم حفظ التكلفة'); openInvView(id); if (S.view === 'detail') renderDetail();
+  };
   $('invVDel').hidden = VIEW; $('invVDel').dataset.id = id;
-  $('invVDlg').showModal();
+  if (!$('invVDlg').open) $('invVDlg').showModal();
 }
 // ---------- نافذة إضافة/تعديل صنف (مع الصورة) ----------
 let IDLG = { id: null, img: undefined };
@@ -4949,13 +4975,48 @@ async function saveItemDlg(e) {
   const row = { name: n, unit: $('idUnit').value.trim() || 'حبة', price: p, cost: c, weighted: w, weight_g: w ? g : 0, image: IDLG.img || null };
   $('idSave').disabled = true;
   let { error } = IDLG.id ? await sb.from('inv_items').update({ ...row, active: $('idActive').checked }).eq('id', IDLG.id)
-    : await sb.from('inv_items').insert({ ...row, branch_id: b.id, active: true, sort_order: S.inv.items.filter(i => i.branch_id === b.id).length + 1 });
+    : await sb.from('inv_items').insert({ ...row, ...(S.inv.catOk ? { cat: 'box' } : {}), branch_id: b.id, active: true, sort_order: S.inv.items.filter(i => i.branch_id === b.id).length + 1 });
   if (error && /image/.test(error.message || '')) { st.textContent = 'لحفظ الصور شغّل ملف invimg.sql في Supabase أولاً'; $('idSave').disabled = false; return; }
   $('idSave').disabled = false;
   if (error) { st.textContent = errMsg(error); return; }
   $('itemDlg').close(); toast(IDLG.id ? 'تم حفظ الصنف' : 'تمت إضافة الصنف'); await loadInv(); renderSetInv();
 }
 // ---------- الإعدادات ← الفواتير والأصناف ----------
+const INV_SIZES = ['500 جم', '1 كيلو', '5 كيلو'];
+const icat = i => i.cat || 'box';
+const INV_PRE = { kg: 'شوكولاتة بالكيلو', block: 'شوكولاتة بلوك 2ك', wbox: 'بوكسات بالوزن' };
+const INV_UNIT = { kg: 'كيلو', block: 'بلوك', wbox: 'كيلو', bucket: 'سطل' };
+const invSqlMsg = e => /\bcat\b|variant|grp|by_weight|boxes|price.*inv_customer|schema cache|column/i.test((e && e.message) || '') ? 'شغّل ملف invcats.sql في Supabase أولاً' : errMsg(e);
+function invPriceInputs(it) {
+  const p = Number(it.price), c = Number(it.cost);
+  return `<input class="in n sm" data-ii="${it.id}" data-f="price" value="${p}" inputmode="decimal" dir="ltr" aria-label="سعر البيع">
+    <input class="in n sm ii-cost" data-ii="${it.id}" data-f="cost" value="${c}" inputmode="decimal" dir="ltr" aria-label="التكلفة">
+    <small class="${p - c >= 0 ? 'ok' : 'no'}">ربح ${money(p - c)}${p ? ' · ' + fmtPct((p - c) / p * 100) : ''}</small>`;
+}
+function invVarCard(b, k, title, per, hint) {
+  const list = S.inv.items.filter(i => i.branch_id === b.id && icat(i) === k && i.active);
+  return `<div class="set-card"><h3>${title}</h3>
+    <div class="tbl-wrap"><table class="inv-items"><thead><tr><th>النوع</th><th class="n">سعر البيع ${per}</th><th class="n">التكلفة ${per}</th><th class="n">الربح</th><th></th></tr></thead><tbody>
+    ${list.map(it => { const p = Number(it.price), c = Number(it.cost); return `<tr><td><input class="in" data-ii="${it.id}" data-f="variant" value="${esc(it.variant || it.name)}" maxlength="40"></td>
+      <td class="n"><input class="in n sm" data-ii="${it.id}" data-f="price" value="${p}" inputmode="decimal" dir="ltr"></td>
+      <td class="n"><input class="in n sm" data-ii="${it.id}" data-f="cost" value="${c}" inputmode="decimal" dir="ltr"></td>
+      <td class="n num ${p - c >= 0 ? 'ok' : 'no'}">${money(p - c)}${p ? `<br><small>${fmtPct((p - c) / p * 100)}</small>` : ''}</td>
+      <td class="n"><button class="btn btn-ghost btn-sm ii-del" data-iidel="${it.id}">حذف</button></td></tr>`; }).join('') || '<tr><td colspan="5" class="muted">لا توجد أنواع.</td></tr>'}</tbody></table></div>
+    ${hint ? `<p class="muted set-hint">${hint}</p>` : ''}
+    <button class="btn btn-ghost btn-sm" data-catadd="${k}" style="margin-top:6px">+ إضافة نوع</button></div>`;
+}
+function invBucketCard(b) {
+  const list = S.inv.items.filter(i => i.branch_id === b.id && icat(i) === 'bucket' && i.active);
+  const fills = [...new Set(list.map(i => i.grp || i.name))];
+  const sizes = [...new Set([...INV_SIZES, ...list.map(i => i.variant).filter(Boolean)])];
+  return `<div class="set-card"><h3>سطول حشوات</h3>
+    <p class="muted set-hint">لكل حشوة: سعر البيع والتكلفة لكل وزن (السطر الأعلى السعر، والأسفل التكلفة). الموظف يختار الحشوة ثم الأوزان.</p>
+    <div class="tbl-wrap"><table class="inv-items bk-tbl"><thead><tr><th>الحشوة</th>${sizes.map(s => `<th class="n">${esc(s)}</th>`).join('')}<th></th></tr></thead><tbody>
+    ${fills.map(f => `<tr><td><b>${esc(f)}</b></td>${sizes.map(s => { const it = list.find(i => (i.grp || i.name) === f && i.variant === s);
+        return `<td class="n bk-cell">${it ? invPriceInputs(it) : `<button class="btn btn-ghost btn-sm" data-bkadd="${esc(f)}" data-bksize="${esc(s)}">+ إضافة</button>`}</td>`; }).join('')}
+      <td class="n"><button class="btn btn-ghost btn-sm ii-del" data-bkdel="${esc(f)}">حذف</button></td></tr>`).join('') || `<tr><td colspan="${sizes.length + 2}" class="muted">لا توجد حشوات بعد.</td></tr>`}</tbody></table></div>
+    <div class="inv-add" style="border:0;padding-top:8px"><input class="in" id="bkName" maxlength="40" placeholder="اسم الحشوة (مثال: نوتيلا)" style="flex:1 1 220px;max-width:320px"><button class="btn btn-primary btn-sm" data-bkfill="1">+ إضافة حشوة</button></div></div>`;
+}
 function renderSetInv() {
   const el = $('setPanel-inv'), all = activeBranches(), ib = invBranches();
   if (!S.invBranch || !S.byId[S.invBranch] || !S.byId[S.invBranch].invoice_mode) S.invBranch = (ib[0] || {}).id;
@@ -4963,12 +5024,14 @@ function renderSetInv() {
   const head = `<div class="set-card"><h3>نقطة فواتير بالأصناف</h3>
     <p class="muted set-hint">الفرع المفعّل يصدر موظفه فواتير آجلة بالأصناف لكل عميل بدل كتابة رقم المبيعات، ومبيعات كل يوم تُحسب من الفواتير. التحصيل يُسجَّل لكل عميل.</p>
     ${S.inv.err && /inv_items|invoices|schema cache|invoice_mode/i.test(S.inv.err) ? '<p class="st-note">شغّل ملف invoices.sql في Supabase مرة واحدة.</p>' : ''}
+    ${S.inv.ok && !S.inv.catOk ? '<p class="st-note">لتفعيل أقسام الأصناف (بالكيلو، البلوك، السطول، البوكسات بالوزن) شغّل ملف invcats.sql في Supabase مرة واحدة.</p>' : ''}
     <div class="sp-set">${all.map(x => `<label class="dd-chk"><input type="checkbox" data-invmode="${x.id}"${x.invoice_mode ? ' checked' : ''}> ${esc(label(x))}</label>`).join('')}</div></div>`;
   if (!b) { el.innerHTML = head; return; }
-  const items = S.inv.items.filter(i => i.branch_id === b.id), act = items.filter(i => i.active), off = items.filter(i => !i.active);
+  const items = S.inv.items.filter(i => i.branch_id === b.id), boxes = items.filter(i => icat(i) === 'box'), act = boxes.filter(i => i.active), off = items.filter(i => !i.active);
   const custs = accOf(b.id);
   if (!S.invCust || !custs.some(c => c.id === S.invCust)) S.invCust = (custs[0] || {}).id;
-  const assigned = new Set(S.inv.cust.filter(x => x.account_id === S.invCust).map(x => x.item_id));
+  const cu = custs.find(c => c.id === S.invCust), byW = !!(cu && cu.by_weight);
+  const rows = S.inv.cust.filter(x => x.account_id === S.invCust), assigned = new Set(rows.map(x => x.item_id));
   const itemRow = it => {
     const fp = invUnit(it, null, b), fc = invUnitCost(it, null, b);
     return `<tr><td class="ii-img">${it.image ? `<img src="${esc(it.image)}" alt="">` : '<span class="ii-noimg" aria-hidden="true">🍫</span>'}</td>
@@ -4977,34 +5040,70 @@ function renderSetInv() {
       <td class="n num">${money(fp)}<br><small class="${fp - fc >= 0 ? 'ok' : 'no'}">ربح ${money(fp - fc)}</small></td>
       <td class="n ii-acts"><button class="btn btn-ghost btn-sm" data-iiedit="${it.id}">✎ تعديل</button><button class="btn btn-ghost btn-sm ii-del" data-iidel="${it.id}">حذف</button></td></tr>`;
   };
+  // أصناف التخصيص: عميل الوزن = كل الأقسام عدا بوكسات الوزن، والعميل العادي = البوكسات فقط
+  const asList = items.filter(i => i.active && (byW ? icat(i) !== 'wbox' : icat(i) === 'box'));
+  const asCount = c => S.inv.cust.filter(x => x.account_id === c.id && items.some(i => i.id === x.item_id && icat(i) !== 'wbox')).length;
+  const wb = items.filter(i => i.active && icat(i) === 'wbox');
+  const grpName = { box: 'بوكس شوكولاتة', kg: 'شوكولاتة بالكيلو', block: 'شوكولاتة بلوك 2ك', bucket: 'سطول حشوات' };
   el.innerHTML = head + `
   <div class="set-card"><div class="mv-row"><label class="field" style="flex:1;max-width:340px"><span>الفرع</span><select class="in" id="invBranch">${ib.map(x => `<option value="${x.id}"${x.id === b.id ? ' selected' : ''}>${esc(label(x))}</option>`).join('')}</select></label></div>
     <h3 style="margin-top:10px">سعر الشوكولاتة للبوكسات الموزونة</h3>
     <div class="sp2" style="max-width:420px"><label class="field"><span>سعر البيع للكيلو</span><input class="in" id="chocP" value="${Number(b.choc_price ?? 23)}" inputmode="decimal" dir="ltr"></label>
       <label class="field"><span>التكلفة للكيلو</span><input class="in" id="chocC" value="${Number(b.choc_cost ?? 11)}" inputmode="decimal" dir="ltr"></label></div>
     <p class="muted set-hint">سعر البوكس الموزون = سعر البوكس بدون شوكولاتة + (الوزن ÷ 1000 × سعر الكيلو). والموظف يقدر يعدّل الوزن في الفاتورة.</p></div>
-  <div class="set-card"><h3>الأصناف (${act.length})</h3>
+  <div class="set-card"><h3>بوكس شوكولاتة (${act.length})</h3>
     <div class="tbl-wrap"><table class="inv-items"><thead><tr><th></th><th>الصنف</th><th class="n">سعر البيع</th><th class="n">التكلفة على المصنع</th><th class="n">السعر النهائي</th><th></th></tr></thead>
       <tbody>${act.map(itemRow).join('') || '<tr><td colspan="6" class="muted">لا توجد أصناف بعد.</td></tr>'}</tbody></table></div>
     <p class="muted set-hint">للبوكس الموزون: سعر البيع والتكلفة للبوكس بدون الشوكولاتة، وتُضاف الشوكولاتة حسب الوزن.</p>
-    <button class="btn btn-primary btn-sm" data-iinew="1" style="margin-top:8px">+ إضافة صنف</button>
+    <button class="btn btn-primary btn-sm" data-iinew="1" style="margin-top:8px">+ إضافة بوكس</button>
     ${off.length ? `<p class="muted" style="font-size:13px;margin-top:10px">أصناف موقوفة (لا تظهر للموظف): ${off.map(i => `<button class="btn btn-ghost btn-sm" data-iiedit="${i.id}">${esc(i.name)}</button>`).join(' ')}</p>` : ''}</div>
+  ${S.inv.catOk ? invVarCard(b, 'kg', 'شوكولاتة بالكيلو', 'للكيلو', 'الموظف يختار نوعاً أو أكثر ويكتب الوزن بالكيلو.')
+    + invVarCard(b, 'block', 'شوكولاتة بلوك 2ك', 'للبلوك', 'الموظف يختار نوعاً أو أكثر ويكتب الكمية.')
+    + invBucketCard(b)
+    + invVarCard(b, 'wbox', 'بوكسات خاصة بالوزن', 'للكيلو', 'لعملاء الوزن فقط: الموظف يكتب عدد البوكسات وإجمالي الوزن، والسعر = الوزن × سعر الكيلو. هذا السعر الافتراضي، ولكل عميل سعر خاص من قسم العملاء.') : ''}
   <div class="set-card"><h3>العملاء وأصناف كل عميل</h3>
-    <div class="inv-cust">${custs.map(c => `<button class="chip${c.id === S.invCust ? ' on' : ''}" data-invcust="${c.id}">${esc(c.name)} <small>${S.inv.cust.filter(x => x.account_id === c.id).length || 'الكل'}</small></button>`).join('') || '<p class="muted">لا يوجد عملاء.</p>'}</div>
+    <div class="inv-cust">${custs.map(c => `<button class="chip${c.id === S.invCust ? ' on' : ''}" data-invcust="${c.id}">${esc(c.name)} <small>${c.by_weight ? 'بالوزن' : (asCount(c) || 'الكل')}</small></button>`).join('') || '<p class="muted">لا يوجد عملاء.</p>'}</div>
     <div class="inv-add" style="border:0;padding-top:0"><input class="in" id="ncName" maxlength="60" placeholder="اسم عميل جديد" style="flex:1 1 220px;max-width:360px"><button class="btn btn-primary btn-sm" data-ncadd="1">+ إضافة عميل</button></div>
-    ${S.invCust ? `<div class="inv-assign"><div class="fc-row"><b>أصناف ${esc(accName(S.invCust))}</b><span><button class="btn btn-ghost btn-sm" data-asall="1">تحديد الكل</button> <button class="btn btn-ghost btn-sm" data-asnone="1">إلغاء الكل</button></span></div>
-      <p class="muted set-hint">${assigned.size ? `${assigned.size} صنف تظهر لهذا العميل.` : 'لم تُحدَّد أصناف، فتظهر له كل الأصناف.'}</p>
-      <div class="inv-checks">${act.map(i => `<label class="dd-chk"><input type="checkbox" data-asitem="${i.id}"${assigned.has(i.id) ? ' checked' : ''}> ${esc(i.name)}</label>`).join('')}</div>
+    ${cu ? `<div class="inv-assign">
+      ${S.inv.catOk ? `<label class="dd-chk byw"><input type="checkbox" data-byw="${cu.id}"${byW ? ' checked' : ''}> <b>${esc(cu.name)}</b>: يتعامل في البوكسات بالوزن</label>` : ''}
+      ${byW ? `<h4 class="inv-sub">سعر الكيلو لهذا العميل</h4>
+        <div class="tbl-wrap"><table class="inv-items"><thead><tr><th>النوع</th><th class="n">السعر الافتراضي</th><th class="n">سعر خاص لهذا العميل</th><th class="n">التكلفة</th><th class="n">الربح للكيلو</th></tr></thead><tbody>
+        ${wb.map(it => { const r = rows.find(x => x.item_id === it.id), pv = r && r.price != null ? Number(r.price) : null, p = pv ?? Number(it.price);
+          return `<tr><td><b>${esc(it.variant || it.name)}</b></td><td class="n num muted">${money(it.price)}</td>
+          <td class="n"><input class="in n sm" data-cprice="${it.id}" value="${pv ?? ''}" placeholder="${Number(it.price)}" inputmode="decimal" dir="ltr"></td>
+          <td class="n num muted">${money(it.cost)}</td><td class="n num ${p - it.cost >= 0 ? 'ok' : 'no'}">${money(p - Number(it.cost))}</td></tr>`; }).join('') || '<tr><td colspan="5" class="muted">أضف أنواع البوكسات بالوزن أولاً.</td></tr>'}</tbody></table></div>
+        <p class="muted set-hint">اترك السعر الخاص فارغاً لاستخدام السعر الافتراضي. تغيير السعر يطبَّق على الفواتير الجديدة فقط.</p>` : ''}
+      <div class="fc-row" style="margin-top:10px"><b>${byW ? 'أصناف أخرى تظهر لهذا العميل' : `البوكسات التي تظهر لـ ${esc(cu.name)}`}</b><span><button class="btn btn-ghost btn-sm" data-asall="1">تحديد الكل</button> <button class="btn btn-ghost btn-sm" data-asnone="1">إلغاء الكل</button></span></div>
+      <p class="muted set-hint">${byW ? 'عميل الوزن يرى البوكسات بالوزن + ما تحدده هنا فقط.' : `${asList.filter(i => assigned.has(i.id)).length ? `${asList.filter(i => assigned.has(i.id)).length} بوكس تظهر لهذا العميل.` : 'لم تُحدَّد بوكسات، فتظهر له كل البوكسات.'} باقي الأقسام (بالكيلو، البلوك، السطول) تظهر لكل العملاء.`}</p>
+      <div class="inv-checks">${asList.map(i => `<label class="dd-chk"><input type="checkbox" data-asitem="${i.id}"${assigned.has(i.id) ? ' checked' : ''}> ${esc(i.name)}${byW && icat(i) !== 'box' ? ` <small class="muted">· ${grpName[icat(i)]}</small>` : ''}</label>`).join('') || '<p class="muted">لا توجد أصناف.</p>'}</div>
       <p class="muted set-hint">تعديل اسم العميل أو إزالته من: الإعدادات ← توزيع الفواتير على الفروع.</p></div>` : ''}</div>`;
 }
 async function invSetAction(t) {
   const b = S.byId[S.invBranch]; let error;
   if (t.dataset.iinew || t.dataset.iiedit) return openItemDlg(t.dataset.iiedit ? Number(t.dataset.iiedit) : null);
+  const nextSort = () => S.inv.items.filter(i => i.branch_id === b.id).length + 1;
   if (t.dataset.iidel) {
     const it = S.inv.items.find(i => i.id === Number(t.dataset.iidel)); if (!it) return;
     if (!confirm(`حذف الصنف "${it.name}" نهائياً؟\nالفواتير السابقة تبقى كما هي باسمه وسعره.`)) return;
     ({ error } = await sb.from('inv_items').delete().eq('id', it.id));
     if (!error) toast('تم حذف الصنف');
+  } else if (t.dataset.catadd) {
+    const k = t.dataset.catadd, v = (prompt(`اسم النوع الجديد في "${INV_PRE[k]}":`) || '').trim(); if (!v) return;
+    if (S.inv.items.some(i => i.branch_id === b.id && icat(i) === k && i.variant === v)) return toast('النوع موجود', 'err');
+    ({ error } = await sb.from('inv_items').insert({ branch_id: b.id, cat: k, variant: v, name: `${INV_PRE[k]} - ${v}`, unit: INV_UNIT[k], price: k === 'wbox' ? Number(b.choc_price ?? 23) : 0, cost: 0, weighted: false, weight_g: 0, active: true, sort_order: nextSort() }));
+    if (!error) toast('تمت الإضافة، اكتب السعر والتكلفة');
+  } else if (t.dataset.bkfill || t.dataset.bkadd) {
+    const f = t.dataset.bkadd || $('bkName').value.trim(); if (!f) { $('bkName').focus(); return toast('اكتب اسم الحشوة', 'err'); }
+    const ex = S.inv.items.filter(i => i.branch_id === b.id && icat(i) === 'bucket' && (i.grp || i.name) === f);
+    if (t.dataset.bkfill && ex.length) return toast('الحشوة موجودة', 'err');
+    const sizes = t.dataset.bksize ? [t.dataset.bksize] : INV_SIZES;
+    ({ error } = await sb.from('inv_items').insert(sizes.map((s, i) => ({ branch_id: b.id, cat: 'bucket', grp: f, variant: s, name: `سطل ${f} - ${s}`, unit: 'سطل', price: 0, cost: 0, weighted: false, weight_g: 0, active: true, sort_order: nextSort() + i }))));
+    if (!error) toast('تمت الإضافة، اكتب الأسعار والتكلفة');
+  } else if (t.dataset.bkdel) {
+    const f = t.dataset.bkdel, ids = S.inv.items.filter(i => i.branch_id === b.id && icat(i) === 'bucket' && (i.grp || i.name) === f).map(i => i.id);
+    if (!ids.length || !confirm(`حذف حشوة "${f}" بكل أوزانها؟\nالفواتير السابقة تبقى كما هي.`)) return;
+    ({ error } = await sb.from('inv_items').delete().in('id', ids));
+    if (!error) toast('تم حذف الحشوة');
   } else if (t.dataset.invcust) { S.invCust = Number(t.dataset.invcust); return renderSetInv(); }
   else if (t.dataset.ncadd) {
     const n = $('ncName').value.trim(); if (!n) { $('ncName').focus(); return toast('اكتب اسم العميل', 'err'); }
@@ -5012,11 +5111,13 @@ async function invSetAction(t) {
     ({ error } = await sb.from('branch_accounts').insert({ branch_id: b.id, name: n, sort_order: accOf(b.id).length + 1, active: true }));
     if (!error) { toast('تمت إضافة العميل'); await loadAccounts(); const c = accOf(b.id).find(a => a.name === n); if (c) S.invCust = c.id; }
   } else if (t.dataset.asall || t.dataset.asnone) {
-    const ids = S.inv.items.filter(i => i.branch_id === b.id && i.active).map(i => i.id);
-    ({ error } = await sb.from('inv_customer_items').delete().eq('account_id', S.invCust));
-    if (!error && t.dataset.asall && ids.length) ({ error } = await sb.from('inv_customer_items').insert(ids.map(id => ({ account_id: S.invCust, item_id: id }))));
+    const cu = S.accounts.find(a => a.id === S.invCust), byW = !!(cu && cu.by_weight);
+    const ids = S.inv.items.filter(i => i.branch_id === b.id && i.active && (byW ? icat(i) !== 'wbox' : icat(i) === 'box')).map(i => i.id);
+    if (!ids.length) return;
+    ({ error } = await sb.from('inv_customer_items').delete().eq('account_id', S.invCust).in('item_id', ids));
+    if (!error && t.dataset.asall) ({ error } = await sb.from('inv_customer_items').insert(ids.map(id => ({ account_id: S.invCust, item_id: id }))));
   } else return;
-  if (error) return toast(/inv_|schema cache/i.test(error.message || '') ? 'شغّل ملف invoices.sql أولاً' : errMsg(error), 'err');
+  if (error) return toast(/inv_items|invoices|invoice_mode/i.test(error.message || '') && !/cat|variant|grp/.test(error.message || '') ? 'شغّل ملف invoices.sql أولاً' : invSqlMsg(error), 'err');
   await loadInv(); renderSetInv();
 }
 async function invSetChange(t) {
@@ -5035,6 +5136,29 @@ async function invSetChange(t) {
     const f = t.id === 'chocP' ? 'choc_price' : 'choc_cost';
     ({ error } = await sb.from('branches').update({ [f]: v }).eq('id', b.id));
     if (error) return toast(errMsg(error), 'err'); b[f] = v; toast('تم الحفظ'); return renderSetInv();
+  }
+  if (t.dataset.byw) {
+    const id = Number(t.dataset.byw), v = t.checked;
+    ({ error } = await sb.from('branch_accounts').update({ by_weight: v }).eq('id', id));
+    if (error) { t.checked = !v; return toast(invSqlMsg(error), 'err'); }
+    const a = S.accounts.find(x => x.id === id); if (a) a.by_weight = v; toast(v ? 'تم: هذا العميل يتعامل بالبوكسات بالوزن' : 'تم الإلغاء'); return renderSetInv();
+  }
+  if (t.dataset.cprice) {
+    const id = Number(t.dataset.cprice), raw = t.value.trim(), v = raw === '' ? null : parseAmount(raw);
+    if (v !== null && (isNaN(v) || v < 0)) return toast('اكتب السعر رقماً', 'err');
+    const ex = S.inv.cust.find(x => x.account_id === S.invCust && x.item_id === id);
+    ({ error } = ex ? await sb.from('inv_customer_items').update({ price: v }).eq('account_id', S.invCust).eq('item_id', id)
+      : await sb.from('inv_customer_items').insert({ account_id: S.invCust, item_id: id, price: v }));
+    if (error) return toast(invSqlMsg(error), 'err');
+    toast(v === null ? 'سيُستخدم السعر الافتراضي' : 'تم حفظ السعر الخاص'); await loadInv(); return renderSetInv();
+  }
+  if (t.dataset.ii && t.dataset.f === 'variant') {
+    const id = Number(t.dataset.ii), it = S.inv.items.find(i => i.id === id), v = t.value.trim();
+    if (!it || !v) { t.value = it ? it.variant || '' : ''; return toast('اكتب اسم النوع', 'err'); }
+    const name = icat(it) === 'bucket' ? `سطل ${it.grp} - ${v}` : `${INV_PRE[icat(it)] || ''} - ${v}`;
+    ({ error } = await sb.from('inv_items').update({ variant: v, name }).eq('id', id));
+    if (error) return toast(invSqlMsg(error), 'err');
+    it.variant = v; it.name = name; toast('تم الحفظ'); return renderSetInv();
   }
   if (t.dataset.ii) {
     const f = t.dataset.f, id = Number(t.dataset.ii); let v;
@@ -5294,6 +5418,44 @@ function renderLinks() {
   }).join('') + `<p class="muted" style="font-size:13px;margin-top:8px">أي شخص معه الرابط يستطيع الإدخال لهذا الفرع فقط، ولا يرى بيانات الفروع الأخرى.</p>`;
 }
 
+// =====================================================================
+//  جدول دفعات التحصيل: كل دفعة بتاريخها (من إدخال الفرع اليومي + ما أضافته الإدارة)
+// =====================================================================
+function colPayRows(brs) {
+  const ids = new Set(brs.map(b => b.id)), out = [];
+  for (const s of S.sales) if (ids.has(s.branch_id) && Number(s.collected) > 0 && s.sale_date >= S.from && s.sale_date <= S.to)
+    out.push({ d: s.sale_date, bid: s.branch_id, amt: Number(s.collected), r: s, sp: s.col_split, src: s.entered_by === 'admin' ? 'الإدارة' : 'إدخال الفرع', k: 0 + String(s.id || '') });
+  for (const m of S.moves) if (ids.has(m.branch_id) && m.kind === 'collect' && m.move_date >= S.from && m.move_date <= S.to)
+    out.push({ d: m.move_date, bid: m.branch_id, amt: Number(m.amount), r: m, sp: m.split, src: m.entered_by === 'admin' ? 'الإدارة' : 'إدخال الفرع', note: m.note, k: 1 + String(m.id || '') });
+  out.sort((a, b) => a.d < b.d ? -1 : a.d > b.d ? 1 : a.k < b.k ? -1 : 1);
+  return out;
+}
+function colPayTable(brs) {
+  const rows = colPayRows(brs), multi = brs.length > 1;
+  if (!rows.length) return `<section class="cp-box"><div class="sec-h"><h2>جدول دفعات التحصيل</h2></div><p class="muted" style="font-size:14px">لا توجد دفعات تحصيل في هذه الفترة.</p></section>`;
+  const tot = rows.reduce((a, x) => a + x.amt, 0), mx = Math.max(...rows.map(x => x.amt));
+  const days = new Set(rows.map(x => x.d)).size;
+  const meth = x => { const p = PAY_KEYS.filter(k => Number(x.r['col_' + k])).map(k => `<span class="cp-m ${k}">${PAY_TTL[k]}${PAY_KEYS.filter(j => Number(x.r['col_' + j])).length > 1 ? ' ' + money(x.r['col_' + k]) : ''}</span>`);
+    const o = x.amt - PAY_KEYS.reduce((a, k) => a + (Number(x.r['col_' + k]) || 0), 0);
+    if (o > 0.004 && p.length) p.push(`<span class="cp-m">بدون تفصيل ${money(o)}</span>`);
+    return p.join(' ') || '<span class="muted">—</span>'; };
+  let cum = 0;
+  const body = rows.map((x, i) => { cum += x.amt; const b = S.byId[x.bid]; const dl = x.sp && Object.keys(x.sp).length ? splitLine(x.sp, x.amt) : '';
+    return `<tr><td class="cp-i">${i + 1}</td><td><b>${esc(fmtShort(x.d))}</b><small>${WD[new Date(x.d + 'T00:00:00Z').getUTCDay()]}</small></td>
+      ${multi ? `<td>${esc(b ? b.name : '')}</td>` : ''}
+      <td>${meth(x)}${dl ? `<small>${esc(dl)}</small>` : ''}${x.note ? `<small>${esc(x.note)}</small>` : ''}</td>
+      <td><span class="cp-src${x.src === 'الإدارة' ? ' a' : ''}">${x.src}</span></td>
+      <td class="n"><b class="ok">${money(x.amt)}</b><i class="cp-bar" style="width:${Math.max(4, x.amt / mx * 100)}%"></i></td>
+      <td class="n muted">${money(cum)}</td></tr>`; }).join('');
+  return `<section class="cp-box">
+    <div class="sec-h"><h2>جدول دفعات التحصيل</h2><span class="muted">${rows.length} دفعة في ${days} يوم · متوسط الدفعة <b class="num">${money(Math.round(tot / rows.length))}</b></span></div>
+    <div class="tbl-wrap"><table class="cp-tbl">
+      <thead><tr><th>#</th><th>التاريخ</th>${multi ? '<th>الفرع</th>' : ''}<th>طريقة الدفع / التوزيع</th><th>المصدر</th><th class="n">مبلغ الدفعة</th><th class="n">التحصيل التراكمي</th></tr></thead>
+      <tbody>${body}</tbody>
+      <tfoot><tr><td colspan="${multi ? 5 : 4}">إجمالي التحصيل في الفترة</td><td class="n ok">${money(tot)}</td><td></td></tr></tfoot>
+    </table></div></section>`;
+}
+
 function renderDetail() {
   const all = S.detail === '__all';
   const g = all ? null : (S.gmap[S.detail] || (S.mmap || {})[S.detail]);
@@ -5355,6 +5517,7 @@ function renderDetail() {
       <tbody>${rows}</tbody>
       <tfoot><tr><td colspan="2">المجموع</td>${brs.map(colFoot).join('')}${multi ? `<td class="n">${money(total)}</td>` : ''}${multi && anyCredit ? `<td class="n col">${money(m.collected)}</td>` : ''}${anyCredit ? `<td class="n ret-neg">${negMoney(m.returns)}</td>` : ''}<td class="n">${money(total)}</td>${anyCredit ? `<td class="n">${money(m.rest)}</td>` : ''}</tr></tfoot>
     </table></div>` : `<p class="muted">لا توجد أيام في هذه الفترة بعد.</p>`}
+    ${anyCredit ? colPayTable(creditBrs) : ''}
     ${anyCredit ? movesPanel(creditBrs) : ''}`;
   $('backBtn').onclick = closeDetail;
 }
