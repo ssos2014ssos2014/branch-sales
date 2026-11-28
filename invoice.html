@@ -106,7 +106,7 @@
     <button data-tab="list" aria-pressed="false">الفواتير</button>
   </nav>
   <section id="view"><p class="empty">جارٍ التحميل…</p></section>
-  <p class="muted" style="text-align:center;font-size:12px;margin-top:18px">إصدار الواجهة: 2026-11-28 أ</p>
+  <p class="muted" style="text-align:center;font-size:12px;margin-top:18px">إصدار الواجهة: 2026-11-28 ب</p>
 </main>
 <div class="bar" id="bar" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
@@ -125,7 +125,8 @@ const r2 = v => Math.round(v * 100) / 100;
 const custOf = id => D.customers.find(c => c.id === Number(id));
 const itemOf = id => D.items.find(i => i.id === Number(id));
 // السعر: سعر خاص للعميل (إن وُجد) أو سعر الصنف، والبوكس الموزون يُضاف له سعر الشوكولاتة حسب الوزن
-function basePrice(it) { const c = INV.cust ? custOf(INV.cust) : null, o = c && c.prices ? c.prices[it.id] : null; return Number(o ?? it.price); }
+function basePrice(it) { const c = INV.cust ? custOf(INV.cust) : null, o = c && c.prices ? c.prices[it.id] : null;
+  const tp = c && c.tier && it.prices ? it.prices[c.tier] : null; return Number(o ?? (tp != null && tp !== '' ? tp : it.price)); }
 function unitPrice(it, w) { return r2(basePrice(it) + ((it.cat || 'box') === 'box' && it.weighted ? (Number(w) || 0) / 1000 * Number(D.branch.choc_price) : 0)); }
 // أصناف العميل: عميل الوزن = بوكسات الوزن + ما خُصص له فقط. العميل العادي = كل الأقسام عدا بوكسات الوزن (والبوكسات المخصصة له إن حُددت)
 function itemsFor(c) {
