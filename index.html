@@ -685,6 +685,7 @@
   .bz-box { margin-top: 10px; background: color-mix(in srgb, var(--viz-2, #c0703a) 8%, var(--bg)); border: 1px solid color-mix(in srgb, var(--viz-2, #c0703a) 30%, transparent); border-radius: 12px; padding: 8px 10px; }
   .bz-h { margin: 0 0 4px; font-weight: 700; font-size: 13px; } .bz-h small { font-weight: 400; color: var(--muted); }
   .bz-rest b { font-size: 17px; }
+  .bz-pct { border-top: 1px dashed color-mix(in srgb, var(--viz-2, #c0703a) 35%, transparent); padding-top: 6px; } .bz-pct b { color: var(--viz-2, #c0703a); } .bz-pct small { font-size: 11px; }
   .col-pct { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 13px; }
   .col-pct b { font-family: var(--font-head); font-size: 20px; font-weight: 800; }
   .col-pct b.ok { color: #1d6b35; } .col-pct b.mid { color: #b7791f; } .col-pct b.no { color: var(--no-c); }
@@ -1189,7 +1190,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-28 ج</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-28 د</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -4540,16 +4541,19 @@ async function loadBazelAll() {
   const accs = S.accounts.filter(a => a.linked_branch_id), src = [...new Set(accs.map(a => a.branch_id))];
   if (!accs.length || VIEW) { S.bzAll = null; return; }
   try {
-    const [sl, mv] = await Promise.all([
+    const own = [...new Set(accs.map(a => a.linked_branch_id))];
+    const [sl, mv, os] = await Promise.all([
       fetchAll(() => sb.from('sales').select('branch_id,sale_date,sales_split,col_split').in('branch_id', src).lte('sale_date', S.today).order('id')),
-      fetchAll(() => sb.from('credit_moves').select('branch_id,kind,split,move_date').in('branch_id', src).lte('move_date', S.today).order('id'))]);
+      fetchAll(() => sb.from('credit_moves').select('branch_id,kind,split,move_date').in('branch_id', src).lte('move_date', S.today).order('id')),
+      fetchAll(() => sb.from('sales').select('branch_id,sale_date,amount').in('branch_id', own).lte('sale_date', S.today).order('id'))]);
     const r = {};
     for (const a of accs) {
       const k = String(a.id), o = r[a.linked_branch_id] || (r[a.linked_branch_id] = { inv: 0, ret: 0, paid: 0, src: S.byId[a.branch_id] });
-      for (const x of sl) if (x.branch_id === a.branch_id) { o.inv += Number((x.sales_split || {})[k]) || 0; o.paid += Number((x.col_split || {})[k]) || 0; }
+      for (const x of sl) if (x.branch_id === a.branch_id) { const v = Number((x.sales_split || {})[k]) || 0; o.inv += v; o.paid += Number((x.col_split || {})[k]) || 0; if (v > 0 && (!o.first || x.sale_date < o.first)) o.first = x.sale_date; }
       for (const m of mv) if (m.branch_id === a.branch_id && m.split && Number(m.split[k])) { if (m.kind === 'return') o.ret += Number(m.split[k]); else o.paid += Number(m.split[k]); }
     }
-    for (const id in r) { const o = r[id]; o.net = o.inv - o.ret; o.rest = o.net - o.paid; }
+    for (const id in r) { const o = r[id]; o.net = o.inv - o.ret; o.rest = o.net - o.paid;
+      o.sales = o.first ? os.filter(x => x.branch_id === Number(id) && x.sale_date >= o.first).reduce((t, x) => t + Number(x.amount), 0) : 0; }
     S.bzAll = r;
   } catch (e) { console.warn(e); S.bzAll = null; }
 }
@@ -4558,11 +4562,14 @@ function bazelBox(g) {
   const rows = g.branches.map(b => S.bzAll[b.id]).filter(Boolean); if (!rows.length) return '';
   const net = rows.reduce((a, o) => a + o.net, 0), paid = rows.reduce((a, o) => a + o.paid, 0), rest = net - paid, pct = pctOf(paid, net);
   const src = rows[0].src ? rows[0].src.name : 'البازل';
+  const sales = rows.reduce((a, o) => a + (o.sales || 0), 0), first = rows.map(o => o.first).filter(Boolean).sort()[0];
+  const bp = sales ? net / sales * 100 : null;
   return `<div class="bz-box"><p class="bz-h">حساب ${esc(src)} <small>حتى اليوم</small></p>
     <div class="sub"><span>إجمالي المشتريات</span><b>${money(net)}</b></div>
     <div class="sub"><span>إجمالي المسدد</span><b class="ok">${money(paid)}</b></div>
     <div class="sub bz-rest"><span>المتبقي</span><b class="${rest > 0.004 ? 'no' : 'ok'}">${rest < -0.004 ? negMoney(-rest) : money(rest)}</b></div>
-    <div class="meter"><i style="width:${Math.min(100, pct)}%"></i></div></div>`;
+    <div class="meter"><i style="width:${Math.min(100, pct)}%"></i></div>
+    ${bp != null ? `<div class="col-pct bz-pct" title="المشتريات ${money(net)} من مبيعات الفرع ${money(sales)} منذ ${esc(fmtShort(first))}"><span>نسبة المشتريات من المبيعات<br><small class="muted">منذ ${esc(fmtShort(first))}</small></span><b dir="ltr">${fmtPct(bp)}</b></div>` : ''}</div>`;
 }
 function purchShow(b) { return linkedAccs(b.id).length > 0 || S.purch.some(p => p.branch_id === b.id); }
 function purchPanel(b) {
