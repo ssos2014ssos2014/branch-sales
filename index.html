@@ -429,6 +429,21 @@
   .cm-row .cm-name { flex: 1; min-width: 150px; }
   .cm-row.main .cm-name { font-weight: 700; }
   .cm-row .cm-amt { max-width: 130px; }
+  .cm-cat.sal { background: color-mix(in srgb, var(--viz-1) 6%, transparent); border-radius: 12px; padding: 10px; margin: 6px 0; border-top: 0; }
+  .emp-head { display: flex; gap: 8px; font-size: 12px; color: var(--muted); padding: 4px 0 0 0; padding-inline-start: 30px; }
+  .emp-head span:first-child { flex: 1; } .emp-head span:last-child { width: 130px; text-align: center; margin-inline-end: 36px; }
+  .cm-row.emp .cm-ind { width: 22px; text-align: center; color: var(--muted); font-weight: 700; }
+  .emp-total { display: flex; justify-content: space-between; align-items: baseline; margin-top: 8px; padding-top: 8px; border-top: 2px solid var(--ink); font-weight: 700; }
+  .emp-total b { font-family: var(--font-head); font-size: 22px; }
+  .cm-sec { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg, 16px); padding: 14px 16px; margin: 14px 0; }
+  .cm-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 6px 0 12px; }
+  .cm-kpis > div { background: var(--bg); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; }
+  .cm-kpis span { font-size: 12px; color: var(--muted); } .cm-kpis b { font-family: var(--font-head); font-size: 20px; }
+  .cm-kpis .t { background: var(--caramel-soft); } .cm-kpis .t b { color: var(--caramel); }
+  .cm-two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .cm-blk h4 { font-size: 14px; margin: 0 0 6px; font-family: var(--font-head); }
+  .cm-blk .commit-tbl { width: 100%; }
+  @media (max-width: 760px) { .cm-two { grid-template-columns: 1fr; } .cm-kpis b { font-size: 17px; } }
   .cm-sum { min-width: 80px; text-align: end; font-weight: 700; }
   .cm-ind { color: var(--muted); padding-inline-start: 10px; }
   .cm-row.sub .cm-name { background: var(--surface); }
@@ -667,6 +682,12 @@
   .l2-meter small { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }
   .t-bar.thin { height: 7px; }
   @media (max-width: 900px) { .fund-cols { grid-template-columns: 1fr; } .fund-kpis { grid-template-columns: 1fr; } .fk-v { font-size: 26px; } }
+  .bz-box { margin-top: 10px; background: color-mix(in srgb, var(--viz-2, #c0703a) 8%, var(--bg)); border: 1px solid color-mix(in srgb, var(--viz-2, #c0703a) 30%, transparent); border-radius: 12px; padding: 8px 10px; }
+  .bz-h { margin: 0 0 4px; font-weight: 700; font-size: 13px; } .bz-h small { font-weight: 400; color: var(--muted); }
+  .bz-rest b { font-size: 17px; }
+  .col-pct { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 13px; }
+  .col-pct b { font-family: var(--font-head); font-size: 20px; font-weight: 800; }
+  .col-pct b.ok { color: #1d6b35; } .col-pct b.mid { color: #b7791f; } .col-pct b.no { color: var(--no-c); }
   /* ---- الفواتير ---- */
   .inv-k { margin-bottom: 4px; }
   .inv-sub { font-size: 14px; margin: 14px 0 6px; font-family: var(--font-head); }
@@ -1168,7 +1189,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-23 ب</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-28 ج</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -1436,6 +1457,7 @@ async function reload() {
     await loadMoves();
     await loadAccounts();
     await loadPurch();
+    await loadBazelAll();
     await loadInv();
     await loadCost();
     buildGroups();
@@ -1665,6 +1687,31 @@ function profitCard(brs) {
   </div>`;
 }
 
+const isSalCat = c => /رواتب|راتب/.test(c && c.name || '');
+// الالتزامات والرواتب داخل صفحة الفرع (ظاهرة دائماً)
+function commitSection(brs) {
+  if (!S.fin.ok) return '';
+  const multi = brs.length > 1, inB = x => brs.some(b => b.id === x.branch_id) && Number(x.amount) > 0;
+  const bn = id => multi && S.byId[id] ? ` <small class="muted">· ${esc(label(S.byId[id]))}</small>` : '';
+  const sal = S.fin.cats.filter(isSalCat), oth = S.fin.cats.filter(c => !isSalCat(c));
+  const emps = S.fin.commitments.filter(x => inB(x) && sal.some(c => c.id === x.cat_id));
+  const salT = emps.reduce((a, x) => a + Number(x.amount), 0);
+  const rows = oth.map(c => { const items = S.fin.commitments.filter(x => x.cat_id === c.id && inB(x)); return { c, items, sum: items.reduce((a, x) => a + Number(x.amount), 0) }; }).filter(r => r.sum > 0);
+  const othT = rows.reduce((a, r) => a + r.sum, 0), tot = othT + salT;
+  if (!tot) return `<section class="cm-sec"><div class="pay-h"><h3>الالتزامات الشهرية</h3></div><p class="muted">لا توجد التزامات مسجلة${VIEW ? '' : '. أضفها من الإعدادات ← الالتزامات'}.</p></section>`;
+  return `<section class="cm-sec">
+    <div class="pay-h"><h3>الالتزامات الشهرية</h3><span class="muted">مبالغ كل شهر</span></div>
+    <div class="cm-kpis"><div><span>الالتزامات</span><b class="num">${money(othT)}</b></div><div><span>الرواتب</span><b class="num">${money(salT)}</b></div><div class="t"><span>الإجمالي</span><b class="num">${money(tot)}</b></div></div>
+    <div class="cm-two">
+      <div class="cm-blk"><h4>الالتزامات <small class="muted">(بدون الرواتب)</small></h4>
+        ${rows.length ? `<table class="commit-tbl"><tbody>${rows.map(r => `<tr class="c-main"><td>${esc(r.c.name)}</td><td class="n">${money(r.sum)}</td></tr>
+          ${r.items.filter(x => x.name || multi).map(x => `<tr class="c-sub"><td>${esc(x.name || 'المبلغ الأساسي')}${bn(x.branch_id)}</td><td class="n">${money(x.amount)}</td></tr>`).join('')}`).join('')}</tbody>
+          <tfoot><tr><td>المجموع</td><td class="n">${money(othT)}</td></tr></tfoot></table>` : '<p class="muted">لا توجد.</p>'}</div>
+      <div class="cm-blk sal"><h4>الرواتب <small class="muted">(${emps.filter(x => x.name).length} موظف)</small></h4>
+        ${emps.length ? `<table class="commit-tbl"><tbody>${emps.map(x => `<tr><td>${esc(x.name || 'رواتب بدون أسماء')}${bn(x.branch_id)}</td><td class="n">${money(x.amount)}</td></tr>`).join('')}</tbody>
+          <tfoot><tr><td>إجمالي الرواتب</td><td class="n">${money(salT)}</td></tr></tfoot></table>` : `<p class="muted">لا توجد رواتب مسجلة${VIEW ? '' : '. أضف الموظفين من الإعدادات ← الالتزامات ← رواتب الموظفين'}.</p>`}</div>
+    </div></section>`;
+}
 // ---------- الالتزامات المالية (جدول) ----------
 function commitTable(brs) {
   const multi = brs.length > 1;
@@ -1691,9 +1738,7 @@ function commitTable(brs) {
 function detailFinance(brs) {
   const cm = brs.reduce((a, b) => a + commitMonthly(b.id), 0);
   return `<div class="fin-grid">${targetCard(brs)}${profitCard(brs)}</div>
-    <button class="commit-btn" id="commitToggle" aria-expanded="${S.commitOpen}">
-      <span class="cb-ic">${ICON_DOC}</span><span>الالتزامات المالية لهذا الشهر</span><b class="num">${money(cm)}${R}</b><span class="cb-arrow">${S.commitOpen ? '▲' : '▼'}</span></button>
-    <div id="commitPanel" class="commit-panel" ${S.commitOpen ? '' : 'hidden'}>${commitTable(brs)}</div>
+    ${commitSection(brs)}
     ${paceChart(brs)}`;
 }
 const ICON_DOC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>';
@@ -2084,6 +2129,19 @@ function renderSetCommit() {
     <div class="cm-list">${S.fin.cats.map(c => {
       const rows = rowsOf(c.id), main = rows.find(r => r.name == null), subs = rows.filter(r => r.name != null);
       const sum = rows.reduce((a, r) => a + Number(r.amount), 0);
+      if (isSalCat(c)) return `<div class="cm-cat sal">
+        <div class="cm-row main"><input class="in cm-name" data-catname="${c.id}" value="${esc(c.name)}" aria-label="اسم البند">
+          <span class="cm-sum num">${money(sum)}</span>
+          <button class="btn btn-primary btn-sm" data-addsub="${c.id}" data-subdef="موظف جديد">+ إضافة موظف</button>
+          <button class="icon-x" data-delcat="${c.id}" title="حذف البند من كل الفروع" aria-label="حذف ${esc(c.name)}">×</button></div>
+        ${subs.length ? `<div class="emp-head"><span>اسم الموظف</span><span>الراتب الشهري</span></div>` : '<p class="muted" style="font-size:13px;margin:4px 0">أضف الموظفين ورواتبهم، والمجموع يظهر في إجمالي الرواتب.</p>'}
+        ${subs.map((x, i) => `<div class="cm-row sub emp"><span class="cm-ind">${i + 1}</span><input class="in cm-name" data-subname="${x.id}" value="${esc(x.name)}" placeholder="اسم الموظف" aria-label="اسم الموظف">
+          <input class="in cm-amt" data-subamt="${x.id}" inputmode="decimal" dir="ltr" value="${Number(x.amount) ? esc(String(Number(x.amount))) : ''}" placeholder="الراتب" aria-label="راتب ${esc(x.name)}">
+          <button class="icon-x" data-delsub="${x.id}" aria-label="حذف الموظف">×</button></div>`).join('')}
+        ${main && Number(main.amount) ? `<div class="cm-row sub emp"><span class="cm-ind">•</span><span class="cm-name muted">رواتب بدون أسماء (قديم)</span>
+          <input class="in cm-amt" data-cmain="${c.id}" inputmode="decimal" dir="ltr" value="${esc(String(Number(main.amount)))}" aria-label="رواتب بدون أسماء"></div>` : ''}
+        <div class="emp-total"><span>إجمالي الرواتب${subs.length ? ` (${subs.length} موظف)` : ''}</span><b class="num">${money(sum)}<span class="cur">ريال</span></b></div>
+      </div>`;
       return `<div class="cm-cat">
         <div class="cm-row main"><input class="in cm-name" data-catname="${c.id}" value="${esc(c.name)}" aria-label="اسم البند">
           <input class="in cm-amt" data-cmain="${c.id}" inputmode="decimal" dir="ltr" placeholder="المبلغ" value="${main && Number(main.amount) ? esc(String(Number(main.amount))) : ''}" aria-label="مبلغ ${esc(c.name)}">
@@ -2107,7 +2165,7 @@ async function commitAction(e) {
     toast('تمت إضافة البند'); await loadFin(); return renderSetCommit();
   }
   if (t.dataset.addsub) {
-    const { error } = await sb.from('commitments').insert({ branch_id: S.commitBranch, cat_id: Number(t.dataset.addsub), name: 'بند فرعي', amount: 0 });
+    const { error } = await sb.from('commitments').insert({ branch_id: S.commitBranch, cat_id: Number(t.dataset.addsub), name: t.dataset.subdef || 'بند فرعي', amount: 0 });
     if (error) return toast(errMsg(error), 'err');
     await loadFin(); renderSetCommit();
     const ins = [...document.querySelectorAll('[data-subname]')].pop(); if (ins) { ins.focus(); ins.select(); }
@@ -4476,6 +4534,36 @@ function bazelPurch(bid) {
   const t = k => list.reduce((s, r) => s + r[k], 0), inv = t('inv'), ret = t('ret'), paid = t('paid');
   return { accs, list, inv, ret, paid, net: inv - ret, rest: inv - ret - paid, src: S.byId[accs[0].branch_id] };
 }
+// حساب البازل لكل الفترات (حتى اليوم) للفروع المرتبطة
+S.bzAll = null;
+async function loadBazelAll() {
+  const accs = S.accounts.filter(a => a.linked_branch_id), src = [...new Set(accs.map(a => a.branch_id))];
+  if (!accs.length || VIEW) { S.bzAll = null; return; }
+  try {
+    const [sl, mv] = await Promise.all([
+      fetchAll(() => sb.from('sales').select('branch_id,sale_date,sales_split,col_split').in('branch_id', src).lte('sale_date', S.today).order('id')),
+      fetchAll(() => sb.from('credit_moves').select('branch_id,kind,split,move_date').in('branch_id', src).lte('move_date', S.today).order('id'))]);
+    const r = {};
+    for (const a of accs) {
+      const k = String(a.id), o = r[a.linked_branch_id] || (r[a.linked_branch_id] = { inv: 0, ret: 0, paid: 0, src: S.byId[a.branch_id] });
+      for (const x of sl) if (x.branch_id === a.branch_id) { o.inv += Number((x.sales_split || {})[k]) || 0; o.paid += Number((x.col_split || {})[k]) || 0; }
+      for (const m of mv) if (m.branch_id === a.branch_id && m.split && Number(m.split[k])) { if (m.kind === 'return') o.ret += Number(m.split[k]); else o.paid += Number(m.split[k]); }
+    }
+    for (const id in r) { const o = r[id]; o.net = o.inv - o.ret; o.rest = o.net - o.paid; }
+    S.bzAll = r;
+  } catch (e) { console.warn(e); S.bzAll = null; }
+}
+function bazelBox(g) {
+  if (!S.bzAll) return '';
+  const rows = g.branches.map(b => S.bzAll[b.id]).filter(Boolean); if (!rows.length) return '';
+  const net = rows.reduce((a, o) => a + o.net, 0), paid = rows.reduce((a, o) => a + o.paid, 0), rest = net - paid, pct = pctOf(paid, net);
+  const src = rows[0].src ? rows[0].src.name : 'البازل';
+  return `<div class="bz-box"><p class="bz-h">حساب ${esc(src)} <small>حتى اليوم</small></p>
+    <div class="sub"><span>إجمالي المشتريات</span><b>${money(net)}</b></div>
+    <div class="sub"><span>إجمالي المسدد</span><b class="ok">${money(paid)}</b></div>
+    <div class="sub bz-rest"><span>المتبقي</span><b class="${rest > 0.004 ? 'no' : 'ok'}">${rest < -0.004 ? negMoney(-rest) : money(rest)}</b></div>
+    <div class="meter"><i style="width:${Math.min(100, pct)}%"></i></div></div>`;
+}
 function purchShow(b) { return linkedAccs(b.id).length > 0 || S.purch.some(p => p.branch_id === b.id); }
 function purchPanel(b) {
   const bz = bazelPurch(b.id), mine = S.purch.filter(p => p.branch_id === b.id);
@@ -5111,6 +5199,7 @@ function renderGroups() {
     const creditBox = isCredit ? `<div class="crd">
         <div class="sub"><span>التحصيل</span><b class="ok">${money(m.collected)}</b></div>
         <div class="sub"><span>المتبقي</span><b>${money(m.rest)}</b></div>
+        <div class="col-pct"><span>نسبة التحصيل من الآجل</span><b dir="ltr" class="${m.pct >= 80 ? 'ok' : m.pct >= 50 ? 'mid' : 'no'}">${fmtPct(m.pct)}</b></div>
         <div class="meter"><i style="width:${Math.min(100, m.pct)}%"></i></div></div>` : '';
 
     const logo = (g.branches.find(b => b.logo) || {}).logo;
@@ -5126,6 +5215,7 @@ function renderGroups() {
       ${(() => { const t = targetOf(g.branches); if (!t) return ''; const p = pctOf(targetSales(g.branches), t); return `<div class="g-target${p >= 100 ? ' done' : ''}"><div class="fc-row"><span>${p >= 100 ? '✓ تم تحقيق الهدف' : 'الهدف'}</span><b>${fmtPct(p)}</b></div><div class="mini"><i style="width:${Math.min(100, p)}%"></i></div></div>`; })()}
       <div class="share-bar"><i style="width:${share}%"></i></div>
       ${creditBox}
+      ${bazelBox(g)}
       ${wasteLine}
       ${lateLine(g)}
       ${multi ? g.branches.map(b => `<div class="sub"><span>${esc(b.name)}${b.active ? '' : ' <small>(موقوف)</small>'}</span><b>${money(branchTotal(b.id))}${b.credit ? `<small>تحصيل ${money(branchCol(b.id))}</small>` : ''}</b></div>`).join('') : ''}
@@ -5260,11 +5350,6 @@ function renderDetail() {
     </table></div>` : `<p class="muted">لا توجد أيام في هذه الفترة بعد.</p>`}
     ${anyCredit ? movesPanel(creditBrs) : ''}`;
   $('backBtn').onclick = closeDetail;
-  $('commitToggle').onclick = () => {
-    S.commitOpen = !S.commitOpen; $('commitPanel').hidden = !S.commitOpen;
-    $('commitToggle').setAttribute('aria-expanded', String(S.commitOpen));
-    $('commitToggle').querySelector('.cb-arrow').textContent = S.commitOpen ? '▲' : '▼';
-  };
 }
 // الصفحات: اللوحة، تفاصيل فرع، التوالف، حساب التمويلات، الإعدادات
 function showView(v) {
