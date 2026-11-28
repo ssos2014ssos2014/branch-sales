@@ -727,6 +727,17 @@
   .bk-tbl .bk-cell { min-width: 150px; } .bk-cell .in.sm { width: 64px; display: inline-block; padding: 6px; } .bk-cell small { display: block; font-size: 11px; }
   .ii-cost { color: var(--muted); }
   .byw { font-size: 14px; background: color-mix(in srgb, var(--caramel) 10%, transparent); border-radius: 10px; padding: 8px 10px; }
+  .imp-dlg { max-width: 720px; width: calc(100vw - 24px); }
+  .imp-tools .dd-chk { white-space: nowrap; }
+  .imp-tools { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 8px 0; }
+  .imp-list { display: grid; gap: 8px; max-height: 58vh; overflow: auto; padding: 2px; }
+  .imp-row { display: grid; grid-template-columns: auto 56px 1fr; gap: 10px; align-items: start; border: 1.5px solid var(--line); border-radius: 12px; padding: 10px; }
+  .imp-row.on { border-color: var(--ok-c); background: color-mix(in srgb, var(--ok-c) 6%, transparent); }
+  .imp-row img, .imp-row .ii-noimg { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; display: grid; place-items: center; background: var(--bg); }
+  .imp-ck input { width: 20px; height: 20px; margin-top: 8px; }
+  .imp-f { display: grid; gap: 6px; min-width: 0; } .imp-f > small { font-size: 12px; } .imp-old { color: var(--caramel); }
+  .imp-n { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; } .imp-n label { font-size: 12px; color: var(--muted); display: grid; gap: 2px; }
+  .imp-pr { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
   .inv-cust { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; color: var(--ink); }
   .chip small { color: var(--muted); } .chip.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); } .chip.on small { color: inherit; opacity: .7; }
@@ -1203,7 +1214,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-28 و</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-28 ز</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -1244,6 +1255,14 @@
     <p class="entry-status bad" id="idStatus" role="status"></p>
     <div class="dlg-actions"><button class="btn btn-primary" type="submit" id="idSave">حفظ</button><button class="btn btn-ghost" type="button" id="idCancel">إلغاء</button></div>
   </form>
+</dialog>
+<dialog id="impDlg" class="entry-dlg imp-dlg">
+  <h2 style="font-size:19px">استيراد أصناف من حاسبة التكلفة</h2>
+  <p class="muted set-hint">اختر المنتجات المحفوظة. التكلفة محسوبة من الحاسبة بأسعار المكونات الحالية، وتقدر تعدّل الاسم والسعر والتكلفة هنا أو بعد الاستيراد من زر ✎ تعديل.</p>
+  <div class="imp-tools"><label class="dd-chk"><input type="checkbox" id="impAll"> تحديد الكل</label><input class="in" id="impQ" placeholder="بحث…" style="max-width:220px"></div>
+  <div id="impList" class="imp-list"></div>
+  <p class="entry-status bad" id="impStatus" role="status"></p>
+  <div class="dlg-actions"><button class="btn btn-primary" type="button" id="impGo">استيراد المحدد</button><button class="btn btn-ghost" type="button" id="impCancel">إلغاء</button></div>
 </dialog>
 <dialog id="invVDlg" class="entry-dlg inv-vdlg">
   <div id="invVBody"></div>
@@ -4981,6 +5000,61 @@ async function saveItemDlg(e) {
   if (error) { st.textContent = errMsg(error); return; }
   $('itemDlg').close(); toast(IDLG.id ? 'تم حفظ الصنف' : 'تمت إضافة الصنف'); await loadInv(); renderSetInv();
 }
+// ---------- استيراد أصناف من المنتجات المحفوظة في حاسبة التكلفة ----------
+let CIMP = [];
+async function openImpDlg() {
+  if (!S.prods || !S.prods.length) await loadCost();
+  if (!S.costOk) return toast('حاسبة التكلفة غير مفعلة (شغّل ملف costcalc.sql)', 'err');
+  if (!S.prods.length) return toast('لا توجد منتجات محفوظة في حاسبة التكلفة', 'err');
+  const b = S.byId[S.invBranch], ex = S.inv.items.filter(i => i.branch_id === b.id && icat(i) === 'box');
+  CIMP = S.prods.map(p => { const c = prodToCalc(p), cost = Math.round(costOf(c).total * 100) / 100;
+    const prices = (c.prices || []).map(Number).filter(v => v > 0), old = ex.find(i => i.name.trim() === p.name.trim());
+    return { pid: p.id, on: false, name: p.name, unit: p.pack_type || 'حبة', image: p.image || null, cost: String(cost), price: String(prices[0] || ''), prices, old }; });
+  $('impQ').value = ''; $('impAll').checked = false; $('impStatus').textContent = '';
+  renderImp(); $('impDlg').showModal();
+}
+function renderImp() {
+  const q = $('impQ').value.trim();
+  $('impList').innerHTML = CIMP.map((x, i) => q && !x.name.includes(q) ? '' : `<div class="imp-row${x.on ? ' on' : ''}" data-imp="${i}">
+    <label class="imp-ck"><input type="checkbox" data-impon="${i}"${x.on ? ' checked' : ''}></label>
+    ${x.image ? `<img src="${esc(x.image)}" alt="">` : '<span class="ii-noimg" aria-hidden="true">🍫</span>'}
+    <div class="imp-f"><input class="in" data-impf="name" value="${esc(x.name)}" maxlength="80" aria-label="اسم الصنف">
+      <div class="imp-n"><label>الوحدة<input class="in" data-impf="unit" value="${esc(x.unit)}" maxlength="15"></label>
+        <label>سعر البيع<input class="in" data-impf="price" value="${esc(x.price)}" inputmode="decimal" dir="ltr"></label>
+        <label>التكلفة<input class="in" data-impf="cost" value="${esc(x.cost)}" inputmode="decimal" dir="ltr"></label></div>
+      ${x.prices.length > 1 ? `<div class="imp-pr">أسعار محفوظة: ${x.prices.map((v, k) => `<button type="button" class="chip" data-impp="${i}|${v}">${k ? 'جملة ' + k : 'البيع'} ${money(v)}</button>`).join('')}</div>` : ''}
+      <small class="${x.old ? 'imp-old' : 'muted'}">${x.old ? `موجود باسم نفسه: سيُحدَّث سعره وتكلفته${x.image ? ' وصورته' : ''}${x.old.weighted ? ' ويصير بسعر ثابت (التكلفة تشمل الشوكولاتة)' : ''}` : 'صنف جديد في بوكس شوكولاتة'}${(() => { const p = parseAmount(x.price), c = parseAmount(x.cost); return p > 0 && !isNaN(c) ? ` · الربح ${money(Math.round((p - c) * 100) / 100)} (${fmtPct((p - c) / p * 100)})` : ''; })()}</small></div></div>`).join('') || '<p class="muted">لا توجد نتائج.</p>';
+}
+async function runImp() {
+  const b = S.byId[S.invBranch], st = $('impStatus'), sel = CIMP.filter(x => x.on);
+  if (!sel.length) { st.textContent = 'اختر منتجاً واحداً على الأقل'; return; }
+  for (const x of sel) { const p = parseAmount(x.price || '0'), c = parseAmount(x.cost || '0');
+    if (!x.name.trim()) { st.textContent = 'اسم الصنف مطلوب'; return; }
+    if (isNaN(p) || isNaN(c) || p < 0 || c < 0) { st.textContent = `اكتب السعر والتكلفة أرقاماً للصنف "${x.name}"`; return; } }
+  $('impGo').disabled = true; let n = 0, u = 0, err = null, so = S.inv.items.filter(i => i.branch_id === b.id).length;
+  for (const x of sel) {
+    const row = { name: x.name.trim(), unit: x.unit.trim() || 'حبة', price: parseAmount(x.price || '0'), cost: parseAmount(x.cost || '0') };
+    if (x.image) row.image = x.image;
+    const old = S.inv.items.find(i => i.branch_id === b.id && icat(i) === 'box' && i.name.trim() === row.name);
+    const { error } = old ? await sb.from('inv_items').update({ ...row, active: true, weighted: false, weight_g: 0 }).eq('id', old.id)
+      : await sb.from('inv_items').insert({ ...row, ...(S.inv.catOk ? { cat: 'box' } : {}), weighted: false, weight_g: 0, branch_id: b.id, active: true, sort_order: ++so });
+    if (error) { err = error; break; } old ? u++ : n++;
+  }
+  $('impGo').disabled = false;
+  await loadInv(); renderSetInv();
+  if (err) { st.textContent = errMsg(err); return; }
+  $('impDlg').close(); toast(`تم الاستيراد: ${n} صنف جديد${u ? ` و${u} تحديث` : ''}. تقدر تعدّلها من ✎ تعديل`);
+}
+function bindImp() {
+  $('impCancel').onclick = () => $('impDlg').close(); $('impGo').onclick = runImp;
+  $('impQ').oninput = renderImp;
+  $('impAll').onchange = e => { const q = $('impQ').value.trim(); CIMP.forEach(x => { if (!q || x.name.includes(q)) x.on = e.target.checked; }); renderImp(); };
+  $('impList').addEventListener('change', e => { const t = e.target; if (t.dataset.impon != null) { CIMP[Number(t.dataset.impon)].on = t.checked; t.closest('.imp-row').classList.toggle('on', t.checked); } });
+  $('impList').addEventListener('input', e => { const t = e.target, r = t.closest('[data-imp]'); if (!t.dataset.impf || !r) return; const x = CIMP[Number(r.dataset.imp)]; x[t.dataset.impf] = t.value;
+    if (!x.on) { x.on = true; r.classList.add('on'); r.querySelector('[data-impon]').checked = true; }
+    if (t.dataset.impf === 'price' || t.dataset.impf === 'cost') { const p = parseAmount(x.price), c = parseAmount(x.cost), sm = r.querySelector('.imp-f > small'); if (sm) sm.textContent = sm.textContent.replace(/ · الربح.*$/, '') + (p > 0 && !isNaN(c) ? ` · الربح ${money(Math.round((p - c) * 100) / 100)} (${fmtPct((p - c) / p * 100)})` : ''); } });
+  $('impList').addEventListener('click', e => { const t = e.target.closest('[data-impp]'); if (!t) return; const [i, v] = t.dataset.impp.split('|'); CIMP[Number(i)].price = v; CIMP[Number(i)].on = true; renderImp(); });
+}
 // ---------- الإعدادات ← الفواتير والأصناف ----------
 const INV_SIZES = ['500 جم', '1 كيلو', '5 كيلو'];
 const icat = i => i.cat || 'box';
@@ -5055,7 +5129,7 @@ function renderSetInv() {
     <div class="tbl-wrap"><table class="inv-items"><thead><tr><th></th><th>الصنف</th><th class="n">سعر البيع</th><th class="n">التكلفة على المصنع</th><th class="n">السعر النهائي</th><th></th></tr></thead>
       <tbody>${act.map(itemRow).join('') || '<tr><td colspan="6" class="muted">لا توجد أصناف بعد.</td></tr>'}</tbody></table></div>
     <p class="muted set-hint">للبوكس الموزون: سعر البيع والتكلفة للبوكس بدون الشوكولاتة، وتُضاف الشوكولاتة حسب الوزن.</p>
-    <button class="btn btn-primary btn-sm" data-iinew="1" style="margin-top:8px">+ إضافة بوكس</button>
+    <button class="btn btn-primary btn-sm" data-iinew="1" style="margin-top:8px">+ إضافة بوكس</button> <button class="btn btn-ghost btn-sm" data-iiimp="1" style="margin-top:8px">⇩ استيراد من حاسبة التكلفة</button>
     ${off.length ? `<p class="muted" style="font-size:13px;margin-top:10px">أصناف موقوفة (لا تظهر للموظف): ${off.map(i => `<button class="btn btn-ghost btn-sm" data-iiedit="${i.id}">${esc(i.name)}</button>`).join(' ')}</p>` : ''}</div>
   ${S.inv.catOk ? invVarCard(b, 'kg', 'شوكولاتة بالكيلو', 'للكيلو', 'الموظف يختار نوعاً أو أكثر ويكتب الوزن بالكيلو.')
     + invVarCard(b, 'block', 'شوكولاتة بلوك 2ك', 'للبلوك', 'الموظف يختار نوعاً أو أكثر ويكتب الكمية.')
@@ -5080,6 +5154,7 @@ function renderSetInv() {
 }
 async function invSetAction(t) {
   const b = S.byId[S.invBranch]; let error;
+  if (t.dataset.iiimp) return openImpDlg();
   if (t.dataset.iinew || t.dataset.iiedit) return openItemDlg(t.dataset.iiedit ? Number(t.dataset.iiedit) : null);
   const nextSort = () => S.inv.items.filter(i => i.branch_id === b.id).length + 1;
   if (t.dataset.iidel) {
@@ -6458,6 +6533,7 @@ $('eDate').onchange = checkEntry;
 $('eCancel').onclick = () => eDlg.close();
 $('invVClose').onclick = () => $('invVDlg').close();
 $('idCancel').onclick = () => $('itemDlg').close();
+bindImp();
 $('itemForm').onsubmit = saveItemDlg;
 $('itemForm').addEventListener('input', e => { if (e.target.id !== 'idFile') itemDlgSync(); });
 $('idW').onchange = itemDlgSync;
