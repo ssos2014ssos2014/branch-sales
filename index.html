@@ -481,6 +481,27 @@
   .mv-i { flex: 1; min-width: 0; font-size: 14px; }
   .mv-i small { display: block; font-size: 12px; color: var(--muted); }
   .mv-item > b { font-family: var(--font-head); font-size: 16px; white-space: nowrap; }
+  /* ---- صافي النقد المسلم ---- */
+  .cash-btn { border-color: color-mix(in srgb, var(--ok-c) 45%, var(--line)); }
+  .cash-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 12px; } .cash-head h2 { font-size: 22px; }
+  .cash-per { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 14px; } .cash-per label { display: flex; gap: 6px; align-items: center; font-size: 13px; } .cash-per .in { width: auto; padding: 6px 8px; }
+  .cash-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .cash-kpis .ck { border-radius: 16px; padding: 16px; border: 1px solid var(--line); background: var(--surface); display: grid; gap: 4px; }
+  .cash-kpis .ck span { font-size: 13px; color: var(--muted); } .cash-kpis .ck b { font-size: 28px; } .cash-kpis .ck small { font-size: 12px; color: var(--muted); }
+  .cash-kpis .c2 b { color: var(--rose); } .cash-kpis .c3 { background: color-mix(in srgb, var(--ok-c) 12%, var(--surface)); border-color: color-mix(in srgb, var(--ok-c) 45%, var(--line)); } .cash-kpis .c3 b { color: var(--ok-c); }
+  .cash-sec { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin-bottom: 14px; } .cash-sec h3 { font-size: 16px; margin-bottom: 8px; } .cash-sec h3 small { font-size: 12px; font-weight: 400; }
+  .cash-tbl td small { display: block; font-size: 11px; color: var(--muted); } .cash-tbl .exp { color: var(--rose); } .cash-tbl .net { color: var(--ok-c); font-weight: 800; }
+  .cash-tbl.days tbody tr { cursor: pointer; } .cash-tbl.days tbody tr:hover, .cash-tbl.days tr.sel { background: color-mix(in srgb, var(--ok-c) 8%, transparent); }
+  .cash-tbl tfoot td { font-weight: 800; }
+  .cash-day { border: 2px solid var(--ok-c); border-radius: 16px; padding: 14px; margin-bottom: 14px; background: var(--surface); scroll-margin-top: 90px; }
+  .cd-nav { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; } .cd-nav b { font-size: 17px; }
+  .cd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+  .cd-card { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; } .cd-card.off { opacity: .6; } .cd-card h4 { font-size: 15px; margin-bottom: 6px; }
+  .cd-l { display: flex; justify-content: space-between; gap: 8px; padding: 4px 0; font-size: 14px; } .cd-l.e { font-size: 12.5px; color: var(--muted); padding-inline-start: 10px; } .cd-l.e b { color: var(--rose); font-weight: 600; }
+  .cd-l .exp { color: var(--rose); } .cd-l.net { border-top: 1px dashed var(--line); margin-top: 4px; padding-top: 6px; font-weight: 800; } .cd-l.net b { color: var(--ok-c); }
+  .cd-tot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin: 12px 0 8px; font-size: 14px; } .cd-tot .net { color: var(--ok-c); }
+  .cp-act { white-space: nowrap; } .cp-act .btn { padding: 4px 8px; }
+  @media (max-width: 700px) { .cash-kpis { grid-template-columns: 1fr; } .cash-kpis .ck b { font-size: 24px; } }
   /* ---- جدول دفعات التحصيل ---- */
   .cp-box { margin-top: 18px; }
   .cp-tbl td small { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
@@ -1147,6 +1168,7 @@
       <button id="voiceBtn" class="btn btn-sm voice-btn" title="أمر صوتي: تكلم والبرنامج ينفذ" aria-label="أمر صوتي"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg> أمر صوتي</button>
       <button id="addBtn" class="btn btn-primary btn-sm edit-only">إدخال مبيعات</button>
       <button id="colBtn" class="btn btn-primary btn-sm edit-only col-btn">إدخال تحصيل</button>
+      <button id="cashBtn" class="btn btn-ghost btn-sm edit-only cash-btn">💵 النقد المسلم</button>
       <button id="repBtn" class="btn btn-ghost btn-sm">التقارير</button>
       <button id="moreBtn" class="btn btn-ghost btn-sm" aria-haspopup="true" aria-expanded="false" aria-controls="moreMenu">الأدوات <span aria-hidden="true">▾</span></button>
       <button id="lateBtn" class="bell-btn" aria-expanded="false" aria-haspopup="true" aria-label="تنبيهات التأخير" title="تنبيهات التأخير"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span id="lateDot" class="bell-dot" hidden></span></button>
@@ -1218,7 +1240,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-28 ح</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-28 ط</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -1227,6 +1249,7 @@
     <section id="compare" hidden></section>
     <section id="reports" hidden></section>
     <section id="calc" hidden></section>
+    <section id="cashView" class="cash-view" hidden></section>
     <section id="studio" hidden></section>
     <section id="settingsView" hidden>
       <div class="page-head"><button class="back-btn" id="setBack" type="button"><span aria-hidden="true">→</span> رجوع للوحة</button><h2>الإعدادات</h2></div>
@@ -1267,6 +1290,14 @@
   <div id="impList" class="imp-list"></div>
   <p class="entry-status bad" id="impStatus" role="status"></p>
   <div class="dlg-actions"><button class="btn btn-primary" type="button" id="impGo">استيراد المحدد</button><button class="btn btn-ghost" type="button" id="impCancel">إلغاء</button></div>
+</dialog>
+<dialog id="mvEDlg" class="entry-dlg">
+  <form id="mvEForm" method="dialog">
+    <h2 style="font-size:19px" id="mvETitle">تعديل دفعة تحصيل</h2>
+    <div id="mvEBody"></div>
+    <p class="entry-status bad" id="mvEStatus" role="status"></p>
+    <div class="dlg-actions"><button class="btn btn-primary" type="submit" id="mvESave">حفظ التعديل</button><button class="btn btn-ghost" type="button" id="mvECancel">إلغاء</button><button class="btn btn-ghost" type="button" id="mvEDel" style="color:var(--rose)">حذف الدفعة</button></div>
+  </form>
 </dialog>
 <dialog id="invVDlg" class="entry-dlg inv-vdlg">
   <div id="invVBody"></div>
@@ -2383,7 +2414,7 @@ function movesPanel(brs) {
           ${!ret && PAY_KEYS.some(k => Number(m['col_' + k])) ? `<small>${PAY_KEYS.filter(k => Number(m['col_' + k])).map(k => `${PAY_TTL[k]} ${money(m['col_' + k])}`).join(' · ')}</small>` : ''}
           ${m.split ? `<small>${esc(splitLine(m.split, m.amount))}</small>` : ''}${m.note ? `<small>${esc(m.note)}</small>` : ''}<small>${m.entered_by === 'admin' ? 'أدخلته الإدارة' : 'أدخله الفرع'}</small></div>
         <b class="num ${ret ? 'ret-neg' : 'ok'}">\u2066${ret ? '−' : '+'}${money(m.amount)}\u2069</b>
-        ${VIEW ? '' : `<button class="icon-x sm" data-mvdel="${m.id}" aria-label="حذف">×</button>`}</div>`; }).join('')}</div>`
+        ${VIEW ? '' : `${ret ? '' : `<button class="btn btn-ghost btn-sm" data-mvedit="${m.id}" aria-label="تعديل">✎</button>`}<button class="icon-x sm" data-mvdel="${m.id}" aria-label="حذف">×</button>`}</div>`; }).join('')}</div>`
       : '<p class="muted" style="font-size:14px">لا توجد حركات تحصيل إضافي أو مردود في هذه الفترة.</p>'}
   </section>`;
 }
@@ -5567,13 +5598,13 @@ function colPayTable(brs) {
       <td>${meth(x)}${dl ? `<small>${esc(dl)}</small>` : ''}${x.note ? `<small>${esc(x.note)}</small>` : ''}</td>
       <td><span class="cp-src${x.src === 'الإدارة' ? ' a' : ''}">${x.src}</span></td>
       <td class="n"><b class="ok">${money(x.amt)}</b><i class="cp-bar" style="width:${Math.max(4, x.amt / mx * 100)}%"></i></td>
-      <td class="n muted">${money(cum)}</td></tr>`; }).join('');
+      <td class="n muted">${money(cum)}</td>${VIEW ? '' : `<td class="n cp-act">${x.k[0] === '0' ? `<button class="btn btn-ghost btn-sm" data-editday="${x.bid}|${x.d}" title="تعديل التحصيل من إدخال اليوم">✎ تعديل</button>` : `<button class="btn btn-ghost btn-sm" data-mvedit="${x.r.id}">✎ تعديل</button><button class="icon-x sm" data-mvdel="${x.r.id}" aria-label="حذف الدفعة">×</button>`}</td>`}</tr>`; }).join('');
   return `<section class="cp-box">
     <div class="sec-h"><h2>جدول دفعات التحصيل</h2><span class="muted">${rows.length} دفعة في ${days} يوم · متوسط الدفعة <b class="num">${money(Math.round(tot / rows.length))}</b></span></div>
     <div class="tbl-wrap"><table class="cp-tbl">
-      <thead><tr><th>#</th><th>التاريخ</th>${multi ? '<th>الفرع</th>' : ''}<th>طريقة الدفع / التوزيع</th><th>المصدر</th><th class="n">مبلغ الدفعة</th><th class="n">التحصيل التراكمي</th></tr></thead>
+      <thead><tr><th>#</th><th>التاريخ</th>${multi ? '<th>الفرع</th>' : ''}<th>طريقة الدفع / التوزيع</th><th>المصدر</th><th class="n">مبلغ الدفعة</th><th class="n">التحصيل التراكمي</th>${VIEW ? '' : '<th></th>'}</tr></thead>
       <tbody>${body}</tbody>
-      <tfoot><tr><td colspan="${multi ? 5 : 4}">إجمالي التحصيل في الفترة</td><td class="n ok">${money(tot)}</td><td></td></tr></tfoot>
+      <tfoot><tr><td colspan="${multi ? 5 : 4}">إجمالي التحصيل في الفترة</td><td class="n ok">${money(tot)}</td><td></td>${VIEW ? '' : '<td></td>'}</tr></tfoot>
     </table></div></section>`;
 }
 
@@ -5642,10 +5673,172 @@ function renderDetail() {
     ${anyCredit ? movesPanel(creditBrs) : ''}`;
   $('backBtn').onclick = closeDetail;
 }
+// =====================================================================
+//  صافي النقد المسلم لكل الفروع يومياً (للإدارة + رابط اطلاع فقط لموظف ?cash=TOKEN)
+// =====================================================================
+const CASHG = new URLSearchParams(location.search).get('cash');
+S.cash = { from: null, to: null, day: null, data: null, links: [], linksOk: true };
+async function loadCash() {
+  const c = S.cash, t = S.today || todayISO();
+  if (!c.from) { c.from = monthStart(t); c.to = t; }
+  if (CASHG) {
+    const { data, error } = await sb.rpc('cash_data', { p_token: CASHG, p_from: c.from, p_to: c.to });
+    if (error) throw error;
+    S.today = data.today; c.from = data.from; c.to = data.to;
+    c.data = { label: data.label, branches: data.branches || [], rows: (data.rows || []).map(r => ({ d: r.d, b: r.b, cash: Number(r.cash) || 0, exp: r.exp || [] })) };
+    return;
+  }
+  const brs = activeBranches().filter(isSP), ids = brs.map(b => b.id);
+  const rows = ids.length ? await fetchAll(() => sb.from('sales').select('branch_id,sale_date,amt_cash,expenses').in('branch_id', ids).gte('sale_date', c.from).lte('sale_date', c.to).order('sale_date')) : [];
+  c.data = { branches: brs.map(b => ({ id: b.id, name: b.name, logo: b.logo })),
+    rows: rows.filter(r => r.amt_cash != null && ids.includes(r.branch_id)).map(r => ({ d: r.sale_date, b: r.branch_id, cash: Number(r.amt_cash) || 0, exp: r.expenses || [] })) };
+  const l = await sb.from('cash_links').select('*').order('id', { ascending: false });
+  c.linksOk = !l.error; c.links = l.data || [];
+}
+function cashCalc() {
+  const D = S.cash.data, days = {}, per = {};
+  for (const b of D.branches) per[b.id] = { cash: 0, exp: 0 };
+  for (const r of D.rows) {
+    const e = (r.exp || []).reduce((a, x) => a + (Number(x.a) || 0), 0);
+    const d = days[r.d] || (days[r.d] = { d: r.d, cash: 0, exp: 0, by: {} });
+    d.cash += r.cash; d.exp += e; d.by[r.b] = { cash: r.cash, exp: e, items: r.exp || [] };
+    const p = per[r.b] || (per[r.b] = { cash: 0, exp: 0 }); p.cash += r.cash; p.exp += e;
+  }
+  const list = Object.values(days).sort((a, b) => a.d < b.d ? -1 : 1); let cum = 0;
+  for (const x of list) { x.net = x.cash - x.exp; cum += x.net; x.cum = cum; }
+  const tot = list.reduce((a, x) => ({ cash: a.cash + x.cash, exp: a.exp + x.exp }), { cash: 0, exp: 0 }); tot.net = tot.cash - tot.exp;
+  return { list, per, tot };
+}
+const cMoney = v => v < -0.004 ? negMoney(-v) : money(Math.round(v * 100) / 100);
+const cBrName = id => { const b = (S.cash.data.branches || []).find(x => x.id === id); return b ? (S.byId && S.byId[id] ? label(S.byId[id]) : b.name) : 'فرع'; };
+function renderCash() {
+  const el = $('cashView'), c = S.cash, D = c.data;
+  if (!D) { el.innerHTML = '<p class="muted">جارٍ التحميل…</p>'; return; }
+  const { list, per, tot } = cashCalc(), brs = D.branches, t = S.today;
+  const lm = addMonths(monthStart(t), -1);
+  const q = [['m', 'هذا الشهر', monthStart(t), t], ['lm', 'الشهر الماضي', lm, monthEnd(lm)], ['7', 'آخر 7 أيام', addDays(t, -6), t], ['30', 'آخر 30 يوماً', addDays(t, -29), t]];
+  const day = c.day && list.find(x => x.d === c.day);
+  el.innerHTML = `<div class="cash-head">
+      <div><h2>صافي النقد المسلم</h2><p class="muted">${CASHG ? `مرحباً ${esc(D.label || '')} · اطلاع فقط` : 'المبيعات النقدية − المصروفات النقدية لكل الفروع يومياً'}</p></div>
+      ${CASHG ? `<button class="btn btn-ghost btn-sm" data-crefresh="1">تحديث</button>` : '<button class="back-btn" data-cback="1"><span aria-hidden="true">→</span> رجوع للوحة</button>'}</div>
+    <div class="cash-per">${q.map(([k, n, f, to]) => `<button class="chip${c.from === f && c.to === to ? ' on' : ''}" data-cq="${f}|${to}">${n}</button>`).join('')}
+      <label>من <input class="in" type="date" id="cFrom" value="${c.from}" max="${t}"></label><label>إلى <input class="in" type="date" id="cTo" value="${c.to}" max="${t}"></label></div>
+    <div class="cash-kpis">
+      <div class="ck c1"><span>إجمالي المبيعات النقدية</span><b class="num">${cMoney(tot.cash)}</b><small>${list.length} يوم</small></div>
+      <div class="ck c2"><span>إجمالي المصروفات النقدية</span><b class="num">${tot.exp ? negMoney(tot.exp) : '0'}</b><small>${tot.cash ? fmtPct(tot.exp / tot.cash * 100) + ' من النقدي' : ''}</small></div>
+      <div class="ck c3"><span>صافي النقد المسلم (تراكمي)</span><b class="num">${cMoney(tot.net)}</b><small>من ${esc(fmtShort(c.from))} إلى ${esc(fmtShort(c.to))}</small></div></div>
+    ${day ? cashDayHtml(day, list, brs) : ''}
+    <section class="cash-sec"><h3>حسب الفرع</h3><div class="tbl-wrap"><table class="cash-tbl"><thead><tr><th>الفرع</th><th class="n">المبيعات النقدية</th><th class="n">المصروفات النقدية</th><th class="n">صافي النقد المسلم</th></tr></thead><tbody>
+      ${brs.map(b => { const p = per[b.id] || { cash: 0, exp: 0 }; return `<tr><td><b>${esc(cBrName(b.id))}</b></td><td class="n num">${cMoney(p.cash)}</td><td class="n num exp">${p.exp ? negMoney(p.exp) : '0'}</td><td class="n num net">${cMoney(p.cash - p.exp)}</td></tr>`; }).join('')}</tbody>
+      <tfoot><tr><td>المجموع</td><td class="n num">${cMoney(tot.cash)}</td><td class="n num exp">${tot.exp ? negMoney(tot.exp) : '0'}</td><td class="n num net">${cMoney(tot.net)}</td></tr></tfoot></table></div></section>
+    <section class="cash-sec"><h3>اليومي <small class="muted">اضغط على أي يوم لاستعراضه</small></h3>
+      ${list.length ? `<div class="tbl-wrap"><table class="cash-tbl days"><thead><tr><th>اليوم</th>${brs.map(b => `<th class="n">${esc(cBrName(b.id))}</th>`).join('')}<th class="n">النقدي</th><th class="n">المصروفات</th><th class="n">صافي اليوم</th><th class="n">التراكمي</th></tr></thead><tbody>
+        ${list.slice().reverse().map(x => `<tr class="${x.d === c.day ? 'sel' : ''}" data-cday="${x.d}" tabindex="0"><td><b>${esc(fmtShort(x.d))}</b><small>${WD[new Date(x.d + 'T00:00:00Z').getUTCDay()]}</small></td>
+          ${brs.map(b => { const v = x.by[b.id]; return `<td class="n num">${v ? `${cMoney(v.cash - v.exp)}${v.exp ? `<small>مصروف ${money(v.exp)}</small>` : ''}` : '<span class="muted">—</span>'}</td>`; }).join('')}
+          <td class="n num">${cMoney(x.cash)}</td><td class="n num exp">${x.exp ? negMoney(x.exp) : '0'}</td><td class="n num net">${cMoney(x.net)}</td><td class="n num muted">${cMoney(x.cum)}</td></tr>`).join('')}</tbody></table></div>`
+        : '<p class="muted">لا توجد مبيعات نقدية مسجلة في هذه الفترة.</p>'}</section>
+    ${CASHG ? '' : cashLinksHtml()}`;
+}
+function cashDayHtml(x, list, brs) {
+  const i = list.indexOf(x), prev = list[i - 1], next = list[i + 1];
+  return `<section class="cash-day" id="cashDay"><div class="cd-nav"><button class="btn btn-ghost btn-sm" data-cday="${prev ? prev.d : ''}"${prev ? '' : ' disabled'}>→ اليوم السابق</button>
+      <div><b>${esc(fmtLong(x.d))}</b></div><button class="btn btn-ghost btn-sm" data-cday="${next ? next.d : ''}"${next ? '' : ' disabled'}>اليوم التالي ←</button></div>
+    <div class="cd-grid">${brs.map(b => { const v = x.by[b.id]; return `<div class="cd-card${v ? '' : ' off'}"><h4>${esc(cBrName(b.id))}</h4>${v ? `
+      <div class="cd-l"><span>المبيعات النقدية</span><b class="num">${cMoney(v.cash)}</b></div>
+      ${v.items.map(e => `<div class="cd-l e"><span>${esc(e.t || 'مصروف')}</span><b class="num">${negMoney(Number(e.a) || 0)}</b></div>`).join('')}
+      <div class="cd-l"><span>المصروفات النقدية</span><b class="num exp">${v.exp ? negMoney(v.exp) : '0'}</b></div>
+      <div class="cd-l net"><span>صافي النقد المسلم</span><b class="num">${cMoney(v.cash - v.exp)}</b></div>` : '<p class="muted">لم تُدخل مبيعات هذا اليوم</p>'}</div>`; }).join('')}</div>
+    <div class="cd-tot"><span>مجموع اليوم: نقدي <b class="num">${cMoney(x.cash)}</b> · مصروفات <b class="num">${x.exp ? negMoney(x.exp) : '0'}</b> · صافي <b class="num net">${cMoney(x.net)}</b></span><span class="muted">التراكمي حتى هذا اليوم: <b class="num">${cMoney(x.cum)}</b></span></div>
+    <button class="btn btn-ghost btn-sm" data-cday="">إغلاق</button></section>`;
+}
+function cashLinksHtml() {
+  const c = S.cash, base = location.origin + location.pathname + '?cash=';
+  return `<section class="cash-sec"><h3>روابط الاطلاع لموظف</h3>
+    <p class="muted set-hint">صاحب الرابط يدخل بدون كلمة مرور ويرى هذه الصفحة فقط: المبيعات النقدية والمصروفات وصافي النقد المسلم. لا يرى المبيعات البنكية ولا أي بيانات أخرى، ولا يستطيع التعديل.</p>
+    ${!c.linksOk ? '<p class="st-note">شغّل ملف cashlinks.sql في Supabase مرة واحدة لتفعيل الروابط.</p>' : `
+    <div class="cl-add" style="display:grid;gap:8px;max-width:480px"><input class="in" id="cLkName" maxlength="60" placeholder="اسم الموظف"><button class="btn btn-primary btn-sm" data-clkadd="1">+ إنشاء رابط</button></div>
+    <div class="cl-list" style="margin-top:10px">${c.links.map(l => `<div class="cl-row${l.active ? '' : ' off'}"><div><b>${esc(l.label)}</b> ${l.active ? '' : '<small class="muted">(موقوف)</small>'}<br><code dir="ltr" class="cl-url">${esc(base + l.token)}</code></div>
+      <div class="cl-acts"><button class="btn btn-ghost btn-sm" data-copy="${esc(base + l.token)}">نسخ</button><button class="btn btn-ghost btn-sm" data-clktog="${l.id}">${l.active ? 'إيقاف' : 'تفعيل'}</button><button class="btn btn-ghost btn-sm" style="color:var(--rose)" data-clkdel="${l.id}">حذف</button></div></div>`).join('') || '<p class="muted">لا توجد روابط.</p>'}</div>`}</section>`;
+}
+async function cashReload() { try { await loadCash(); } catch (e) { toast(errMsg(e), 'err'); } renderCash(); }
+async function openCash() { S.detail = null; S.wasteView = false; showView('cash'); if (!S.cash.data) renderCash(); await cashReload(); }
+async function cashClick(e) {
+  const t = e.target.closest('[data-cq],[data-cday],[data-cback],[data-crefresh],[data-clkadd],[data-clktog],[data-clkdel]'); if (!t) return;
+  const d = t.dataset, c = S.cash;
+  if (d.cback) return closeDetail();
+  if (d.crefresh) return cashReload();
+  if (d.cq) { [c.from, c.to] = d.cq.split('|'); c.day = null; return cashReload(); }
+  if (d.cday != null) { c.day = d.cday || null; renderCash(); if (c.day) $('cashDay').scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
+  if (CASHG) return;
+  let error;
+  if (d.clkadd) { const n = $('cLkName').value.trim(); if (!n) { $('cLkName').focus(); return toast('اكتب اسم الموظف', 'err'); } ({ error } = await sb.from('cash_links').insert({ label: n })); if (!error) toast('تم إنشاء الرابط، انسخه وأرسله للموظف'); }
+  if (d.clktog) { const l = c.links.find(x => x.id === Number(d.clktog)); ({ error } = await sb.from('cash_links').update({ active: !l.active }).eq('id', l.id)); }
+  if (d.clkdel) { const l = c.links.find(x => x.id === Number(d.clkdel)); if (!confirm(`حذف رابط "${l.label}"؟ لن يعمل بعد الحذف.`)) return; ({ error } = await sb.from('cash_links').delete().eq('id', l.id)); }
+  if (error) return toast(errMsg(error), 'err');
+  const l = await sb.from('cash_links').select('*').order('id', { ascending: false }); c.links = l.data || []; renderCash();
+}
+function cashChange(e) {
+  const t = e.target, c = S.cash; if (t.id !== 'cFrom' && t.id !== 'cTo') return;
+  const f = $('cFrom').value, to = $('cTo').value; if (!f || !to) return;
+  if (f > to) return toast('تاريخ البداية بعد تاريخ النهاية', 'err');
+  c.from = f; c.to = to; c.day = null; cashReload();
+}
+async function startCashGuest() {
+  S.started = true;
+  document.body.classList.add('viewer', 'guest');
+  $('login').hidden = true; $('app').hidden = false;
+  document.title = 'صافي النقد المسلم';
+  const h1 = document.querySelector('.brand-t h1'); if (h1) h1.textContent = 'صافي النقد المسلم';
+  const sub = document.querySelector('.brand-t small'); if (sub) sub.textContent = 'اطلاع فقط';
+  document.querySelectorAll('main.shell > *').forEach(x => { x.hidden = x.id !== 'cashView'; });
+  S.cash.from = null;
+  try { await loadCash(); } catch (e) {
+    $('app').hidden = true;
+    document.body.insertAdjacentHTML('beforeend', `<div class="login"><div class="login-card"><h1>تعذّر فتح الصفحة</h1><p class="muted" style="margin-top:8px">${esc(errMsg(e))}</p></div></div>`);
+    return;
+  }
+  renderCash();
+  setInterval(() => { if (!document.hidden) cashReload(); }, 120000);
+}
+
+// ---------- تعديل دفعة تحصيل (حركة credit_moves) ----------
+let mvE = null;
+function openMvEdit(id) {
+  const m = S.moves.find(x => x.id === Number(id)); if (!m) return;
+  mvE = m; const b = S.byId[m.branch_id];
+  const v = { cash: Number(m.col_cash) || 0, bank: Number(m.col_bank) || 0, card: Number(m.col_card) || 0 };
+  const un = Math.round((Number(m.amount) - v.cash - v.bank - v.card) * 100) / 100; if (un > 0.004) v.cash += un;
+  $('mvETitle').textContent = `تعديل دفعة تحصيل — ${b ? label(b) : ''}`;
+  $('mvEBody').innerHTML = `<p class="muted set-hint">${m.entered_by === 'admin' ? 'أدخلتها الإدارة' : 'أدخلها الفرع'}${m.created_at ? ' · ' + esc(String(m.created_at).slice(0, 10)) : ''}</p>
+    <label class="field"><span>التاريخ</span><input class="in" type="date" id="mvEDate" max="${S.today}" value="${m.move_date}"></label>
+    ${payFields('mve')}
+    ${b ? aSplitHtml('mves', b.id, colTitle(b), m.split || {}, () => payRead('mve').sum, 'التحصيل') : ''}
+    <label class="field"><span>ملاحظة</span><input class="in" id="mvENote" maxlength="120" value="${esc(m.note || '')}"></label>`;
+  for (const k of PAY_KEYS) $('mve-' + k).value = v[k] ? v[k] : '';
+  $('mvEStatus').textContent = '';
+  $('mve-cash').dispatchEvent(new Event('input', { bubbles: true }));
+  $('mvEDlg').showModal();
+}
+async function saveMvEdit(e) {
+  e.preventDefault(); const m = mvE, st = $('mvEStatus'); if (!m) return;
+  const d = $('mvEDate').value, pr = payRead('mve');
+  if (!d || d > S.today) { st.textContent = 'اختر تاريخاً صحيحاً (ليس في المستقبل)'; return; }
+  if (pr.bad) { st.textContent = `اكتب مبلغ ${PAY_TTL[pr.bad]} رقماً فقط`; return; }
+  if (!(pr.sum > 0)) { st.textContent = 'اكتب مبلغ التحصيل في خانة واحدة على الأقل'; return; }
+  const row = { move_date: d, amount: Math.round(pr.sum * 100) / 100, col_cash: pr.v.cash, col_bank: pr.v.bank, col_card: pr.v.card, note: $('mvENote').value.trim() || null };
+  if (ASPL.mves && $('mves-asp')) { const x = aSplitCalc('mves'); if (!x.ok) { st.textContent = x.msg; return; } row.split = Object.keys(x.vals).length ? x.vals : null; }
+  $('mvESave').disabled = true;
+  const { error } = await sb.from('credit_moves').update(row).eq('id', m.id);
+  $('mvESave').disabled = false;
+  if (error) { st.textContent = errMsg(error); return; }
+  $('mvEDlg').close(); toast('تم تعديل دفعة التحصيل'); await loadMoves(); renderAll();
+}
+
 // الصفحات: اللوحة، تفاصيل فرع، التوالف، حساب التمويلات، الإعدادات
 function showView(v) {
   S.view = v;
-  for (const [id, name] of [['overview', 'overview'], ['detail', 'detail'], ['waste', 'waste'], ['fund', 'fund'], ['settingsView', 'settings'], ['compare', 'compare'], ['reports', 'reports'], ['calc', 'calc'], ['studio', 'studio']]) $(id).hidden = v !== name;
+  for (const [id, name] of [['overview', 'overview'], ['detail', 'detail'], ['waste', 'waste'], ['fund', 'fund'], ['settingsView', 'settings'], ['compare', 'compare'], ['reports', 'reports'], ['calc', 'calc'], ['studio', 'studio'], ['cashView', 'cash']]) $(id).hidden = v !== name;
+  $('cashBtn').classList.toggle('on', v === 'cash');
   $('studioBtn').classList.toggle('on', v === 'studio'); $('fundBtn').classList.toggle('on', v === 'fund');
   $('calcBtn').classList.toggle('on', v === 'calc');
   $('repBtn').classList.toggle('on', v === 'reports');
@@ -5654,7 +5847,7 @@ function showView(v) {
   $('wasteBtn').classList.toggle('on', v === 'waste');
   $('moreBtn').classList.toggle('on', !!$('moreMenu').querySelector('.on')); closeMore();
   // الفترة وطلبات التعديل تخص اللوحة والتقارير فقط
-  const side = v === 'fund' || v === 'settings' || v === 'compare' || v === 'calc' || v === 'studio';
+  const side = v === 'cash' || v === 'fund' || v === 'settings' || v === 'compare' || v === 'calc' || v === 'studio';
   document.querySelector('.period').hidden = side; $('corrections').hidden = side;
   $('resendBox').hidden = side || v === 'reports'; if (v === 'reports') $('corrections').hidden = true;
   scrollTo({ top: 0 });
@@ -6447,7 +6640,7 @@ $('logoFile').onchange = async () => {
 
 // ---------------- الأحداث ----------------
 document.addEventListener('click', async e => {
-  const t = e.target.closest('[data-invview],[data-invall],[data-purtab],[data-puadd],[data-pudel],[data-editday],[data-delday],[data-rscancel],[data-wledit],[data-wldel],[data-wlsave],[data-wlcancel],[data-mvadd],[data-mvdel],[data-unmerge],[data-open-merge],[data-open-compare],[data-profit],[data-open-fund],[data-open-settings],[data-pay],[data-unpay],[data-lpay],[data-unlpay],[data-partopen],[data-partsave],[data-partcancel],[data-loanform],[data-loansave],[data-loancancel],[data-loanedit],[data-loandel],[data-detail],[data-approve],[data-reject],[data-copy],[data-add],[data-waste-open],[data-delbatch]');
+  const t = e.target.closest('[data-mvedit],[data-invview],[data-invall],[data-purtab],[data-puadd],[data-pudel],[data-editday],[data-delday],[data-rscancel],[data-wledit],[data-wldel],[data-wlsave],[data-wlcancel],[data-mvadd],[data-mvdel],[data-unmerge],[data-open-merge],[data-open-compare],[data-profit],[data-open-fund],[data-open-settings],[data-pay],[data-unpay],[data-lpay],[data-unlpay],[data-partopen],[data-partsave],[data-partcancel],[data-loanform],[data-loansave],[data-loancancel],[data-loanedit],[data-loandel],[data-detail],[data-approve],[data-reject],[data-copy],[data-add],[data-waste-open],[data-delbatch]');
   if (!t) return;
   if (t.dataset.invview) return openInvView(Number(t.dataset.invview));
   if (t.dataset.invall) { S.invAll = !S.invAll; return renderDetail(); }
@@ -6456,6 +6649,7 @@ document.addEventListener('click', async e => {
   if (t.dataset.delday) { if (VIEW) return; const [k, b, d] = t.dataset.delday.split('|'); return openDelDlg(k, Number(b), d); }
   if (t.dataset.rscancel) return cancelResend(Number(t.dataset.rscancel));
   if (t.dataset.wledit || t.dataset.wldel || t.dataset.wlsave || t.dataset.wlcancel) return wasteLineAction(t);
+  if (t.dataset.mvedit) { if (VIEW) return; return openMvEdit(t.dataset.mvedit); }
   if (t.dataset.mvadd || t.dataset.mvdel) return moveAction(t);
   if (t.dataset.unmerge) return deleteMerge(Number(t.dataset.unmerge));
   if ('openMerge' in t.dataset) return openMergeDlg();
@@ -6496,6 +6690,11 @@ bindStudio();
 bindVoice();
 $('studioBtn').onclick = () => S.view === 'studio' ? closeDetail() : openStudio();
 $('fundBtn').onclick = () => S.view === 'fund' ? closeDetail() : openFund();
+$('cashBtn').onclick = () => S.view === 'cash' ? closeDetail() : openCash();
+$('cashView').addEventListener('click', cashClick); $('cashView').addEventListener('change', cashChange);
+$('cashView').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.dataset.cday) cashClick(e); });
+$('mvEForm').addEventListener('submit', saveMvEdit); $('mvECancel').onclick = () => $('mvEDlg').close();
+$('mvEDel').onclick = () => { $('mvEDlg').close(); moveAction({ dataset: { mvdel: String(mvE.id) } }); };
 $('calcBtn').onclick = () => S.view === 'calc' ? closeDetail() : openCalc();
 $('settingsView').addEventListener('click', e => { const b = e.target.closest('[data-ingnew],[data-ingsave],[data-ingtog],[data-ingrm]'); if (b) ingAction(b); const c = e.target.closest('[data-clnew],[data-cltog],[data-cldel]'); if (c) calcLinkAction(c); });
 $('repBtn').onclick = () => S.view === 'reports' ? closeDetail() : openReports();
@@ -6751,6 +6950,7 @@ async function makeQuickLink() {
 }
 
 (async () => {
+  if (CASHG) return startCashGuest();
   if (GUEST) return startGuest();
   if (VIEW) return startViewer();
   const q = await quickLogin();
