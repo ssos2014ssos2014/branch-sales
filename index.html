@@ -481,6 +481,12 @@
   .mv-i { flex: 1; min-width: 0; font-size: 14px; }
   .mv-i small { display: block; font-size: 12px; color: var(--muted); }
   .mv-item > b { font-family: var(--font-head); font-size: 16px; white-space: nowrap; }
+  /* خانات سعر البيع (أخضر) وسعر التكلفة (أحمر) في الأصناف */
+  .pin2 { display: flex; gap: 6px; justify-content: center; } .pin { display: grid; gap: 2px; text-align: center; }
+  .pin span { font-size: 11px; font-weight: 700; } .pin.sell span, th.th-sell { color: #1f7a3d !important; } .pin.cost span, th.th-cost { color: #b42318 !important; }
+  .bk-cell .pin .in.sm { width: 72px; }
+  #setPanel-inv .in[data-f="price"], #setPanel-inv .in[data-tp], #setPanel-inv .in[data-cprice] { background: #e8f6ec; border-color: #7cc596; color: #14532d; font-weight: 700; }
+  #setPanel-inv .in[data-f="cost"] { background: #fdecec; border-color: #e8a0a0; color: #8a1c1c; font-weight: 700; }
   /* ---- المصنع ---- */
   .fac-box { border-top: 1px dashed var(--line); margin-top: 8px; padding-top: 6px; } .fac-box .stk b { color: var(--caramel); }
   .cust-tbl td .ld-bar.cb { display: block; margin-top: 4px; height: 5px; position: relative; max-width: 220px; }
@@ -753,7 +759,7 @@
   .id-calc { background: var(--bg); border-radius: 10px; padding: 8px 10px; font-size: 14px; margin: 4px 0 8px; }
   .inv-add { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
   .inv-add #niName { flex: 1 1 180px; } .inv-add .in.sm { width: 100px; }
-  .bk-tbl .bk-cell { min-width: 150px; } .bk-cell .in.sm { width: 64px; display: inline-block; padding: 6px; } .bk-cell small { display: block; font-size: 11px; }
+  .bk-tbl .bk-cell { min-width: 170px; } .bk-cell .in.sm { width: 64px; display: inline-block; padding: 6px; } .bk-cell small { display: block; font-size: 11px; }
   .ii-cost { color: var(--muted); }
   .byw { font-size: 14px; background: color-mix(in srgb, var(--caramel) 10%, transparent); border-radius: 10px; padding: 8px 10px; }
   .imp-dlg { max-width: 720px; width: calc(100vw - 24px); }
@@ -1248,7 +1254,7 @@
       <section id="merges"></section>
       <details class="box" id="historyBox"><summary>آخر قرارات التعديل</summary><div id="history"></div></details>
       <section id="charts" class="charts"></section>
-      <p class="app-ver">إصدار الواجهة: 2026-11-28 ي</p>
+      <p class="app-ver">إصدار الواجهة: 2026-11-28 ك</p>
     </div>
 
     <section id="detail" hidden></section>
@@ -5206,14 +5212,14 @@ const INV_UNIT = { kg: 'كيلو', block: 'بلوك', wbox: 'كيلو', bucket: 
 const invSqlMsg = e => /\bcat\b|variant|grp|by_weight|boxes|price.*inv_customer|schema cache|column/i.test((e && e.message) || '') ? 'شغّل ملف invcats.sql في Supabase أولاً' : errMsg(e);
 function invPriceInputs(it) {
   const p = Number(it.price), c = Number(it.cost);
-  return `<input class="in n sm" data-ii="${it.id}" data-f="price" value="${p}" inputmode="decimal" dir="ltr" aria-label="سعر البيع">
-    <input class="in n sm ii-cost" data-ii="${it.id}" data-f="cost" value="${c}" inputmode="decimal" dir="ltr" aria-label="التكلفة">
+  return `<div class="pin2"><label class="pin sell"><span>سعر البيع</span><input class="in n sm" data-ii="${it.id}" data-f="price" value="${p}" inputmode="decimal" dir="ltr"></label>
+    <label class="pin cost"><span>سعر التكلفة</span><input class="in n sm" data-ii="${it.id}" data-f="cost" value="${c}" inputmode="decimal" dir="ltr"></label></div>
     <small class="${p - c >= 0 ? 'ok' : 'no'}">ربح ${money(p - c)}${p ? ' · ' + fmtPct((p - c) / p * 100) : ''}</small>`;
 }
 function invVarCard(b, k, title, per, hint) {
   const list = S.inv.items.filter(i => i.branch_id === b.id && icat(i) === k && i.active);
   return `<div class="set-card"><h3>${title}</h3>
-    <div class="tbl-wrap"><table class="inv-items"><thead><tr><th>النوع</th><th class="n">سعر البيع ${per}</th><th class="n">التكلفة ${per}</th><th class="n">الربح</th><th></th></tr></thead><tbody>
+    <div class="tbl-wrap"><table class="inv-items"><thead><tr><th>النوع</th><th class="n th-sell">سعر البيع ${per}</th><th class="n th-cost">سعر التكلفة ${per}</th><th class="n">الربح</th><th></th></tr></thead><tbody>
     ${list.map(it => { const p = Number(it.price), c = Number(it.cost); return `<tr><td><input class="in" data-ii="${it.id}" data-f="variant" value="${esc(it.variant || it.name)}" maxlength="40"></td>
       <td class="n"><input class="in n sm" data-ii="${it.id}" data-f="price" value="${p}" inputmode="decimal" dir="ltr"></td>
       <td class="n"><input class="in n sm" data-ii="${it.id}" data-f="cost" value="${c}" inputmode="decimal" dir="ltr"></td>
@@ -5271,7 +5277,7 @@ function renderSetInv() {
       <label class="field"><span>التكلفة للكيلو</span><input class="in" id="chocC" value="${Number(b.choc_cost ?? 11)}" inputmode="decimal" dir="ltr"></label></div>
     <p class="muted set-hint">سعر البوكس الموزون = سعر البوكس بدون شوكولاتة + (الوزن ÷ 1000 × سعر الكيلو). والموظف يقدر يعدّل الوزن في الفاتورة.</p></div>
   <div class="set-card"><h3>بوكس شوكولاتة (${act.length})</h3>
-    <div class="tbl-wrap"><table class="inv-items"><thead><tr><th></th><th>الصنف</th><th class="n">سعر البيع${tiers.length ? ' (الأساسي)' : ''}</th>${tiers.map(t => `<th class="n tier-h">${esc(t.name)}</th>`).join('')}<th class="n">التكلفة على المصنع</th><th class="n">السعر النهائي</th><th></th></tr></thead>
+    <div class="tbl-wrap"><table class="inv-items"><thead><tr><th></th><th>الصنف</th><th class="n th-sell">سعر البيع${tiers.length ? ' (الأساسي)' : ''}</th>${tiers.map(t => `<th class="n tier-h">${esc(t.name)}</th>`).join('')}<th class="n th-cost">سعر التكلفة</th><th class="n">السعر النهائي</th><th></th></tr></thead>
       <tbody>${act.map(itemRow).join('') || `<tr><td colspan="${6 + tiers.length}" class="muted">لا توجد أصناف بعد.</td></tr>`}</tbody></table></div>
     ${tierOk ? `<div class="tier-bar"><b>أسعار أخرى:</b> ${tiers.map(t => `<span class="chip on">${esc(t.name)} <small>${accOf(b.id).filter(a => a.price_tier === t.id).length} عميل</small>
         <button class="tier-x" data-tierren="${esc(t.id)}" title="تعديل الاسم" aria-label="تعديل الاسم">✎</button><button class="tier-x" data-tierdel="${esc(t.id)}" title="حذف" aria-label="حذف">×</button></span>`).join(' ') || '<span class="muted">لا يوجد</span>'}
