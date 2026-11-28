@@ -91,6 +91,9 @@
   .sum-row:first-child { border-top: 0; } .sum-row.bad small { color: var(--rose); }
   .sum-n { border: 0; background: none; text-align: start; padding: 0; } .sum-n small { display: block; color: var(--muted); font-size: 12px; }
   .sum-row.tot { border-top: 2px solid var(--ink); font-weight: 800; font-size: 17px; }
+  .disc-r { display: grid; grid-template-columns: 1fr 90px; gap: 8px; max-width: 320px; }
+  .ck small.stk { font-size: 11.5px; color: var(--accent); font-weight: 600; } .ck small.stk.out { color: var(--rose); }
+  .ck-row.dis { opacity: .55; }
   @media print {
     body * { visibility: hidden; } .receipt, .receipt * { visibility: visible; }
     .receipt { position: absolute; inset: 0 0 auto 0; border: 0; }
@@ -106,7 +109,7 @@
     <button data-tab="list" aria-pressed="false">الفواتير</button>
   </nav>
   <section id="view"><p class="empty">جارٍ التحميل…</p></section>
-  <p class="muted" style="text-align:center;font-size:12px;margin-top:18px">إصدار الواجهة: 2026-11-28 ب</p>
+  <p class="muted" style="text-align:center;font-size:12px;margin-top:18px">إصدار الواجهة: 2026-11-28 ج</p>
 </main>
 <div class="bar" id="bar" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
@@ -116,7 +119,7 @@
 const token = new URLSearchParams(location.search).get('t');
 const $ = id => document.getElementById(id);
 let D = null, TAB = 'new';
-const newInv = date => ({ cust: null, date, cat: '', lines: {}, fills: [], other: [{ name: '', qty: '', unit: 'حبة', price: '' }], ddOpen: false, note: '', done: null, busy: false });
+const newInv = date => ({ disc: '', discT: 'sar', cust: null, date, cat: '', lines: {}, fills: [], other: [{ name: '', qty: '', unit: 'حبة', price: '' }], ddOpen: false, note: '', done: null, busy: false });
 let INV = newInv(null);   // lines: {item_id: {on, qty, w, boxes}}
 let COL = { cust: null, date: null, cash: '', bank: '', card: '', note: '', busy: false };
 let LIST = { cust: '', open: null };
@@ -185,7 +188,8 @@ function allLines() {
   });
   return out;
 }
-function invTotal() { const ls = allLines(); return { t: r2(ls.reduce((a, x) => a + x.amt, 0)), n: ls.filter(x => x.ok).length, ls }; }
+function invTotal() { const ls = allLines(), sub = r2(ls.reduce((a, x) => a + x.amt, 0)), dv = num(INV.disc), dd = INV.disc === '' || isNaN(dv) || dv <= 0 ? 0 : r2(INV.discT === 'pct' ? sub * Math.min(dv, 100) / 100 : dv);
+  return { sub, d: dd, t: r2(sub - dd), n: ls.filter(x => x.ok).length, ls }; }
 function lineOf(id) { const it = itemOf(id); return INV.lines[id] || (INV.lines[id] = { on: false, qty: '', boxes: '', w: it && it.weighted ? String(Number(it.weight_g)) : '' }); }
 
 function renderNew(v, bar) {
@@ -201,15 +205,20 @@ function renderNew(v, bar) {
     <div class="panel"><p class="step">2) الصنف</p>
       <select class="in cat-sel" id="invCat">${cats.map(k => `<option value="${k}"${k === INV.cat ? ' selected' : ''}>${CATS[k]}${cnt(k) ? ` (${cnt(k)})` : ''}</option>`).join('')}</select>
       <div id="catBody" style="margin-top:12px">${catBody(c, INV.cat)}</div></div>
-    <div class="panel" id="invSum"></div>`;
+    <div class="panel" id="invSum"></div>
+    <div class="panel disc-p"><p class="step">4) خصم على الفاتورة (اختياري)</p>
+      <div class="disc-r"><input class="in" id="invDisc" inputmode="decimal" value="${esc(INV.disc)}" placeholder="0" aria-label="الخصم">
+        <select class="in" id="invDiscT"><option value="sar"${INV.discT === 'sar' ? ' selected' : ''}>ريال</option><option value="pct"${INV.discT === 'pct' ? ' selected' : ''}>%</option></select></div>
+      <p class="muted" style="font-size:12.5px;margin-top:6px">الخصم مشروط: لا يُقبل إذا قلّ هامش الربح بعده عن 10%.</p></div>`;
   bar.hidden = false;
   bar.innerHTML = `<div class="bar-in"><div class="tot"><small id="invCnt"></small><b class="num" id="invTot">0</b> <small style="display:inline">ريال</small></div>
     <button class="btn btn-primary btn-lg" id="invGo">إصدار الفاتورة</button></div><p class="err" id="invErr"></p>`;
   $('invGo').onclick = submitInv;
   refreshInv();
 }
-const ckRow = (key, label, on, extra, price) => `<div class="ck-row${on ? ' on' : ''}" data-k="${key}">
-  <label class="ck"><input type="checkbox" data-on="${key}"${on ? ' checked' : ''}><span>${label}</span>${price != null ? `<small class="ck-p">${price}</small>` : ''}</label>
+const stockOf = it => (it.cat || 'box') === 'box' && it.track ? Math.floor(Number(it.stock) || 0) : null;
+const ckRow = (key, label, on, extra, price, dis) => `<div class="ck-row${on ? ' on' : ''}${dis ? ' dis' : ''}" data-k="${key}">
+  <label class="ck"><input type="checkbox" data-on="${key}"${on ? ' checked' : ''}${dis ? ' disabled' : ''}><span>${label}</span>${price != null ? `<small class="ck-p">${price}</small>` : ''}</label>
   ${on ? `<div class="ck-in">${extra}<span class="line-tot num" data-lt="${key}"></span></div>` : ''}</div>`;
 const qtyBox = (key, val, ph) => `<span class="qty"><button type="button" data-q="-1" aria-label="إنقاص">−</button><input inputmode="decimal" data-f="qty" value="${esc(val)}" placeholder="${ph || '0'}" aria-label="الكمية"><button type="button" data-q="1" aria-label="زيادة">+</button></span>`;
 const numIn = (f, val, lbl, unit) => `<label class="wgt">${lbl} <input class="in" inputmode="decimal" data-f="${f}" value="${esc(val)}" placeholder="0" aria-label="${lbl}">${unit ? ' ' + unit : ''}</label>`;
@@ -225,15 +234,15 @@ function catBody(c, k) {
         <button class="icon-x" data-odel="${i}" aria-label="حذف">×</button></div><span class="line-tot num" data-lt="o${i}"></span></div>`).join('')}</div>
     <button class="btn btn-ghost btn-sm" data-oadd="1" style="margin-top:8px">+ صنف آخر</button>`;
   if (!list.length) return '<p class="empty">لا توجد أصناف في هذا القسم. اطلب من الإدارة إضافتها.</p>';
-  if (k === 'box') return `<p class="muted" style="font-size:13px;margin-bottom:8px">ضع علامة ✓ على البوكس ثم اكتب العدد.</p><div class="items">${list.map(it => { const l = lineOf(it.id);
-    return ckRow(it.id, `${it.image ? `<img class="it-img" src="${esc(it.image)}" alt="">` : ''}<b>${esc(it.name)}</b>`, l.on,
-      `${qtyBox(it.id, l.qty)}${it.weighted ? numIn('w', l.w, 'وزن الشوكولاتة', 'جم') : ''}`, priceTxt(it)); }).join('')}</div>`;
+  if (k === 'box') return `<p class="muted" style="font-size:13px;margin-bottom:8px">ضع علامة ✓ على البوكس ثم اكتب العدد.</p><div class="items">${list.map(it => { const l = lineOf(it.id), st = stockOf(it), out = st != null && st <= 0 && !l.on;
+    return ckRow(it.id, `${it.image ? `<img class="it-img" src="${esc(it.image)}" alt="">` : ''}<b>${esc(it.name)}</b>${st != null ? `<small class="stk${st <= 0 ? ' out' : ''}">${st <= 0 ? 'نفد من المخزن' : 'المتوفر ' + money(st)}</small>` : ''}`, l.on,
+      `${qtyBox(it.id, l.qty)}${it.weighted ? numIn('w', l.w, 'وزن الشوكولاتة', 'جم') : ''}`, priceTxt(it), out); }).join('')}</div>`;
   if (k === 'kg') return `<p class="muted" style="font-size:13px;margin-bottom:8px">اختر نوعاً أو أكثر واكتب الوزن بالكيلو.</p><div class="items">${list.map(it => { const l = lineOf(it.id);
     return ckRow(it.id, `<b>${esc(vName(it))}</b>`, l.on, numIn('qty', l.qty, 'الوزن', 'كيلو'), priceTxt(it, 'كيلو')); }).join('')}</div>`;
   if (k === 'block') return `<p class="muted" style="font-size:13px;margin-bottom:8px">اختر نوعاً أو أكثر واكتب الكمية.</p><div class="items">${list.map(it => { const l = lineOf(it.id);
     return ckRow(it.id, `<b>${esc(vName(it))}</b>`, l.on, qtyBox(it.id, l.qty), priceTxt(it)); }).join('')}</div>`;
-  if (k === 'wbox') return `<p class="muted" style="font-size:13px;margin-bottom:8px">اختر النوع واكتب عدد البوكسات وإجمالي الوزن. السعر يُحسب على الوزن.</p><div class="items">${list.map(it => { const l = lineOf(it.id);
-    return ckRow(it.id, `<b>${esc(vName(it))}</b>`, l.on, `${numIn('boxes', l.boxes, 'عدد البوكسات', '')}${numIn('qty', l.qty, 'إجمالي الوزن', 'كيلو')}`, priceTxt(it, 'كيلو')); }).join('')}</div>`;
+  if (k === 'wbox') return `<p class="muted" style="font-size:13px;margin-bottom:8px">اختر النوع واكتب إجمالي الوزن (إجباري)، وعدد البوكسات اختياري. السعر يُحسب على الوزن.</p><div class="items">${list.map(it => { const l = lineOf(it.id);
+    return ckRow(it.id, `<b>${esc(vName(it))}</b>`, l.on, `${numIn('qty', l.qty, 'إجمالي الوزن *', 'كيلو')}${numIn('boxes', l.boxes, 'عدد البوكسات (اختياري)', '')}`, priceTxt(it, 'كيلو')); }).join('')}</div>`;
   // سطول الحشوات: اختيار الحشوة ثم الأوزان
   const fills = [...new Set(list.map(i => i.grp || i.name))];
   const sel = fills.filter(f => INV.fills.includes(f) || list.some(i => (i.grp || i.name) === f && lineOf(i.id).on));
@@ -247,7 +256,8 @@ function refreshInv() {
   for (const x of tt.ls) { const e = document.querySelector(`[data-lt="${x.key}"]`); if (e) e.textContent = x.ok ? money(x.amt) : ''; }
   const sum = $('invSum');
   if (sum) sum.innerHTML = `<p class="step">3) ملخص الفاتورة</p>${tt.ls.length ? `<div class="sum-list">${tt.ls.map(x => `<div class="sum-row${x.ok ? '' : ' bad'}"><button class="sum-n" data-gocat="${x.cat}"><b>${esc(x.name)}</b><small>${esc(x.desc)}</small></button><b class="num">${x.ok ? money(x.amt) : '—'}</b><button class="icon-x sm" data-rm="${x.key}" aria-label="إزالة">×</button></div>`).join('')}
-    <div class="sum-row tot"><span>الإجمالي (آجل)</span><b class="num">${money(tt.t)}</b><span></span></div></div>` : '<p class="muted" style="font-size:14px">لم تُضف أصناف بعد.</p>'}`;
+    <div class="sum-row"><span>المجموع</span><b class="num">${money(tt.sub)}</b><span></span></div>
+    <div class="sum-row tot"><span>الإجمالي (آجل)${tt.d ? ` <small class="muted">بعد خصم ${money(tt.d)}</small>` : ''}</span><b class="num">${money(tt.t)}</b><span></span></div></div>` : '<p class="muted" style="font-size:14px">لم تُضف أصناف بعد.</p>'}`;
   if ($('invTot')) { $('invTot').textContent = money(tt.t); $('invCnt').textContent = `${tt.n} صنف · فاتورة آجلة`; $('invGo').disabled = !tt.n; }
   const s = $('invCat'); if (s) { const c = custOf(INV.cust); [...s.options].forEach(o => { const n = tt.ls.filter(x => x.cat === o.value).length; o.textContent = CATS[o.value] + (n ? ` (${n})` : ''); }); }
 }
@@ -257,6 +267,8 @@ async function submitInv() {
     const l = INV.lines[id], it = itemOf(id); if (!it || !l.on) continue;
     const q = num(l.qty), k = catOf(it);
     if (!(q > 0)) { err.textContent = `اكتب ${k === 'kg' || k === 'wbox' ? 'الوزن' : 'الكمية'} للصنف "${it.name}" أو أزل العلامة`; INV.cat = k; render(); $('invErr').textContent = err.textContent; return; }
+    const st = stockOf(it);
+    if (st != null && (q > st || q % 1)) { err.textContent = q % 1 ? `عدد "${it.name}" يجب أن يكون رقماً صحيحاً` : `المتوفر من "${it.name}" في المخزن ${money(Math.max(0, st))} فقط`; return; }
     const row = { item_id: it.id, qty: q };
     if (k === 'box' && it.weighted) { const w = num(l.w); if (isNaN(w) || w < 0) { err.textContent = `وزن غير صحيح للصنف "${it.name}"`; return; } row.weight_g = w; }
     if (k === 'wbox') { const bx = l.boxes === '' ? null : num(l.boxes); if (bx != null && (isNaN(bx) || bx < 0 || bx % 1)) { err.textContent = `عدد البوكسات غير صحيح لـ "${it.name}"`; return; } if (bx != null) row.boxes = bx; }
@@ -270,9 +282,11 @@ async function submitInv() {
   }
   if (!lines.length) { err.textContent = 'أضف صنفاً واحداً على الأقل'; return; }
   const tt = invTotal();
-  if (!confirm(`إصدار فاتورة آجلة على ${c.name}\nبمبلغ ${money(tt.t)} ريال (${tt.n} صنف)؟`)) return;
+  if (INV.disc !== '' && (isNaN(num(INV.disc)) || num(INV.disc) < 0)) { err.textContent = 'اكتب الخصم رقماً'; return; }
+  if (tt.d >= tt.sub && tt.d > 0) { err.textContent = 'الخصم المدرج غير مقبول'; return; }
+  if (!confirm(`إصدار فاتورة آجلة على ${c.name}\nبمبلغ ${money(tt.t)} ريال (${tt.n} صنف)${tt.d ? `\nبعد خصم ${money(tt.d)} ريال` : ''}؟`)) return;
   if (INV.busy) return; INV.busy = true; $('invGo').disabled = true; $('invGo').textContent = 'جارٍ الإصدار…';
-  const { data, error } = await sb.rpc('inv_create', { p_token: token, p_account: c.id, p_date: INV.date, p_lines: lines, p_note: INV.note || null });
+  const { data, error } = await sb.rpc('inv_create', { p_token: token, p_account: c.id, p_date: INV.date, p_lines: lines, p_note: INV.note || null, ...(tt.d ? { p_discount: tt.d } : {}) });
   INV.busy = false;
   if (error) { $('invGo').disabled = false; $('invGo').textContent = 'إصدار الفاتورة'; err.textContent = errMsg(error); return; }
   const doneId = data.id;
@@ -286,14 +300,14 @@ function receiptHtml(v) {
     <p style="font-size:14px;margin-bottom:6px">العميل: <b>${esc(c.name)}</b></p>
     <table><thead><tr><th>الصنف</th><th class="n">الكمية</th><th class="n">السعر</th><th class="n">الإجمالي</th></tr></thead>
       <tbody>${(v.lines || []).map(l => `<tr><td>${esc(l.name)}${l.weight_g != null ? `<br><small>شوكولاتة ${money(l.weight_g)} جم</small>` : ''}${l.boxes ? `<br><small>${l.boxes} بوكس</small>` : ''}</td><td class="n">${money(l.qty)} ${esc(l.unit || '')}</td><td class="n">${money(l.unit_price)}</td><td class="n">${money(l.total)}</td></tr>`).join('')}</tbody>
-      <tfoot><tr><td colspan="3">الإجمالي (آجل)</td><td class="n">${money(v.total)} ريال</td></tr></tfoot></table>
+      <tfoot>${Number(v.discount) ? `<tr><td colspan="3">المجموع</td><td class="n">${money(v.subtotal)}</td></tr><tr><td colspan="3">الخصم</td><td class="n">−${money(v.discount)}</td></tr>` : ''}<tr><td colspan="3">الإجمالي (آجل)</td><td class="n">${money(v.total)} ريال</td></tr></tfoot></table>
     ${v.note ? `<p class="r-note">ملاحظة: ${esc(v.note)}</p>` : ''}</div>`;
 }
 function invText(v) {
   const c = custOf(v.account_id) || { name: '' };
   return [`🧾 *فاتورة مبيعات آجلة رقم ${v.no}*`, `🏭 ${D.branch.name}`, `👤 العميل: ${c.name}`, `📅 ${fmtLong(v.date)}`, '━━━━━━━━━━━━',
     ...(v.lines || []).map(l => `• ${l.name}${l.weight_g != null ? ` (${money(l.weight_g)} جم)` : ''}${l.boxes ? ` (${l.boxes} بوكس)` : ''}: ${money(l.qty)} ${l.unit || ''} × ${money(l.unit_price)} = ${money(l.total)}`),
-    '━━━━━━━━━━━━', `💰 *الإجمالي: ${money(v.total)} ريال*`, ...(v.note ? [`📝 ${v.note}`] : [])].join('\n');
+    '━━━━━━━━━━━━', ...(Number(v.discount) ? [`المجموع: ${money(v.subtotal)} ريال`, `الخصم: ${money(v.discount)} ريال`] : []), `💰 *الإجمالي: ${money(v.total)} ريال*`, ...(v.note ? [`📝 ${v.note}`] : [])].join('\n');
 }
 async function shareText(t) {
   if (navigator.share) { try { await navigator.share({ text: t }); return; } catch (e) { if (e.name === 'AbortError') return; } }
@@ -377,7 +391,7 @@ document.addEventListener('click', async e => {
   if (d.newinv) { INV.done = null; return render(); }
   if (d.cpick) { COL.cust = Number(d.cpick); return render(); }
   if (d.cchange) { COL.cust = null; return render(); }
-  if (d.q) { const row = b.closest('[data-k]'), l = lineOf(row.dataset.k), q = Math.max(0, (num(l.qty) || 0) + Number(d.q)); l.qty = q ? String(q) : ''; row.querySelector('[data-f="qty"]').value = l.qty; return refreshInv(); }
+  if (d.q) { const row = b.closest('[data-k]'), l = lineOf(row.dataset.k), st = stockOf(itemOf(row.dataset.k) || {}); let q = Math.max(0, (num(l.qty) || 0) + Number(d.q)); if (st != null && q > st) { q = Math.max(0, st); toast(`المتوفر في المخزن ${money(st)} فقط`, 'err'); } l.qty = q ? String(q) : ''; row.querySelector('[data-f="qty"]').value = l.qty; return refreshInv(); }
   if (d.open) { LIST.open = Number(d.open); return render(); }
   if (d.back) { LIST.open = null; return render(); }
   if (d.print) return print();
@@ -394,6 +408,7 @@ document.addEventListener('input', e => {
   const t = e.target;
   if (t.id === 'invDate') INV.date = t.value;
   if (t.id === 'invNote') INV.note = t.value;
+  if (t.id === 'invDisc') { INV.disc = t.value; return refreshInv(); }
   if (t.id === 'colDate') COL.date = t.value;
   if (t.id === 'colNote') COL.note = t.value;
   if (t.dataset.c) { COL[t.dataset.c] = t.value; $('colTot').textContent = money(['cash', 'bank', 'card'].reduce((a, k) => a + (num(COL[k]) || 0), 0)); }
@@ -403,7 +418,8 @@ document.addEventListener('input', e => {
 document.addEventListener('change', e => {
   const t = e.target;
   if (t.id === 'invCat') { INV.cat = t.value; return render(); }
-  if (t.dataset.on) { const l = lineOf(t.dataset.on); l.on = t.checked; render(); if (t.checked) { const r = document.querySelector(`[data-k="${t.dataset.on}"] [data-f="${catOf(itemOf(t.dataset.on)) === 'wbox' ? 'boxes' : 'qty'}"]`); if (r) r.focus(); } return; }
+  if (t.id === 'invDiscT') { INV.discT = t.value; return refreshInv(); }
+  if (t.dataset.on) { const l = lineOf(t.dataset.on); l.on = t.checked; render(); if (t.checked) { const r = document.querySelector(`[data-k="${t.dataset.on}"] [data-f="qty"]`); if (r) r.focus(); } return; }
   if (t.dataset.fill != null) {
     const f = t.dataset.fill; INV.ddOpen = true;
     if (t.checked) { if (!INV.fills.includes(f)) INV.fills.push(f); }
